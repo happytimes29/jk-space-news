@@ -129,7 +129,7 @@ export default async function NewsPage({ params }: Props) {
         )}
 
         {/* Article body */}
-        <div className="prose-dark">
+        <div className="prose">
           <MDXRenderer source={news.content} />
         </div>
 

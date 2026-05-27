@@ -16,7 +16,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 function getCategoryStyle(category: string) {
-  return CATEGORY_COLORS[category] || "text-[#888888] border-[#1a1a1a] bg-[#0A0A0A]";
+  return CATEGORY_COLORS[category] || "text-[var(--color-muted)] border-[var(--color-border)] bg-[var(--color-card)]";
 }
 
 export function NewsCard({ news, featured = false }: NewsCardProps) {
@@ -24,8 +24,8 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
     return (
       <Link href={`/news/${news.slug}`} className="block group">
         <article
-          className={`relative overflow-hidden rounded-2xl bg-[#0A0A0A] transition-all duration-300 ${
-            news.hot ? "hot-card-glow" : "border border-[#1a1a1a] hover:border-[#333]"
+          className={`relative overflow-hidden rounded-2xl bg-[var(--color-card)] transition-all duration-300 ${
+            news.hot ? "hot-card-glow" : "border border-[var(--color-border)] hover:border-[#333]"
           }`}
         >
           {/* Cover image */}
@@ -59,7 +59,7 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
 
           {/* Content */}
           <div className="p-6 lg:p-8">
-            <div className="flex items-center gap-3 text-xs text-[#888888] mb-3">
+            <div className="flex items-center gap-3 text-xs text-[var(--color-muted)] mb-3">
               <span>{timeAgo(news.date)}</span>
               <span>·</span>
               <span className="flex items-center gap-1">
@@ -68,14 +68,14 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
               </span>
             </div>
 
-            <h2 className="text-2xl lg:text-3xl font-bold text-[#EDEDED] leading-tight mb-3 group-hover:text-white transition-colors flex items-start gap-3">
+            <h2 className="text-2xl lg:text-3xl font-bold text-[var(--color-text)] leading-tight mb-3 group-hover:text-white transition-colors flex items-start gap-3">
               {news.hot && (
                 <span className="pulse-dot mt-2 flex-shrink-0" />
               )}
               {news.title}
             </h2>
 
-            <p className="text-[#888888] text-sm leading-relaxed line-clamp-2 mb-4">
+            <p className="text-[var(--color-muted)] text-sm leading-relaxed line-clamp-2 mb-4">
               {news.excerpt}
             </p>
 
@@ -86,7 +86,7 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
                   TL;DR — 快速摘要
                 </p>
                 {news.tldr.slice(0, 2).map((point, i) => (
-                  <p key={i} className="text-xs text-[#CCCCCC] flex items-start gap-2">
+                  <p key={i} className="text-xs text-[var(--color-text)] flex items-start gap-2">
                     <span className="text-[#0070F3] font-bold mt-0.5">·</span>
                     {point}
                   </p>
@@ -102,7 +102,7 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
   // Grid card
   return (
     <Link href={`/news/${news.slug}`} className="block group">
-      <article className="h-full rounded-xl bg-[#0A0A0A] border border-[#1a1a1a] hover:border-[#0070F3]/30 transition-all duration-300 overflow-hidden flex flex-col">
+      <article className="h-full rounded-xl bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[#0070F3]/30 transition-all duration-300 overflow-hidden flex flex-col">
         {/* Cover */}
         <div className="relative aspect-[16/9] w-full overflow-hidden">
           <Image
@@ -129,26 +129,26 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
             >
               {news.category}
             </span>
-            <span className="text-[10px] text-[#888888] flex items-center gap-1">
+            <span className="text-[10px] text-[var(--color-muted)] flex items-center gap-1">
               <Clock size={10} />
               {news.readingTime} 分鐘
             </span>
           </div>
 
-          <h3 className="font-semibold text-sm text-[#EDEDED] leading-snug mb-2 group-hover:text-white transition-colors line-clamp-2 flex-1">
+          <h3 className="font-semibold text-sm text-[var(--color-text)] leading-snug mb-2 group-hover:text-white transition-colors line-clamp-2 flex-1">
             {news.title}
           </h3>
 
-          <p className="text-xs text-[#888888] line-clamp-2 mb-3 leading-relaxed">
+          <p className="text-xs text-[var(--color-muted)] line-clamp-2 mb-3 leading-relaxed">
             {news.excerpt}
           </p>
 
-          <div className="flex items-center justify-between mt-auto pt-3 border-t border-[#1a1a1a]">
-            <span className="text-[10px] text-[#888888]">{timeAgo(news.date)}</span>
+          <div className="flex items-center justify-between mt-auto pt-3 border-t border-[var(--color-border)]">
+            <span className="text-[10px] text-[var(--color-muted)]">{timeAgo(news.date)}</span>
             {news.tags.length > 0 && (
               <div className="flex items-center gap-1">
-                <Tag size={10} className="text-[#888888]" />
-                <span className="text-[10px] text-[#888888]">{news.tags[0]}</span>
+                <Tag size={10} className="text-[var(--color-muted)]" />
+                <span className="text-[10px] text-[var(--color-muted)]">{news.tags[0]}</span>
               </div>
             )}
           </div>
