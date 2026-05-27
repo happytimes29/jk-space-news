@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CommandPalette } from "@/components/CommandPalette";
@@ -47,15 +48,17 @@ export default async function RootLayout({
   }));
 
   return (
-    <html lang="zh-TW">
-      <body className="bg-black text-[#EDEDED] antialiased min-h-screen flex flex-col">
+    <html lang="zh-TW" suppressHydrationWarning>
+      <body className="antialiased min-h-screen flex flex-col">
         {/* Reading progress bar for article pages */}
         <div id="reading-progress" />
 
-        <Header />
-        <CommandPalette items={searchItems} />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Header />
+          <CommandPalette items={searchItems} />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
