@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Zap, Menu, X, Rss } from "lucide-react";
+import { Zap, Menu, X, Mail } from "lucide-react";
 
 const NAV = [
   { label: "首頁", href: "/" },
   { label: "趨勢", href: "/trending" },
-  { label: "RSS", href: "/feed.xml", external: true },
+  { label: "訂閱", href: "/subscribe" },
 ];
 
 export function Header() {
@@ -34,32 +34,20 @@ export function Header() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {NAV.map((item) =>
-              item.external ? (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#6e6e73] dark:text-[#888888] hover:text-[#1a1a1a] dark:hover:text-[#EDEDED] transition-colors rounded-md hover:bg-[#f5f5f7] dark:hover:bg-[#0A0A0A]"
-                >
-                  <Rss size={13} />
-                  {item.label}
-                </a>
-              ) : (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-                    pathname === item.href
-                      ? "text-[#1a1a1a] dark:text-[#EDEDED] bg-[#f5f5f7] dark:bg-[#0A0A0A]"
-                      : "text-[#6e6e73] dark:text-[#888888] hover:text-[#1a1a1a] dark:hover:text-[#EDEDED] hover:bg-[#f5f5f7] dark:hover:bg-[#0A0A0A]"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              )
-            )}
+            {NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
+                  pathname === item.href
+                    ? "text-[#1a1a1a] dark:text-[#EDEDED] bg-[#f5f5f7] dark:bg-[#0A0A0A]"
+                    : "text-[#6e6e73] dark:text-[#888888] hover:text-[#1a1a1a] dark:hover:text-[#EDEDED] hover:bg-[#f5f5f7] dark:hover:bg-[#0A0A0A]"
+                }`}
+              >
+                {item.label === "訂閱" && <Mail size={13} />}
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
           {/* Kbd hint */}
@@ -90,6 +78,7 @@ export function Header() {
               className="block py-2.5 text-sm text-[#6e6e73] dark:text-[#888888] hover:text-[#1a1a1a] dark:hover:text-[#EDEDED] transition-colors border-b border-[#f5f5f7] dark:border-[#0A0A0A] last:border-0"
               onClick={() => setMobileOpen(false)}
             >
+              {item.label === "訂閱" && <Mail size={13} className="inline mr-1.5" />}
               {item.label}
             </Link>
           ))}
