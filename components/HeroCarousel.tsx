@@ -33,7 +33,7 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
   const news = articles[current];
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl bg-[#0A0A0A] border border-[#1a1a1a]">
+    <div className="relative w-full overflow-hidden rounded-2xl bg-[#f5f5f7] dark:bg-[#0A0A0A] border border-[#e5e5e7] dark:border-[#1a1a1a]">
       {/* Image area */}
       <div className="relative aspect-[16/7] w-full">
         <Image
@@ -47,7 +47,7 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
 
         {/* Category */}
         <div className="absolute top-4 right-4">
-          <span className="text-xs px-2.5 py-1 rounded-full border border-[#0070F3]/30 text-[#0070F3] bg-[var(--color-card)]/80 backdrop-blur-sm">
+          <span className="text-xs px-2.5 py-1 rounded-full border border-[#0070F3]/30 text-[#0070F3] dark:text-[#60a5fa] bg-[#f5f5f7]/80 dark:bg-[#0A0A0A]/80 backdrop-blur-sm">
             {news.category}
           </span>
         </div>
