@@ -6,6 +6,7 @@ import { TldrBlock } from "@/components/TldrBlock";
 import { MDXRenderer } from "@/components/MDXRenderer";
 import { Clock, Calendar, Tag, User, ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 
 interface Props {
@@ -131,6 +132,24 @@ export default async function NewsPage({ params }: Props) {
         <div className="prose-dark">
           <MDXRenderer source={news.content} />
         </div>
+
+        {/* Source link */}
+        {news.url && (
+          <div className="mt-10 py-6 border-t border-b border-[#1a1a1a]">
+            <p className="text-xs text-[#888888] mb-3 uppercase tracking-wider flex items-center gap-1.5">
+              <ExternalLink size={12} />
+              來源連結
+            </p>
+            <a
+              href={news.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-[#0070F3] hover:text-[#00c8ff] transition-colors break-all hover:underline"
+            >
+              {news.url}
+            </a>
+          </div>
+        )}
 
         {/* Tags footer */}
         {news.tags.length > 0 && (
