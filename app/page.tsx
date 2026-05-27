@@ -1,5 +1,5 @@
 import { getAllNews, getHotNews } from "@/lib/news";
-import { NewsCard } from "@/components/NewsCard";
+import { LatestNewsList } from "@/components/LatestNewsList";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { ArrowRight, Zap, TrendingUp } from "lucide-react";
 import Link from "next/link";
@@ -13,7 +13,10 @@ export default async function HomePage() {
   const carouselArticles = hotNews.length > 0
     ? hotNews.slice(0, 5)
     : allNews.slice(0, 5);
-  const gridNews = allNews.filter((n) => !carouselArticles.find((c) => c.slug === n.slug)).slice(0, 6);
+  // Latest news: all articles sorted by date, newest first, excluding carousel
+  const latestNews = allNews
+    .filter((n) => !carouselArticles.find((c) => c.slug === n.slug))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -48,17 +51,7 @@ export default async function HomePage() {
           <span className="text-xs text-[#888888]">{allNews.length} 篇文章</span>
         </div>
 
-        {gridNews.length === 0 ? (
-          <div className="text-center py-16 text-[#888888] text-sm">
-            文章即將上線，敬請期待。
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {gridNews.map((news) => (
-              <NewsCard key={news.slug} news={news} />
-            ))}
-          </div>
-        )}
+        <LatestNewsList articles={latestNews} />
       </section>
 
       {/* ─── Bottom CTA ─── */}

@@ -74,19 +74,22 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
         </div>
       </div>
 
+      {/* Click to article - only covers content area, not buttons */}
+      <Link href={`/news/${news.slug}`} className="absolute inset-0 z-10" aria-label={news.title} />
+
       {/* Navigation arrows */}
       {articles.length > 1 && (
         <>
           <button
             onClick={prev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white hover:bg-black/80 transition-all backdrop-blur-sm"
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white hover:bg-black/80 transition-all backdrop-blur-sm z-20"
             aria-label="上一篇"
           >
             <ChevronLeft size={18} />
           </button>
           <button
             onClick={next}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white hover:bg-black/80 transition-all backdrop-blur-sm"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white hover:bg-black/80 transition-all backdrop-blur-sm z-20"
             aria-label="下一篇"
           >
             <ChevronRight size={18} />
@@ -96,7 +99,7 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
 
       {/* Dots pagination */}
       {articles.length > 1 && (
-        <div className="absolute bottom-4 right-4 flex items-center gap-2">
+        <div className="absolute bottom-4 right-4 flex items-center gap-2 z-20">
           {articles.map((_, i) => (
             <button
               key={i}
@@ -111,9 +114,6 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
           ))}
         </div>
       )}
-
-      {/* Click to article */}
-      <Link href={`/news/${news.slug}`} className="absolute inset-0" aria-label={news.title} />
     </div>
   );
 }
