@@ -45,14 +45,6 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
-        {/* Hot badge */}
-        {news.hot && (
-          <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/80 border border-[#0070F3]/30 backdrop-blur-sm">
-            <span className="pulse-dot" />
-            <span className="text-xs text-[#0070F3] font-medium">重大突破</span>
-          </div>
-        )}
-
         {/* Category */}
         <div className="absolute top-4 right-4">
           <span className="text-xs px-2.5 py-1 rounded-full border border-[#0070F3]/30 text-[#0070F3] bg-black/80 backdrop-blur-sm">
