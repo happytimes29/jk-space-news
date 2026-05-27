@@ -47,7 +47,7 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
 
         {/* Category */}
         <div className="absolute top-4 right-4">
-          <span className="text-xs px-2.5 py-1 rounded-full border border-[#0070F3]/30 text-[#0070F3] bg-black/80 backdrop-blur-sm">
+          <span className="text-xs px-2.5 py-1 rounded-full border border-[#0070F3]/30 text-[#0070F3] bg-[var(--color-card)]/80 backdrop-blur-sm">
             {news.category}
           </span>
         </div>

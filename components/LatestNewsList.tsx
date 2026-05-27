@@ -38,7 +38,7 @@ export function LatestNewsList({ articles }: LatestNewsListProps) {
           {/* Right: content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs px-2 py-0.5 rounded-full border border-[#0070F3]/30 text-[#0070F3] bg-[#0070F3]/5">
+              <span className="text-xs px-2 py-0.5 rounded-full border border-[#0070F3]/30 text-[var(--color-tag-text)] bg-[var(--color-tag-bg)]">
                 {news.category}
               </span>
               <span className="flex items-center gap-1 text-xs text-[var(--color-muted)]">

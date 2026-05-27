@@ -41,7 +41,7 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
 
             {/* Hot badge */}
             {news.hot && (
-              <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/80 border border-[#0070F3]/30 backdrop-blur-sm">
+              <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-card)]/80 border border-[#0070F3]/30 backdrop-blur-sm">
                 <span className="pulse-dot" />
                 <span className="text-xs text-[#0070F3] font-medium">重大突破</span>
               </div>
@@ -114,7 +114,7 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
 
           {news.hot && (
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/80 border border-[#0070F3]/30">
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-full bg-[var(--color-card)]/80 border border-[#0070F3]/30">
               <span className="pulse-dot w-1.5 h-1.5" />
               <span className="text-[10px] text-[#0070F3]">熱點</span>
             </div>
