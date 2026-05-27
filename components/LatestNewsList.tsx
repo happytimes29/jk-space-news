@@ -39,7 +39,7 @@ export function LatestNewsList({ articles }: LatestNewsListProps) {
           <div className="flex-1 min-w-0">
             {/* Category + reading time row */}
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-xs px-2 py-0.5 rounded-full bg-[#0070F3]/10 dark:bg-[#0070F3]/20 text-[#0070F3] dark:text-[#60a5fa] font-medium">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-[#0070F3]/10 text-[#0070F3] dark:text-[#60a5fa] dark:bg-[#0070F3]/20 font-medium">
                 {news.category}
               </span>
               <span className="flex items-center gap-1 text-xs text-[#6e6e73] dark:text-[#888888]">
@@ -51,7 +51,7 @@ export function LatestNewsList({ articles }: LatestNewsListProps) {
                 {news.date}
               </span>
             </div>
-            {/* Title */}
+            {/* Title - follows theme */}
             <h3 className="text-sm sm:text-base font-semibold text-[#1a1a1a] dark:text-[#EDEDED] group-hover:text-[#0070F3] transition-colors line-clamp-2 leading-snug">
               {news.title}
             </h3>
