@@ -31,22 +31,11 @@ export function Footer() {
               rel="noopener noreferrer"
             >
               <Rss size={12} />
-              RSS Feed (n8n 自動化)
+              RSS Feed
             </a>
             <Link href="/trending" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
               趨勢分類
             </Link>
-          </div>
-
-          {/* Automation badge */}
-          <div className="border border-[#e5e5e7] dark:border-[#1a1a1a] rounded-lg p-4 bg-[#f5f5f7] dark:bg-[#0A0A0A] text-xs space-y-1.5 max-w-xs">
-            <p className="text-[#6e6e73] dark:text-[#888888] font-medium text-[10px] uppercase tracking-wider">一人公司放大器</p>
-            <p className="text-[#1a1a1a] dark:text-[#EDEDED]">網站更新 → n8n 抓取 RSS</p>
-            <p className="text-[#6e6e73] dark:text-[#888888]">→ AI 自動推文至 Threads · X · FB</p>
-            <div className="flex items-center gap-1.5 pt-1">
-              <span className="pulse-dot" />
-              <span className="text-[#0070F3] text-[10px]">自動化進行中</span>
-            </div>
           </div>
         </div>
 
