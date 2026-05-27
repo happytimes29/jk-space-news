@@ -8,6 +8,7 @@ excerpt: 華為發布「韜定律」，半導體竞争从「節點」轉向「�
 source: 華爾街見聞 / 財联社
 url: https://wallstreetcn.com/articles/3773040
 hot: true
+coverImage: /images/huawei-tau-law-cover.png
 ---
 
 ## 華為「韜定律」：這次中國說了算
