@@ -9,14 +9,12 @@ export const revalidate = 60; // ISR every 60s
 export default async function HomePage() {
   const [allNews, hotNews] = await Promise.all([getAllNews(), getHotNews()]);
 
-  // Use hot news for carousel (up to 5), fallback to recent articles
-  const carouselArticles = hotNews.length > 0
-    ? hotNews.slice(0, 5)
-    : allNews.slice(0, 5);
-  // Latest news: all articles sorted by date, newest first, excluding carousel
-  const latestNews = allNews
-    .filter((n) => !carouselArticles.find((c) => c.slug === n.slug))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  // Latest news: all articles sorted by date, newest first
+  const latestNews = allNews.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+  // Carousel: top 2 most recent articles
+  const carouselArticles = latestNews.slice(0, 2);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
