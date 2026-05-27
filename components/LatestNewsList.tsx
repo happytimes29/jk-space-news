@@ -38,7 +38,7 @@ export function LatestNewsList({ articles }: LatestNewsListProps) {
           {/* Right: content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs px-2 py-0.5 rounded-full border border-[#0070F3]/30 text-[var(--color-tag-text)] bg-[var(--color-tag-bg)]">
+              <span className="text-xs px-2 py-0.5 rounded-full border border-[#0070F3]/30 text-[#0070F3] bg-[#0070F3]/10 dark:bg-[#0070F3]/15 dark:text-[#60a5fa]">
                 {news.category}
               </span>
               <span className="flex items-center gap-1 text-xs text-[var(--color-muted)]">
@@ -46,10 +46,10 @@ export function LatestNewsList({ articles }: LatestNewsListProps) {
                 {news.readingTime} 分鐘
               </span>
             </div>
-            <h3 className="text-sm sm:text-base font-medium text-[var(--color-text)] group-hover:text-[#0070F3] transition-colors line-clamp-2 leading-snug">
+            <h3 className="text-sm sm:text-base font-semibold text-[#1a1a1a] dark:text-[#EDEDED] group-hover:text-[#0070F3] transition-colors line-clamp-2 leading-snug">
               {news.title}
             </h3>
-            <p className="text-xs text-[var(--color-muted)] mt-1.5 line-clamp-1 hidden sm:block">
+            <p className="text-xs text-[#6e6e73] dark:text-[var(--color-muted)] mt-1.5 line-clamp-1 hidden sm:block">
               {news.excerpt}
             </p>
           </div>
