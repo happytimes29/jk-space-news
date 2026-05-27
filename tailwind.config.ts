@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -15,7 +16,7 @@ const config: Config = {
         "text-secondary": "#888888",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Noto Sans TC", "Inter", "system-ui", "-apple-system", "sans-serif"],
         mono: ["JetBrains Mono", "Menlo", "Monaco", "Consolas", "monospace"],
       },
       animation: {
