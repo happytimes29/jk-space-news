@@ -35,8 +35,8 @@ export function CategoryFilter() {
             onClick={() => handleSelect(value)}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm border transition-all duration-200 ${
               active
-                ? "border-[#0070F3] text-[#0070F3] bg-[#0070F3]/10"
-                : "border-[#1a1a1a] text-[#888888] hover:border-[#333] hover:text-[#EDEDED] bg-[#0A0A0A]"
+                ? "border-[#0070F3] text-[#0070F3] dark:text-[#60a5fa] bg-[#0070F3]/10 dark:bg-[#0070F3]/20"
+                : "border-[#e5e5e7] dark:border-[#1a1a1a] text-[#6e6e73] dark:text-[#888888] hover:border-[#0070F3]/30 hover:text-[#0070F3] dark:hover:text-[#EDEDED] bg-white dark:bg-[#0A0A0A]"
             }`}
           >
             <Icon size={13} />

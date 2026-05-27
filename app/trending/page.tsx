@@ -37,17 +37,17 @@ export default async function TrendingPage({ searchParams }: Props) {
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-3">
           <TrendingUp size={20} className="text-[#0070F3]" />
-          <h1 className="text-2xl font-bold text-[#EDEDED]">科技趨勢</h1>
+          <h1 className="text-2xl font-bold text-[#1a1a1a] dark:text-[#EDEDED]">科技趨勢</h1>
         </div>
-        <p className="text-sm text-[#888888] mb-6">
+        <p className="text-sm text-[#6e6e73] dark:text-[#888888] mb-6">
           依分類篩選 AI 應用、硬體創新與數位創業最新動態
         </p>
 
         {/* Stats row */}
         <div className="flex flex-wrap gap-4 mb-8">
           {Object.entries(stats).map(([cat, count]) => (
-            <div key={cat} className="flex items-center gap-2 text-xs text-[#888888]">
-              <span className="font-medium text-[#EDEDED]">{count}</span>
+            <div key={cat} className="flex items-center gap-2 text-xs text-[#6e6e73] dark:text-[#888888]">
+              <span className="font-medium text-[#1a1a1a] dark:text-[#EDEDED]">{count}</span>
               <span>{cat}</span>
             </div>
           ))}
@@ -61,7 +61,7 @@ export default async function TrendingPage({ searchParams }: Props) {
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <div className="text-center py-20 text-[#888888] text-sm border border-[#1a1a1a] rounded-2xl">
+        <div className="text-center py-20 text-[#6e6e73] dark:text-[#888888] text-sm border border-[#e5e5e7] dark:border-[#1a1a1a] rounded-2xl">
           此分類暫無文章。
         </div>
       ) : (
@@ -73,7 +73,7 @@ export default async function TrendingPage({ searchParams }: Props) {
       )}
 
       {/* Count */}
-      <div className="mt-8 text-center text-xs text-[#888888]">
+      <div className="mt-8 text-center text-xs text-[#6e6e73] dark:text-[#888888]">
         顯示 {filtered.length} / {allNews.length} 篇文章
       </div>
     </div>
