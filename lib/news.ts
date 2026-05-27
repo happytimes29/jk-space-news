@@ -18,6 +18,8 @@ export interface NewsItem {
   readingTime: number;
   tldr: string[];
   content: string;
+  url?: string;
+  source?: string;
 }
 
 function estimateReadingTime(text: string): number {
@@ -50,6 +52,8 @@ export async function getAllNews(): Promise<NewsItem[]> {
       author: data.author || "JK Space News",
       readingTime: estimateReadingTime(content),
       tldr: data.tldr || [],
+      url: data.url || undefined,
+      source: data.source || undefined,
       content,
     } satisfies NewsItem;
   });
