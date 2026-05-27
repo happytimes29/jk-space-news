@@ -34,7 +34,7 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
               src={news.coverImage}
               alt={news.title}
               fill
-              className="object-cover transition-transform duration-700 group-hover:scale-105 grayscale"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
@@ -109,7 +109,7 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
             src={news.coverImage}
             alt={news.title}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105 grayscale"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
 
