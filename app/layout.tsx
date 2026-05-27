@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   keywords: ["AI", "科技", "人工智慧", "數位創業", "科技新聞", "JK Space News"],
   authors: [{ name: "JK Space News" }],
   creator: "JK Space News",
+  icons: {
+    icon: "/icons/icon.svg",
+    apple: "/icons/icon.svg",
+  },
   openGraph: {
     type: "website",
     locale: "zh_TW",

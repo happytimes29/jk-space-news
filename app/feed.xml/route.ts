@@ -58,7 +58,7 @@ export async function GET() {
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <ttl>60</ttl>
     <image>
-      <url>${SITE_URL}/icons/icon-192.png</url>
+      <url>${SITE_URL}/icons/icon.svg</url>
       <title>${escapeXml(SITE_NAME)}</title>
       <link>${SITE_URL}</link>
     </image>
