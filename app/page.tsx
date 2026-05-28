@@ -44,7 +44,7 @@ export default async function HomePage() {
       <section>
         <div className="flex items-center gap-3 mb-6">
           <TrendingUp size={16} className="text-[#0070F3]" />
-          <h2 className="font-semibold text-[#EDEDED]">最新情報</h2>
+          <h2 className="font-semibold text-[var(--color-text)]">最新情報</h2>
           <div className="flex-1 h-px bg-[#1a1a1a]" />
           <span className="text-xs text-[#888888]">{allNews.length} 篇文章</span>
         </div>
