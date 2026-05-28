@@ -49,7 +49,7 @@ export default function SubscribePage() {
           訂閱 JK Space News
         </h1>
         <p className="text-sm text-[#6e6e73] dark:text-[#888888] leading-relaxed max-w-md mx-auto">
-          輸入 Email，第一時間收到 AI 應用、科技熱點與數位創業的極速情報。每日精選，不漏接。
+          輸入 Email，第一時間收到 科技、金融理財、創業 的極速情報。每日精選，不漏接。
         </p>
       </div>
 

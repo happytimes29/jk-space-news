@@ -3,7 +3,7 @@ import { getAllNews } from "@/lib/news";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jkspacenews.com";
 const SITE_NAME = "JK Space News";
-const SITE_DESCRIPTION = "專注於 AI 應用、科技熱點與數位創業的極速情報站。";
+const SITE_DESCRIPTION = "專注於 科技、金融理財、創業 的極速情報站。";
 
 function escapeXml(str: string): string {
   return str

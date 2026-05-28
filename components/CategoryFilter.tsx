@@ -3,11 +3,13 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Cpu, Layers, Rocket, Hash } from "lucide-react";
 
+const TOP_TAGS = ["AI", "半導體", "晶片", "華為"];
+
 const CATEGORIES = [
   { value: "all", label: "全部", icon: Hash },
-  { value: "AI", label: "AI 應用", icon: Cpu },
-  { value: "硬體", label: "硬體", icon: Layers },
-  { value: "數位創業", label: "數位創業", icon: Rocket },
+  { value: "科技", label: "科技", icon: Cpu },
+  { value: "金融理財", label: "金融理財", icon: Layers },
+  { value: "創業", label: "創業", icon: Rocket },
 ];
 
 export function CategoryFilter() {
@@ -16,9 +18,11 @@ export function CategoryFilter() {
   const current = searchParams.get("cat") || "all";
 
   const handleSelect = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams();
     if (value === "all") {
-      params.delete("cat");
+      // show all
+    } else if (TOP_TAGS.includes(value)) {
+      params.set("tag", value);
     } else {
       params.set("cat", value);
     }
@@ -41,6 +45,24 @@ export function CategoryFilter() {
           >
             <Icon size={13} />
             {label}
+          </button>
+        );
+      })}
+      {/* Tags */}
+      <span className="text-xs text-[#b0b0b0] dark:text-[#555] self-center ml-1">|</span>
+      {TOP_TAGS.map((tag) => {
+        const active = searchParams.get("tag") === tag;
+        return (
+          <button
+            key={tag}
+            onClick={() => handleSelect(tag)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all duration-200 ${
+              active
+                ? "border-[#f59e0b] text-[#f59e0b] dark:text-[#fbbf24] bg-[#f59e0b]/10 dark:bg-[#f59e0b]/20"
+                : "border-[#e5e5e7] dark:border-[#1a1a1a] text-[#6e6e73] dark:text-[#888888] hover:border-[#f59e0b]/30 hover:text-[#f59e0b] bg-white dark:bg-[#0A0A0A]"
+            }`}
+          >
+            # {tag}
           </button>
         );
       })}

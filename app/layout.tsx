@@ -9,11 +9,11 @@ import { getAllNews } from "@/lib/news";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: {
-    default: "JK Space News — AI & 科技情報站",
+    default: "JK Space News — 科技情報站",
     template: "%s | JK Space News",
   },
-  description: "專注於 AI 應用、科技熱點與數位創業的極速情報站。每日精選最前線科技脈動。",
-  keywords: ["AI", "科技", "人工智慧", "數位創業", "科技新聞", "JK Space News"],
+  description: "專注於 科技、金融理財、創業 的極速情報站。每日精選最前線科技脈動。",
+  keywords: ["科技", "金融理財", "創業", "AI", "人工智慧", "科技新聞", "JK Space News"],
   authors: [{ name: "JK Space News" }],
   creator: "JK Space News",
   icons: {
@@ -25,13 +25,8 @@ export const metadata: Metadata = {
     locale: "zh_TW",
     url: "https://jkspacenews.com",
     siteName: "JK Space News",
-    title: "JK Space News — AI & 科技情報站",
-    description: "專注於 AI 應用、科技熱點與數位創業的極速情報站。",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "JK Space News — AI & 科技情報站",
-    description: "專注於 AI 應用、科技熱點與數位創業的極速情報站。",
+    title: "JK Space News — 科技情報站",
+    description: "專注於 科技、金融理財、創業 的極速情報站。",
   },
   robots: {
     index: true,

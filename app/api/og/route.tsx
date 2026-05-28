@@ -9,10 +9,9 @@ export async function GET(req: NextRequest) {
   const category = searchParams.get("category") ?? "科技";
 
   const CATEGORY_COLORS: Record<string, string> = {
-    AI: "#0070F3",
-    硬體: "#10b981",
-    數位創業: "#a855f7",
-    科技: "#f59e0b",
+    科技: "#0070F3",
+    金融理財: "#10b981",
+    創業: "#a855f7",
   };
   const accentColor = CATEGORY_COLORS[category] || "#0070F3";
 

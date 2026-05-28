@@ -6,29 +6,31 @@ import { TrendingUp } from "lucide-react";
 
 export const metadata = {
   title: "趨勢",
-  description: "依 AI、硬體、數位創業分類的科技趨勢新聞",
+  description: "依 科技、金融理財、創業分類的科技趨勢新聞",
 };
 
 export const revalidate = 60;
 
 interface Props {
-  searchParams: Promise<{ cat?: string }>;
+  searchParams: Promise<{ cat?: string; tag?: string }>;
 }
 
 export default async function TrendingPage({ searchParams }: Props) {
-  const { cat } = await searchParams;
+  const { cat, tag } = await searchParams;
   const category = cat || "all";
+  const selectedTag = tag || null;
 
   const allNews = await getAllNews();
-  const filtered =
-    category === "all"
-      ? allNews
-      : allNews.filter((n) => n.category === category);
+  const filtered = allNews.filter((n) => {
+    const matchCat = category === "all" || n.category === category;
+    const matchTag = !selectedTag || n.tags.includes(selectedTag);
+    return matchCat && matchTag;
+  });
 
   const stats = {
-    AI: allNews.filter((n) => n.category === "AI").length,
-    硬體: allNews.filter((n) => n.category === "硬體").length,
-    數位創業: allNews.filter((n) => n.category === "數位創業").length,
+    科技: allNews.filter((n) => n.category === "科技").length,
+    金融理財: allNews.filter((n) => n.category === "金融理財").length,
+    創業: allNews.filter((n) => n.category === "創業").length,
   };
 
   return (
@@ -40,7 +42,7 @@ export default async function TrendingPage({ searchParams }: Props) {
           <h1 className="text-2xl font-bold text-[#1a1a1a] dark:text-[#EDEDED]">科技趨勢</h1>
         </div>
         <p className="text-sm text-[#6e6e73] dark:text-[#888888] mb-6">
-          依分類篩選 AI 應用、硬體創新與數位創業最新動態
+          依分類篩選 科技、金融理財、創業 最新動態
         </p>
 
         {/* Stats row */}

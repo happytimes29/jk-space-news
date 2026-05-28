@@ -17,7 +17,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-xs text-[#6e6e73] dark:text-[#888888] max-w-xs leading-relaxed">
-              專注 AI 應用、科技熱點與數位創業的極速情報站。每日精選最前線科技脈動。
+              專注 科技、金融理財、創業 的極速情報站。每日精選最前線科技脈動。
             </p>
           </div>
 
