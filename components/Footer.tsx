@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Zap, Rss } from "lucide-react";
+import { Zap } from "lucide-react";
 
 export function Footer() {
   return (
@@ -21,18 +21,11 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Links */}
           <div className="flex flex-col gap-2 text-xs">
             <p className="font-medium text-[#6e6e73] dark:text-[#888888] mb-1">訂閱與同步</p>
-            <a
-              href="/feed.xml"
-              className="flex items-center gap-2 text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Rss size={12} />
-              RSS Feed
-            </a>
+            <Link href="/subscribe" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
+              輸入信箱訂閱
+            </Link>
             <Link href="/trending" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
               趨勢分類
             </Link>

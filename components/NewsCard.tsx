@@ -80,13 +80,13 @@ export function NewsCard({ news, featured = false }: NewsCardProps) {
 
             {/* TL;DR preview */}
             {news.tldr.length > 0 && (
-              <div className="border border-[#0070F3]/20 bg-[#0070F3]/5 rounded-lg p-4 space-y-1.5">
-                <p className="text-[10px] text-[#0070F3] uppercase tracking-wider font-medium mb-2">
+              <div className="border border-[var(--color-border)] bg-[var(--color-card)] rounded-lg p-4 space-y-1.5">
+                <p className="text-[10px] text-[var(--color-muted)] uppercase tracking-wider font-medium mb-2">
                   TL;DR — 快速摘要
                 </p>
                 {news.tldr.slice(0, 2).map((point, i) => (
                   <p key={i} className="text-xs text-[var(--color-text)] flex items-start gap-2">
-                    <span className="text-[#0070F3] font-bold mt-0.5">·</span>
+                    <span className="text-[var(--color-muted)] font-bold mt-0.5">·</span>
                     {point}
                   </p>
                 ))}
