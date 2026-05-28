@@ -10,9 +10,9 @@ export default async function HomePage() {
   const [allNews, hotNews] = await Promise.all([getAllNews(), getHotNews()]);
 
   // Latest news: all articles sorted by date, newest first
-  const latestNews = allNews.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const latestNews = allNews
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 20);
   // Carousel: top 2 most recent articles
   const carouselArticles = latestNews.slice(0, 2);
 
