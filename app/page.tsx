@@ -13,8 +13,8 @@ export default async function HomePage() {
   const latestNews = allNews
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 20);
-  // Carousel: top 2 most recent articles
-  const carouselArticles = latestNews.slice(0, 2);
+  // Carousel: top 5 most recent articles
+  const carouselArticles = latestNews.slice(0, 5);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
