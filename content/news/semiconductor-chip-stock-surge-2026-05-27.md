@@ -35,4 +35,4 @@ coverImage: /images/semiconductor-chip-stock-surge-2026-05-27-cover.png
 
 ---
 
-*本文由 JK Space News 自動彙整，不代表任何投資建議。*
+*本文由 JK Space News 彙整，不代表任何投資建議。*
