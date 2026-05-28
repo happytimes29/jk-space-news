@@ -57,7 +57,7 @@ export default async function HomePage() {
         <div className="mt-12 text-center">
           <Link
             href="/trending"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[#1a1a1a] text-sm text-[#888888] hover:text-[#EDEDED] hover:border-[#333] transition-all duration-200 bg-[#0A0A0A]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[#e5e5e7] dark:border-[#1a1a1a] text-xs text-[#6e6e73] dark:text-[#888888] hover:border-[#0070F3]/30 hover:text-[#0070F3] transition-all duration-200 bg-white dark:bg-[#0A0A0A]"
           >
             <Zap size={14} className="text-[#0070F3]" />
             查看所有 {allNews.length} 篇文章
