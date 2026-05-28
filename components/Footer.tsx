@@ -22,9 +22,8 @@ export function Footer() {
           </div>
 
           <div className="flex flex-col gap-2 text-xs">
-            <p className="font-medium text-[#6e6e73] dark:text-[#888888] mb-1">訂閱與同步</p>
             <Link href="/subscribe" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
-              輸入信箱訂閱
+              訂閱
             </Link>
             <Link href="/trending" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
               趨勢分類
