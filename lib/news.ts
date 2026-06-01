@@ -91,8 +91,12 @@ export function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString("zh-TW", {
     year: "numeric",
-    month: "long",
-    day: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }) + " " + d.toLocaleTimeString("zh-TW", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
   });
 }
 
