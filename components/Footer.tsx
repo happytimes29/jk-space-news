@@ -21,7 +21,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
             <Link href="/subscribe" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
               訂閱
             </Link>
@@ -37,13 +37,14 @@ export function Footer() {
             <Link href="/contact" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
               聯絡我們
             </Link>
+            <span className="text-[#e5e5e7] dark:text-[#1a1a1a]">|</span>
             <Link
               href="https://personal-website-one-sable-19.vercel.app/zh-TW"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors"
             >
-              JK Space ⟶
+              JK Space
             </Link>
           </div>
         </div>
