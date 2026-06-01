@@ -27,7 +27,7 @@ export function TldrBlock({ points, audioUrl }: TldrBlockProps) {
               <Zap size={12} className="text-white" fill="white" />
             </div>
             <span className="text-xs font-semibold text-[#0070F3] uppercase tracking-wider">
-              TL;DR
+              💬 編輯者註
             </span>
           </div>
 
