@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import { Zap, ExternalLink } from "lucide-react";
 
 export function Footer() {
   return (
@@ -27,6 +27,15 @@ export function Footer() {
             </Link>
             <Link href="/trending" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
               趨勢分類
+            </Link>
+            <Link
+              href="https://personal-website-one-sable-19.vercel.app/zh-TW"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors mt-2 pt-2 border-t border-[#e5e5e7] dark:border-[#1a1a1a]"
+            >
+              <ExternalLink size={11} />
+              個人網站
             </Link>
           </div>
         </div>
