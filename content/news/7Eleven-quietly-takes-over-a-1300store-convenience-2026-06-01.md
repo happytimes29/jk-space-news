@@ -1,5 +1,5 @@
 ---
-title: "7-Eleven quietly takes over a 1,300-store convenience chain"
+title: "7-Eleven 低調收購 1300 家便利商店連鎖店"
 slug: 7Eleven-quietly-takes-over-a-1300store-convenience-2026-06-01
 date: 2026-06-01
 category: AI

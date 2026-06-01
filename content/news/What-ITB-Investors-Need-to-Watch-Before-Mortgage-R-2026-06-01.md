@@ -1,5 +1,5 @@
 ---
-title: "What ITB Investors Need to Watch Before Mortgage Rates Spike Again"
+title: "ITB 投資人應關注的房貸利率風險"
 slug: What-ITB-Investors-Need-to-Watch-Before-Mortgage-R-2026-06-01
 date: 2026-06-01
 category: AI

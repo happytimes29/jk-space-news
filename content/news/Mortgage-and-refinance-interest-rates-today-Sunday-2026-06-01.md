@@ -1,5 +1,5 @@
 ---
-title: "Mortgage and refinance interest rates today, Sunday, May 31, 2026: Fixed rates edge lower, ARMs remain volatile"
+title: "房貸利率更新：固定利率下降，ARM 持續波動"
 slug: Mortgage-and-refinance-interest-rates-today-Sunday-2026-06-01
 date: 2026-06-01
 category: AI

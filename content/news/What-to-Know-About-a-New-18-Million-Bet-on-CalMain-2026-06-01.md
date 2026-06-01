@@ -1,5 +1,5 @@
 ---
-title: "What to Know About a New $18 Million Bet on Cal-Maine Foods"
+title: "Cal-Maine Foods 獲 1800 萬美元神祕押注"
 slug: What-to-Know-About-a-New-18-Million-Bet-on-CalMain-2026-06-01
 date: 2026-06-01
 category: AI

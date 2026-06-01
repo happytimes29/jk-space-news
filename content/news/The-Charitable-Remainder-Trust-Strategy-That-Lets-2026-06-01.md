@@ -1,5 +1,5 @@
 ---
-title: The Charitable Remainder Trust Strategy That Lets a 68-Year-Old Sell a $2.4 Million Concentrated Stock Position Without Triggering a $480,000 Tax Bill
+title: "信託策略：68 歲如何省下 48 萬美元稅金"
 slug: The-Charitable-Remainder-Trust-Strategy-That-Lets-2026-06-01
 date: 2026-06-01
 category: AI

@@ -1,5 +1,5 @@
 ---
-title: "Goldman Sachs massively resets Snowflake stock price target for 2026"
+title: "高盛大砍 Snowflake 目標價"
 slug: Goldman-Sachs-massively-resets-Snowflake-stock-pri-2026-06-01
 date: 2026-06-01
 category: AI

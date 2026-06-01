@@ -1,5 +1,5 @@
 ---
-title: "Investor Chris Camillo Predicts The ‘Last Easy Trade’ of the AI Supercycle Is About to Start"
+title: "Chris Camillo 預測「最後的輕鬆交易」"
 slug: Investor-Chris-Camillo-Predicts-The-Last-Easy-Trad-2026-06-01
 date: 2026-06-01
 category: AI

@@ -1,5 +1,5 @@
 ---
-title: "This Unstoppable Vanguard ETF Has More Than Doubled the S&P 500 in the Last 10 Years. Could It Make You a Millionaire?"
+title: "這檔 Vanguard ETF 績效翻倍打敗標普 500"
 slug: This-Unstoppable-Vanguard-ETF-Has-More-Than-Double-2026-06-01
 date: 2026-06-01
 category: AI

@@ -1,5 +1,5 @@
 ---
-title: "Galaxy Digital (GLXY): Leopold Aschenbrenner Is Bearish on This Stock"
+title: "Galaxy Digital：Leopold Aschenbrenner 持謹慎立場"
 slug: Galaxy-Digital-GLXY-Leopold-Aschenbrenner-Is-Beari-2026-06-01
 date: 2026-06-01
 category: AI

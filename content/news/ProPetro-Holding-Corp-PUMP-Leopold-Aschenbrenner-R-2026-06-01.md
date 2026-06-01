@@ -1,5 +1,5 @@
 ---
-title: "ProPetro Holding Corp. (PUMP): Leopold Aschenbrenner Remains Bullish"
+title: "ProPetro Holding：Leopold Aschenbrenner 維持持倉"
 slug: ProPetro-Holding-Corp-PUMP-Leopold-Aschenbrenner-R-2026-06-01
 date: 2026-06-01
 category: AI
