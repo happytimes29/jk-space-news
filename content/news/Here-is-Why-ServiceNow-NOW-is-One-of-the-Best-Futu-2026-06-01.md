@@ -8,7 +8,7 @@ excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/why-servicenow-now-one-best-112247955.html
 hot: true
-    author: "JK Space News"
+author: "JK Space News"
 coverImage: /images/Here-is-Why-ServiceNow-NOW-is-One-of-the-Best-Futu-2026-06-01-cover.png
 tldr: [": 這篇文章在科技論壇引發討論，筆者認為最有價值的觀點是：ServiceNow的AI策略不是「蹭熱度」，而是已經轉化為實際產品與營收，這比單純的題材股更值得長期關注。"]
 ---

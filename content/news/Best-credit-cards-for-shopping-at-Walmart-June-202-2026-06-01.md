@@ -8,7 +8,7 @@ excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/personal-finance/credit-cards/article/best-credit-cards-for-walmart-182948137.html
 hot: true
-    author: "JK Space News"
+author: "JK Space News"
 coverImage: /images/Best-credit-cards-for-shopping-at-Walmart-June-202-2026-06-01-cover.png
 tldr: [": 這篇文章在HackerNews上引發了關於內容網站技術堆疊與消費者資訊透明度的熱議，筆者認為最有價值的觀點是「不要在 feature flag 的海洋裡找信用卡推薦，因為你可能只找到一堆廣告」。"]
 ---

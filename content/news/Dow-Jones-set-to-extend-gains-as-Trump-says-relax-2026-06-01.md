@@ -8,7 +8,7 @@ excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/dow-jones-set-extend-gains-115900126.html
 hot: true
-    author: "JK Space News"
+author: "JK Space News"
 coverImage: /images/Dow-Jones-set-to-extend-gains-as-Trump-says-relax-2026-06-01-cover.png
 tldr: [": 這篇文章在科技與財經圈引發討論，筆者認為最有價值的觀點是點出「口頭干預短期有效但長期需回歸基本面」，適合所有習慣跟著新聞追漲殺跌的投資人反思。"]
 ---

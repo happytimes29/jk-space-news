@@ -8,7 +8,7 @@ excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/news/bond-trader-bets-on-fed-hike-poised-for-gut-check-from-jobs-data-190000432.html
 hot: true
-    author: "JK Space News"
+author: "JK Space News"
 coverImage: /images/Bond-Trader-Bets-on-Fed-Hike-Poised-for-Gut-Check-2026-06-01-cover.png
 tldr: [":這篇文章在科技與金融交叉領域引發不少討論，筆者認為最有價值的觀點是提醒大家不要迷信單一數據，市場情緒往往比數據本身更善變。"]
 ---

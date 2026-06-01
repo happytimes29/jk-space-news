@@ -8,7 +8,7 @@ excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/personal-finance/mortgages/article/is-the-housing-market-going-to-crash-heres-what-you-should-know-170038487.html
 hot: true
-    author: "JK Space News"
+author: "JK Space News"
 coverImage: /images/Is-the-housing-market-going-to-crash-Heres-what-yo-2026-06-01-cover.png
 tldr: [": 這篇文章在Dcard和Mobile01引發兩派論戰，筆者認為最有價值的觀點是「把居住需求跟投資需求分開看」，畢竟房子是用來住的，不是用來賭的。"]
 ---

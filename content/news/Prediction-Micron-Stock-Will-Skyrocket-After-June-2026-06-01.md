@@ -8,7 +8,7 @@ excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/prediction-micron-stock-skyrocket-june-105100758.html
 hot: true
-    author: "JK Space News"
+author: "JK Space News"
 coverImage: /images/Prediction-Micron-Stock-Will-Skyrocket-After-June-2026-06-01-cover.png
 tldr: [": 這篇文章在美國財經論壇StockTwits上引發熱議，筆者認為最值得注意的不是股價預測，而是分析師對HBM產能瓶頸的深入分析，這才是科技投資者該盯著的關鍵。"]
 ---

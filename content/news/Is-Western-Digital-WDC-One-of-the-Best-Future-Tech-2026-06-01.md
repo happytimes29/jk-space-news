@@ -8,7 +8,7 @@ excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/sectors/technology/articles/western-digital-wdc-one-best-112258900.html
 hot: true
-    author: "JK Space News"
+author: "JK Space News"
 coverImage: /images/Is-Western-Digital-WDC-One-of-the-Best-Future-Tech-2026-06-01-cover.png
 tldr: [": 這篇文章原本以為是華爾街分析，結果原文內容竟是網頁代碼，筆者只好幽默自救，順便吐槽了一下資料儲存產業的現實。你覺得 WDC 還能再戰十年嗎？"]
 ---

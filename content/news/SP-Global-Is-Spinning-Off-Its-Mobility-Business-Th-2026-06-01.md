@@ -8,7 +8,7 @@ excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/p-global-spinning-off-mobility-105600493.html
 hot: true
-    author: "JK Space News"
+author: "JK Space News"
 coverImage: /images/SP-Global-Is-Spinning-Off-Its-Mobility-Business-Th-2026-06-01-cover.png
 tldr: [": 筆者認為這篇最有價值的觀點是「拆分讓兩家公司各自專注，而 Mobility 的汽車數據資產在電動車時代可能被低估」，這在 Yahoo Finance 討論區中引發不少股民討論，有人甚至認為 Mobility 獨立後股價會超越母公司。"]
 ---

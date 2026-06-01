@@ -8,7 +8,7 @@ excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/crypto/articles/bitcoin-etf-losses-near-3b-114635976.html
 hot: true
-    author: "JK Space News"
+author: "JK Space News"
 coverImage: /images/Bitcoin-ETF-Losses-Near-3B-Across-10-Days-as-YTD-F-2026-06-01-cover.png
 tldr: [":筆者認為這篇最有價值的觀點是：資金流出不一定代表長期看空，而是市場在調整對管理費和宏觀利率的預期，投資人應該關注「誰在賣」而非「賣了多少」。這篇文章在推特（X）上引發加密社群兩派論戰：一派認為是「聰明錢」提前離場，另一派則笑稱「又給華爾街送手續費了」。"]
 ---
