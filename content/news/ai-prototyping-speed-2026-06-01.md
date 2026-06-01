@@ -62,4 +62,7 @@ coverImage: /images/ai-prototyping-speed-cover.png
 
 ---
 
-*本文由 JK Space News 編輯整理，原文來自 Hacker News。*
+
+---
+
+*本文由JK Space News撰寫。*

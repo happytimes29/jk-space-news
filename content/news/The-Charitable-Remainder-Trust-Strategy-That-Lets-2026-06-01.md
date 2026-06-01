@@ -4,7 +4,7 @@ slug: The-Charitable-Remainder-Trust-Strategy-That-Lets-2026-06-01
 date: 2026-06-01
 category: AI
 tags: ["AI", "科技", "趨勢"]
-excerpt: 自動改寫自 TrendRadar 監控到的熱門科技新聞。
+excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/options/articles/charitable-remainder-trust-strategy-lets-163137467.html
 hot: true
@@ -40,4 +40,4 @@ coverImage: /images/The-Charitable-Remainder-Trust-Strategy-That-Lets-2026-06-01
 總之，理財不是只有賺錢，還要考慮怎麼留、怎麼給、怎麼讓錢真正為你所用。那位68歲的老兄，不僅解決了稅務問題，還順便幫自己留了個好名聲——這才是真正的人生贏家吧。
 
 ---
-*本文由 JK Space News 自動化流程生成，改寫自 TrendRadar 監控到的熱門文章。*
+*本文由JK Space News撰寫。*

@@ -49,4 +49,7 @@ coverImage: /images/huawei-chip-paper-cover.png
 
 ---
 
-*本文由 JK Space News 自動彙整，不代表任何投資建議。*
+
+---
+
+*本文由JK Space News撰寫。*
