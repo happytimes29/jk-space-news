@@ -6,9 +6,10 @@ category: AI
 tags: ["AI", "華為", "半導體", "晶片", "麒麟"]
 excerpt: 華為Fellow何庭波署名論文發布，首次詳解「韜定律」背後的晶片技術细节。這不只是一篇論文，這是一份「中國芯」的成績單。
 source: 華爾街見聞
-url: https://wallstreetcn.com/articles/3773031
+url: "https://wallstreetcn.com/articles/3773031"
 hot: true
 coverImage: /images/huawei-chip-paper-cover.png
+
 ---
 
 ## 一篇論文的重量

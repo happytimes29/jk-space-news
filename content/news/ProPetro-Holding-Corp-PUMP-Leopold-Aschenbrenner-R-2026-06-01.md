@@ -1,14 +1,15 @@
 ---
-title: ProPetro Holding Corp. (PUMP): Leopold Aschenbrenner Remains Bullish
+title: "ProPetro Holding Corp. (PUMP): Leopold Aschenbrenner Remains Bullish"
 slug: ProPetro-Holding-Corp-PUMP-Leopold-Aschenbrenner-R-2026-06-01
 date: 2026-06-01
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
-url: https://finance.yahoo.com/markets/stocks/articles/propetro-holding-corp-pump-leopold-193420035.html
+url: "https://finance.yahoo.com/markets/stocks/articles/propetro-holding-corp-pump-leopold-193420035.html"
 hot: true
 coverImage: /images/ProPetro-Holding-Corp-PUMP-Leopold-Aschenbrenner-R-2026-06-01-cover.png
+
 ---
 
 ## 原文摘要

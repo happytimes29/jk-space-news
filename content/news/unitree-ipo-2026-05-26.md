@@ -6,9 +6,10 @@ category: AI
 tags: ["AI", "机器人", "宇树", "IPO", "人形机器人"]
 excerpt: 宇树科技6月1日上会，冲击A股"人形机器人第一股"。营收三年从1.59亿暴增到16.99亿，但利润却"越赚越亏"——这波操作什么逻辑？
 source: 科创板日报 / 财联社
-url: https://www.cls.cn/detail/2381067
+url: "https://www.cls.cn/detail/2381067"
 hot: true
 coverImage: /images/unitree-robot-cover.png
+
 ---
 
 ## 一家"神奇"的公司

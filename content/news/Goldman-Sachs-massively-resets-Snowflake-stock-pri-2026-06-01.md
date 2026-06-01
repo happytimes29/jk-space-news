@@ -6,9 +6,10 @@ category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
-url: https://finance.yahoo.com/markets/stocks/articles/goldman-sachs-massively-resets-snowflake-173300737.html
+url: "https://finance.yahoo.com/markets/stocks/articles/goldman-sachs-massively-resets-snowflake-173300737.html"
 hot: true
 coverImage: /images/Goldman-Sachs-massively-resets-Snowflake-stock-pri-2026-06-01-cover.png
+
 ---
 
 ## 原文摘要

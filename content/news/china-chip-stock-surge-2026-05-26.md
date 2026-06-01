@@ -6,9 +6,10 @@ category: AI
 tags: ["AI", "半導體", "晶片", "股市", "科創板"]
 excerpt: 科創50狂飆近6%，中芯國際漲停、寒武紀創歷史新高。半導體賽道再現「資金狂潮」，這次是復古還是超級周期來了？
 source: 華爾街見聞 / 財联社
-url: https://wallstreetcn.com/articles/3773021
+url: "https://wallstreetcn.com/articles/3773021"
 hot: true
 coverImage: /images/chip-stock-cover.png
+
 ---
 
 ## 股市比工廠熱鬧

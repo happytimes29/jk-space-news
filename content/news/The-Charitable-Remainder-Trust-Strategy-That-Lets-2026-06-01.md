@@ -6,9 +6,10 @@ category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
-url: https://finance.yahoo.com/markets/options/articles/charitable-remainder-trust-strategy-lets-163137467.html
+url: "https://finance.yahoo.com/markets/options/articles/charitable-remainder-trust-strategy-lets-163137467.html"
 hot: true
 coverImage: /images/The-Charitable-Remainder-Trust-Strategy-That-Lets-2026-06-01-cover.png
+
 ---
 
 ## 原文摘要

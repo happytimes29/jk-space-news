@@ -6,9 +6,10 @@ category: AI
 tags: ["AI", "開發", "原型設計", "生產力", "工程師"]
 excerpt: 有了 AI 輔助開發後，工程師的原型設計速度平均快了 4 倍。不是因為打字變快，而是整個思考方式被翻轉了。
 source: Hacker News
-url: https://darylcecile.net/notes/speed-of-prototyping-age-of-ai
+url: "https://darylcecile.net/notes/speed-of-prototyping-age-of-ai"
 hot: true
 coverImage: /images/ai-prototyping-speed-cover.png
+
 ---
 
 ## 那些「算了以後再說」的想法，現在一個下午就搞定

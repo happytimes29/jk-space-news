@@ -1,14 +1,15 @@
 ---
-title: Mortgage and refinance interest rates today, Sunday, May 31, 2026: Fixed rates edge lower, ARMs remain volatile
+title: "Mortgage and refinance interest rates today, Sunday, May 31, 2026: Fixed rates edge lower, ARMs remain volatile"
 slug: Mortgage-and-refinance-interest-rates-today-Sunday-2026-06-01
 date: 2026-06-01
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
-url: https://finance.yahoo.com/personal-finance/mortgages/article/mortgage-refinance-interest-rates-today-sunday-may-31-2026-100000557.html
+url: "https://finance.yahoo.com/personal-finance/mortgages/article/mortgage-refinance-interest-rates-today-sunday-may-31-2026-100000557.html"
 hot: true
 coverImage: /images/Mortgage-and-refinance-interest-rates-today-Sunday-2026-06-01-cover.png
+
 ---
 
 ## 原文摘要

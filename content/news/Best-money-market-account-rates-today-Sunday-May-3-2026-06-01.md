@@ -1,14 +1,15 @@
 ---
-title: Best money market account rates today, Sunday, May 31, 2026: Best account provides 4.01% APY
+title: "Best money market account rates today, Sunday, May 31, 2026: Best account provides 4.01% APY"
 slug: Best-money-market-account-rates-today-Sunday-May-3-2026-06-01
 date: 2026-06-01
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
-url: https://finance.yahoo.com/personal-finance/banking/article/best-money-market-account-rates-today-sunday-may-31-2026-100000836.html
+url: "https://finance.yahoo.com/personal-finance/banking/article/best-money-market-account-rates-today-sunday-may-31-2026-100000836.html"
 hot: true
 coverImage: /images/Best-money-market-account-rates-today-Sunday-May-3-2026-06-01-cover.png
+
 ---
 
 ## 原文摘要
