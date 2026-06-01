@@ -28,13 +28,22 @@ export function Footer() {
             <Link href="/trending" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
               趨勢分類
             </Link>
+            <Link href="/about" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
+              關於我們
+            </Link>
+            <Link href="/privacy" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
+              隱私權政策
+            </Link>
+            <Link href="/contact" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
+              聯絡我們
+            </Link>
             <Link
               href="https://personal-website-one-sable-19.vercel.app/zh-TW"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors mt-2 "
+              className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors"
             >
-              JK Space
+              JK Space ⟶
             </Link>
           </div>
         </div>
