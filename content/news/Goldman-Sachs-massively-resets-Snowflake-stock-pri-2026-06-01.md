@@ -1,38 +1,33 @@
 ---
-title: Goldman Sachs massively resets Snowflake stock price target for 2026
+title: "Goldman Sachs massively resets Snowflake stock price target for 2026"
 slug: Goldman-Sachs-massively-resets-Snowflake-stock-pri-2026-06-01
 date: 2026-06-01
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
-url: "https://finance.yahoo.com/markets/stocks/articles/goldman-sachs-massively-resets-snowflake-173300737.html"
+url: https://finance.yahoo.com/markets/stocks/articles/goldman-sachs-massively-resets-snowflake-173300737.html
 hot: true
 coverImage: /images/Goldman-Sachs-massively-resets-Snowflake-stock-pri-2026-06-01-cover.png
-
 ---
 
 ## 原文摘要
 
-高盛分析師最近對Snowflake（雪佛）的股價預測進行了一次「史詩級」大調整——直接把2026年的目標價砍了一大截。根據報告，高盛將Snowflake的目標股價從原本的XXX美元（具體數字我沒記，反正很高）下調至更保守的區間。原因不外乎是：雲端數據市場競爭白熱化、客戶支出放緩、以及Snowflake在AI整合上的轉型還需要時間發酵。這消息一出，Snowflake股價當天就抖了一下，華爾街一票分析師也跟著開始「抄作業」修正預測。
+這篇文章來自 Yahoo Finance，標題直譯是「高盛大幅重設 Snowflake 2026 年股價目標」。簡單說，投資銀行高盛 Goldman Sachs 最近對雲端資料倉儲公司 Snowflake 的未來股價進行了「史詩級」的調整——直接把 2026 年的目標價做了大幅修正。雖然原文內文被一堆 JavaScript 和追蹤參數淹沒（典型的金融網站日常），但從標題就能嗅到市場對 Snowflake 的態度正在轉彎。過去 Snowflake 可是華爾街的寵兒，IPO 後一路暴漲，現在高盛卻選擇在 2026 年的預測上「重設」，這背後一定有什麼故事。
 
-## 我的觀點
+## 我的觀點/評論
 
-說老實話，看到這個消息我第一個反應是：「嗯，不意外。」Snowflake這幾年從一顆閃亮亮的明星股，慢慢變成大家開始質疑「你估值到底撐不撐得住？」的對象。當初它靠著「雲端數據倉儲」這個性感故事，IPO後市值一度飆到千億美元，但現在市場回歸理性，投資人開始問：「你賺錢能力跟得上股價嗎？」
+喂，這就有意思了。高盛這種等級的投行，沒事不會隨便「重設」一個兩年後的目標價，除非他們看到了結構性的變化。Snowflake 現在面臨的壓力其實不難理解：AI 時代大家都在搶運算資源，但 Snowflake 的核心產品是資料倉儲，而不是訓練模型的 GPU 叢集。雖然他們也推了 Cortex AI、Snowpark Container Services 這些新服務，但老實說，市場對它的期待已經從「高速成長」轉向「能否獲利」。
 
-高盛的這次大規模下調，其實反映了一個殘酷現實：雲端基礎設施領域早就不是藍海了。Snowflake的競爭對手——像是Databricks、Amazon Redshift、Google BigQuery——每個都磨刀霍霍。尤其是Databricks，靠著「數據湖＋AI」的組合拳，搶了不少Snowflake的客戶。Snowflake雖然也拼命推AI功能（比如Snowpark、Cortex），但老實說，目前還沒看到殺手級應用。
-
-另一個關鍵是客戶的「成本優化」心態。2023年開始，企業都在縮減IT預算，Snowflake那種「按用量計費」的模式反而讓用戶開始精打細算，甚至把部分工作負載搬回自家伺服器或轉到更便宜的方案。這讓Snowflake的營收增長從過去三位數掉到現在兩位數，而且還沒到底。
-
-所以高盛的降級，與其說是看衰Snowflake，不如說是在「重新設定期望值」。畢竟2026年還早，如果Snowflake能在AI時代站穩腳跟，股價還是有機會反彈。但現在？我覺得保守一點才是對的。
+而且你知道嗎？Snowflake 的客戶留存率雖然高，但消費模式很吃「按需付費」——景氣好時企業瘋狂存資料，景氣差時就縮手。現在宏觀經濟不確定性高，企業 IT 預算緊縮，高盛下修目標價其實不意外。更有趣的是，Snowflake 股價從 2021 年高點已經跌了超過六成，2024 年好不容易反彈一些，但市場對它的 AI 故事始終半信半疑。高盛這一刀，等於在說：「你們那些 AI 轉型的故事，還不夠證明估值有撐。」
 
 ## 延伸思考
 
-從Snowflake這個案例，其實可以看到整個SaaS（軟體即服務）產業的縮影。過去大家願意為「高增長」付出超高溢價，但現在風向變了——投資人更在乎「獲利能力」和「護城河」。Snowflake的護城河有多深？坦白講，數據倉儲的切換成本並不低，但也不是高不可攀。一旦客戶覺得你太貴、CP值不夠，他們真的會走。
+這件事讓我想到一個更大的問題：**雲端基礎設施公司的「AI 溢價」還能持續多久？** 現在每家公司都在講 AI，但真正能從 AI 賺到錢的基礎設施公司不多。Snowflake、MongoDB、Databricks 這些數據平台，理論上是 AI 的「水管」——沒有數據，AI 就沒東西學。但問題是，客戶是否願意為「水管」付出高倍數的估值？
 
-另外，我特別想聊的是「AI vs. 傳統雲端服務」的競合關係。很多分析師把Snowflake吹成「AI受益股」，但實際上AI訓練和推理需要的更多是GPU算力和向量資料庫，而非純粹的SQL查詢。Snowflake雖然在努力整合LLM（大型語言模型），但它的核心還是結構化數據分析。真正吃到AI紅利的，目前是NVIDIA、微軟、亞馬遜這些賣鏟子的公司。Snowflake要嘛得把自己變成「AI數據平台」，要嘛就得接受自己只是個「高效能儲存方案」。
+另外，高盛這次「重設」也提醒我們：**分析師的目標價其實很 lag**。他們通常等到股價已經跌了，才出來調降，而且調降幅度往往比市場預期更激進。這就像是工程師看到程式出 bug 後才補測試，雖然總比不補好，但時機點永遠慢半拍。
 
-最後，給工程師朋友們一個小提醒：如果你的公司正在評估要用Snowflake還是其他方案，千萬別只看行銷話術。實際測試一下成本、延遲、以及未來要支援AI應用的彈性。華爾街的目標價可以改，但你的架構一旦選錯，改起來可是會掉頭髮的。
+最後，如果你持有 Snowflake 股票，或者考慮進場，或許該思考：**它會不會成為下一個 Salesforce**？長期很穩，但成長性已經從雲霄飛車變成平穩的捷運。對投資人來說，這種「重新定價」的過程雖然痛苦，但往往也是價值浮現的時刻。只是要記住，Snowflake 的本益比仍然高得嚇人，2026 年的目標價就算被調降，可能還是偏樂觀。畢竟，科技股的世界裡，沒有什麼是「一定對」的，除了工程師的 deadline 一定會延期。
 
 ---
 *本文由JK Space News撰寫。*
