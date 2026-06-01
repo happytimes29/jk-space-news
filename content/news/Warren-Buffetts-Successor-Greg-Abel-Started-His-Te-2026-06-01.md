@@ -1,7 +1,7 @@
 ---
 title: "巴菲特接班人葛雷格·阿貝爾上任就大動作：拋售亞馬遜，並將波克夏在一個虛擬壟斷企業的持股增加三倍以上"
 slug: Warren-Buffetts-Successor-Greg-Abel-Started-His-Te-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T18:30:06
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

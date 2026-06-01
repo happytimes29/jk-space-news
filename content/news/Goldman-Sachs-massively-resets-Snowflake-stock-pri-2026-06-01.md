@@ -1,7 +1,7 @@
 ---
 title: "高盛大砍 Snowflake 目標價"
 slug: Goldman-Sachs-massively-resets-Snowflake-stock-pri-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T13:31:06
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

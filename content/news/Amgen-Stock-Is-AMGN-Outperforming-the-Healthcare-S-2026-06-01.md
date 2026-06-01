@@ -1,7 +1,7 @@
 ---
 title: "安进股票：AMGN是否跑赢医疗保健板块？"
 slug: Amgen-Stock-Is-AMGN-Outperforming-the-Healthcare-S-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T17:40:04
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

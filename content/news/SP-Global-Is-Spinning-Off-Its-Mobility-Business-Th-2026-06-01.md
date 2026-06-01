@@ -1,7 +1,7 @@
 ---
 title: "S&P Global 將於今年夏季拆分其移動出行業務。以下是股東須知"
 slug: SP-Global-Is-Spinning-Off-Its-Mobility-Business-Th-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T20:21:01
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

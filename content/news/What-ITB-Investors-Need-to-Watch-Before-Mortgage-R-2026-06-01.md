@@ -1,7 +1,7 @@
 ---
 title: "ITB 投資人應關注的房貸利率風險"
 slug: What-ITB-Investors-Need-to-Watch-Before-Mortgage-R-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T14:21:06
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

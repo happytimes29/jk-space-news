@@ -1,7 +1,7 @@
 ---
 title: "如果遠距工作才是初階員工招聘疲弱的原因，而不是AI？"
 slug: What-if-remote-working-not-AI-is-to-blame-for-weak-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T19:21:10
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

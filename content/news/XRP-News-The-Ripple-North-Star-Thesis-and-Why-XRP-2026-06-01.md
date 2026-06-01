@@ -1,7 +1,7 @@
 ---
 title: "XRP新聞：Ripple的「北極星」論點以及為什麼XRP沒有暴漲"
 slug: XRP-News-The-Ripple-North-Star-Thesis-and-Why-XRP-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T18:40:05
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

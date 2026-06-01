@@ -1,7 +1,7 @@
 ---
 title: "BofA審視市場狀況後，上調Federal Realty Investment Trust (FRT)目標價"
 slug: BofA-Raises-Target-on-Federal-Realty-Investment-Tr-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T16:40:05
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

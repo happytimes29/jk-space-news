@@ -1,7 +1,7 @@
 ---
 title: "分析：AI債務銷售重塑全球公司債市場"
 slug: AnalysisAI-debt-sales-reshape-global-corporate-bon-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T18:21:13
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

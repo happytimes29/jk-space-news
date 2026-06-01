@@ -1,7 +1,7 @@
 ---
 title: "黃仁勳稱輝達每年將向「蓬勃發展」的AI中心台灣投入1500億美元"
 slug: Jensen-Huang-Says-Nvidia-Will-Pour-150-Billion-A-Y-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T17:00:05
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

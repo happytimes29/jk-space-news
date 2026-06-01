@@ -1,7 +1,7 @@
 ---
 title: "沙丘的巴特勒圣战与人工智能的未来"
 slug: Dunes-Butlerian-Jihad-and-the-Future-of-AI-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T17:10:05
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

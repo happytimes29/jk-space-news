@@ -1,7 +1,7 @@
 ---
 title: "Chris Camillo 預測「最後的輕鬆交易」"
 slug: Investor-Chris-Camillo-Predicts-The-Last-Easy-Trad-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T13:50:05
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

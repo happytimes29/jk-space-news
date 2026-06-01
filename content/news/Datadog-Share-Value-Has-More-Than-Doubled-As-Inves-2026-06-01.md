@@ -1,7 +1,7 @@
 ---
 title: "Datadog股價翻倍，投資者看好持續增長的市場機會"
 slug: Datadog-Share-Value-Has-More-Than-Doubled-As-Inves-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T17:51:06
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

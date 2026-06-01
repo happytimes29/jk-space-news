@@ -1,7 +1,7 @@
 ---
 title: "科技股今日焦點：黃仁勳在台北Computex主題演講稱AI是「利潤製造機」"
 slug: Tech-stocks-today-Nvidia-CEO-calls-AI-a-profit-gen-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T19:10:05
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

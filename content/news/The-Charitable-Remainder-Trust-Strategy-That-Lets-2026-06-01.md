@@ -1,7 +1,7 @@
 ---
 title: "信託策略：68 歲如何省下 48 萬美元稅金"
 slug: The-Charitable-Remainder-Trust-Strategy-That-Lets-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T12:22:13
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

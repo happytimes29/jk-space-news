@@ -1,7 +1,7 @@
 ---
 title: "ProPetro Holding：Leopold Aschenbrenner 維持持倉"
 slug: ProPetro-Holding-Corp-PUMP-Leopold-Aschenbrenner-R-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T12:50:40
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

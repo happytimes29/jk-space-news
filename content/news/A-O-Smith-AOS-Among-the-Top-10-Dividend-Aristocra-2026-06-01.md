@@ -1,7 +1,7 @@
 ---
 title: "A. O. Smith (AOS) 入選收益率前十的股息貴族股"
 slug: A-O-Smith-AOS-Among-the-Top-10-Dividend-Aristocra-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T16:00:05
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

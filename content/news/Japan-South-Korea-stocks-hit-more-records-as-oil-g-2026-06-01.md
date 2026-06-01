@@ -1,7 +1,7 @@
 ---
 title: "日韩股市再创新高，油价因伊朗停战预期波动而走强"
 slug: Japan-South-Korea-stocks-hit-more-records-as-oil-g-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T18:10:03
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

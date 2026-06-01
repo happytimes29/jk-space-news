@@ -1,7 +1,7 @@
 ---
 title: "預測：一年後 Palantir 的股價會是多少？"
 slug: Prediction-This-Will-Be-Palantirs-Stock-Price-in-a-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T18:00:06
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

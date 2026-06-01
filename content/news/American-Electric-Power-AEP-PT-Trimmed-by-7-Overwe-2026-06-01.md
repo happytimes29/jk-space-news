@@ -1,7 +1,7 @@
 ---
 title: "美國電力（AEP）目標價下調7美元，維持增持評級"
 slug: American-Electric-Power-AEP-PT-Trimmed-by-7-Overwe-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T16:10:05
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

@@ -1,7 +1,7 @@
 ---
 title: "預測：美光股價將在6月24日後飆升"
 slug: Prediction-Micron-Stock-Will-Skyrocket-After-June-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T20:10:05
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

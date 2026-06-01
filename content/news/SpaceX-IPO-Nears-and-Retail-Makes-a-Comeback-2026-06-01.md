@@ -1,7 +1,7 @@
 ---
 title: "SpaceX上市在即，散户重回舞台"
 slug: SpaceX-IPO-Nears-and-Retail-Makes-a-Comeback-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T16:30:04
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。

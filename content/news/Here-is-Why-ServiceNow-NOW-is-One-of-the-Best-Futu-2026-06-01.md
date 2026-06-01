@@ -1,7 +1,7 @@
 ---
 title: "為什麼ServiceNow (NOW) 是億萬富翁眼中最佳未來科技股之一"
 slug: Here-is-Why-ServiceNow-NOW-is-One-of-the-Best-Futu-2026-06-01
-date: 2026-06-01
+date: 2026-06-01T20:30:01
 category: AI
 tags: ["AI", "科技", "趨勢"]
 excerpt: JK Space News 每日科技新聞選輯。
