@@ -73,6 +73,15 @@ export async function getNewsByCategory(category: string): Promise<NewsItem[]> {
   return all.filter((n) => n.category === category);
 }
 
+export async function getAdjacentNews(slug: string): Promise<{ prev: NewsItem | null; next: NewsItem | null }> {
+  const all = await getAllNews();
+  const idx = all.findIndex((n) => n.slug === slug);
+  return {
+    prev: idx > 0 ? all[idx - 1] : null,
+    next: idx < all.length - 1 ? all[idx + 1] : null,
+  };
+}
+
 export async function getHotNews(): Promise<NewsItem[]> {
   const all = await getAllNews();
   return all.filter((n) => n.hot);

@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { getAllNews, getNewsBySlug, formatDate } from "@/lib/news";
+import { getAllNews, getNewsBySlug, getAdjacentNews, formatDate } from "@/lib/news";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { TldrBlock } from "@/components/TldrBlock";
 import { MDXRenderer } from "@/components/MDXRenderer";
-import { Clock, Calendar, Tag, User, ChevronLeft } from "lucide-react";
+import { Clock, Calendar, Tag, User, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
@@ -46,7 +46,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function NewsPage({ params }: Props) {
   const { slug } = await params;
-  const news = await getNewsBySlug(slug);
+  const [news, { prev, next }] = await Promise.all([
+    getNewsBySlug(slug),
+    getAdjacentNews(slug),
+  ]);
 
   if (!news) notFound();
 
@@ -167,6 +170,34 @@ export default async function NewsPage({ params }: Props) {
             </div>
           </div>
         )}
+
+        {/* Previous / Next navigation */}
+        <div className="mt-12 pt-8 border-t border-[#e5e5e7] dark:border-[#1a1a1a]">
+          <div className="flex justify-between items-center gap-4">
+            <div className="flex-1">
+              {prev && (
+                <Link
+                  href={`/news/${prev.slug}`}
+                  className="group inline-flex items-center gap-2 text-sm text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] dark:hover:text-[#60a5fa] transition-colors"
+                >
+                  <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform flex-shrink-0" />
+                  <span className="truncate">{prev.title}</span>
+                </Link>
+              )}
+            </div>
+            <div className="flex-1 text-right">
+              {next && (
+                <Link
+                  href={`/news/${next.slug}`}
+                  className="group inline-flex items-center justify-end gap-2 text-sm text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] dark:hover:text-[#60a5fa] transition-colors"
+                >
+                  <span className="truncate">{next.title}</span>
+                  <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
       </article>
     </>
   );
