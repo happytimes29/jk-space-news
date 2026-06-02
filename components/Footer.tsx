@@ -22,9 +22,7 @@ export function Footer() {
           </div>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-            <Link href="/subscribe" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
-              訂閱
-            </Link>
+
 
             <Link href="/about" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
               關於我們

@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Zap, Menu, X, Mail, Mic, Wrench } from "lucide-react";
+import { Zap, Menu, X, Mic, Wrench } from "lucide-react";
 
 const NAV = [
   { label: "首頁", href: "/" },
   { label: "訪談", href: "/interview" },
   { label: "工具", href: "/tools" },
-  { label: "訂閱", href: "/subscribe" },
 ];
 
 export function Header() {
@@ -45,7 +44,7 @@ export function Header() {
                     : "text-[#6e6e73] dark:text-[#888888] hover:text-[#1a1a1a] dark:hover:text-[#EDEDED] hover:bg-[#f5f5f7] dark:hover:bg-[#0A0A0A]"
                 }`}
               >
-                {item.label === "訂閱" && <Mail size={13} />}
+
                 {item.label === "訪談" && <Mic size={13} />}
                 {item.label === "工具" && <Wrench size={13} />}
                 {item.label === "首頁" && <Zap size={13} />}
@@ -82,7 +81,7 @@ export function Header() {
               className="block py-2.5 text-sm text-[#6e6e73] dark:text-[#888888] hover:text-[#1a1a1a] dark:hover:text-[#EDEDED] transition-colors border-b border-[#f5f5f7] dark:border-[#0A0A0A] last:border-0"
               onClick={() => setMobileOpen(false)}
             >
-              {item.label === "訂閱" && <Mail size={13} className="inline mr-1.5" />}
+
               {item.label === "訪談" && <Mic size={13} className="inline mr-1.5" />}
               {item.label === "工具" && <Wrench size={13} className="inline mr-1.5" />}
               {item.label}
