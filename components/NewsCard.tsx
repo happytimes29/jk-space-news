@@ -9,9 +9,12 @@ interface NewsCardProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
+  "AI": "text-[#f59e0b] border-[#f59e0b]/30 bg-[#f59e0b]/5",
   "科技": "text-[#0070F3] border-[#0070F3]/30 bg-[#0070F3]/5",
+  "金融": "text-emerald-400 border-emerald-400/30 bg-emerald-400/5",
   "金融理財": "text-emerald-400 border-emerald-400/30 bg-emerald-400/5",
   "創業": "text-purple-400 border-purple-400/30 bg-purple-400/5",
+  "隨機": "text-pink-400 border-pink-400/30 bg-pink-400/5",
 };
 
 function getCategoryStyle(category: string) {

@@ -39,7 +39,7 @@ export default async function TrendingPage({ searchParams }: Props) {
   }
 
   // Skip generic tags that appear on everything
-  const GENERIC_TAGS = new Set(["AI", "科技", "趨勢"]);
+  const GENERIC_TAGS = new Set(["科技", "趨勢"]);
   const categories: FilterOption[] = Object.entries(catCounts)
     .filter(([_, count]) => count > 0)
     .map(([cat, count]) => ({
