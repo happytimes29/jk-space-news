@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Zap, Menu, X, Mail } from "lucide-react";
+import { Zap, Menu, X, Mail, Mic, Wrench } from "lucide-react";
 
 const NAV = [
   { label: "首頁", href: "/" },
   { label: "趨勢", href: "/trending" },
+  { label: "訪談", href: "/interview" },
+  { label: "工具", href: "/tools" },
   { label: "訂閱", href: "/subscribe" },
 ];
 
@@ -45,6 +47,8 @@ export function Header() {
                 }`}
               >
                 {item.label === "訂閱" && <Mail size={13} />}
+                {item.label === "訪談" && <Mic size={13} />}
+                {item.label === "工具" && <Wrench size={13} />}
                 {item.label}
               </Link>
             ))}
