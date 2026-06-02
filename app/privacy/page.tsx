@@ -53,15 +53,6 @@ export default function PrivacyPage() {
         <h2>Cookie</h2>
         <p>本網站不會自行設置追蹤型 Cookie。第三方服務（如 Vercel Analytics）可能使用必要的 Cookie 來分析網站流量，這些資料無法識別個人身份。如您關閉 Cookie，可能導致本網站的部份功能無法正常運作。</p>
 
-        <h2>第三方服務</h2>
-        <p>本網站使用以下第三方服務，各服務有其獨立的隱私政策，建議您參考其規定：</p>
-        <ul>
-          <li><strong>Vercel</strong> — 網站託管與效能分析</li>
-          <li><strong>GitHub</strong> — 原始碼管理與自動部署</li>
-          <li><strong>Google Sheets</strong> — 數據記錄（僅限內部使用）</li>
-          <li><strong>Telegram</strong> — 讀者聯絡管道</li>
-        </ul>
-
         <h2>隱私權政策修訂</h2>
         <p>隨著市場環境與法規的改變，本網站將會不時修訂本政策。更新後的版本將公布於本頁面，並附上更新日期。如您持續使用本網站服務，即代表您同意修訂後的政策。</p>
 
