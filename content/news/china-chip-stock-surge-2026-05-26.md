@@ -2,8 +2,8 @@
 title: 创业板狂飙6%！科创芯片股批量新高，半导体春天来了？
 slug: china-chip-stock-surge-2026-05-26
 date: 2026-05-27T14:36:06
-category: AI
-tags: ["AI", "半導體", "晶片", "股市", "科創板"]
+category: 科技
+tags: ["半導體", "晶片", "股市", "科創板"]
 excerpt: 科創50狂飆近6%，中芯國際漲停、寒武紀創歷史新高。半導體賽道再現「資金狂潮」，這次是復古還是超級周期來了？
 source: 華爾街見聞 / 財联社
 url: "https://wallstreetcn.com/articles/3773021"

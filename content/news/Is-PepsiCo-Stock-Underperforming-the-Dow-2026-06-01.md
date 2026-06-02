@@ -2,8 +2,8 @@
 title: "百事可樂股票是否跑輸道瓊指數？"
 slug: Is-PepsiCo-Stock-Underperforming-the-Dow-2026-06-01
 date: 2026-06-01T15:21:12
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/pepsico-stock-underperforming-dow-233001288.html

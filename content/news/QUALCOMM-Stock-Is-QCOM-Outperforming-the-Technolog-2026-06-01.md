@@ -2,8 +2,8 @@
 title: "高通股票：QCOM是否表現優於科技板塊？"
 slug: QUALCOMM-Stock-Is-QCOM-Outperforming-the-Technolog-2026-06-01
 date: 2026-06-01T15:10:04
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/qualcomm-stock-qcom-outperforming-technology-000708956.html

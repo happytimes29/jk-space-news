@@ -2,8 +2,8 @@
 title: "Wedbush上调Palo Alto Networks (PANW)目标价"
 slug: Wedbush-Raises-its-Price-Target-on-Palo-Alto-Netwo-2026-06-01
 date: 2026-06-01T17:30:05
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/wedbush-raises-price-target-palo-082339536.html

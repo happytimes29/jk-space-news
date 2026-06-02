@@ -2,8 +2,8 @@
 title: "2026年6月最佳建立信用的信用卡"
 slug: Best-credit-cards-to-build-credit-for-June-2026-2026-06-01
 date: 2026-06-01T19:51:06
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/personal-finance/credit-cards/article/best-credit-cards-to-build-credit-193812135.html

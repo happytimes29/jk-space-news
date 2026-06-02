@@ -2,8 +2,8 @@
 title: "7-Eleven 低調收購 1300 家便利商店連鎖店"
 slug: 7Eleven-quietly-takes-over-a-1300store-convenience-2026-06-01
 date: 2026-06-01T14:30:06
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/7-eleven-quietly-takes-over-184603948.html

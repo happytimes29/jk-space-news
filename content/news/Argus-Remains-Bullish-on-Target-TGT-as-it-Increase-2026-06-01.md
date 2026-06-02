@@ -2,8 +2,8 @@
 title: "Argus維持對Target (TGT)的看漲評級，並上調目標價"
 slug: Argus-Remains-Bullish-on-Target-TGT-as-it-Increase-2026-06-01
 date: 2026-06-01T16:51:06
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/argus-remains-bullish-target-tgt-013408476.html

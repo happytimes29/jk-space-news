@@ -2,8 +2,8 @@
 title: "美元持穩，市場等待中東和平談判進展"
 slug: Dollar-steady-as-markets-await-progress-on-Middle-2026-06-01
 date: 2026-06-01T18:51:02
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/news/dollar-steadies-markets-await-signals-004037520.html

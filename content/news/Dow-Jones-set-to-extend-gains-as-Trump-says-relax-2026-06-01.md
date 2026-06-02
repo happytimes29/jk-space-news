@@ -2,8 +2,8 @@
 title: "道瓊指數有望延續漲勢，川普喊話「放輕鬆」談伊朗協議"
 slug: Dow-Jones-set-to-extend-gains-as-Trump-says-relax-2026-06-01
 date: 2026-06-01T21:00:05
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/dow-jones-set-extend-gains-115900126.html

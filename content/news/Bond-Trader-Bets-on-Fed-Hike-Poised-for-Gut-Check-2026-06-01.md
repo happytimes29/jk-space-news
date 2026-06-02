@@ -2,8 +2,8 @@
 title: "債券交易員押注聯準會升息，就業數據將成考驗"
 slug: Bond-Trader-Bets-on-Fed-Hike-Poised-for-Gut-Check-2026-06-01
 date: 2026-06-01T20:00:05
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/news/bond-trader-bets-on-fed-hike-poised-for-gut-check-from-jobs-data-190000432.html

@@ -2,8 +2,8 @@
 title: "霍尼韋爾旗下Quantinuum目標估值143億美元 擴大美國IPO規模"
 slug: Honeywells-Quantinuum-eyes-143-billion-valuation-i-2026-06-01
 date: 2026-06-01
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/honeywells-quantinuum-eyes-14-3-125219848.html

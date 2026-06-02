@@ -2,8 +2,8 @@
 title: AI時代的產品原型速度：從「想想就好」到「下午就能試」
 slug: ai-prototyping-speed-2026-06-01
 date: 2026-06-01T11:43:50
-category: AI
-tags: ["AI", "開發", "原型設計", "生產力", "工程師"]
+category: 科技
+tags: ["開發", "原型設計", "生產力", "工程師"]
 excerpt: 有了 AI 輔助開發後，工程師的原型設計速度平均快了 4 倍。不是因為打字變快，而是整個思考方式被翻轉了。
 source: Hacker News
 url: "https://darylcecile.net/notes/speed-of-prototyping-age-of-ai"

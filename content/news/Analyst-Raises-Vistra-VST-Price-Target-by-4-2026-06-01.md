@@ -2,8 +2,8 @@
 title: "分析师将Vistra (VST)目标价上调4美元"
 slug: Analyst-Raises-Vistra-VST-Price-Target-by-4-2026-06-01
 date: 2026-06-01T15:51:08
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/sectors/energy/articles/analyst-raises-vistra-vst-price-005100355.html

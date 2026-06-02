@@ -2,8 +2,8 @@
 title: "XLRE 今年漲 11%，股息能維持嗎？"
 slug: XLRE-Hits-11-Gain-This-Year-Can-the-Payout-Stay-Sa-2026-06-01
 date: 2026-06-01T14:51:09
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/xlre-hits-11-gain-payout-183039139.html

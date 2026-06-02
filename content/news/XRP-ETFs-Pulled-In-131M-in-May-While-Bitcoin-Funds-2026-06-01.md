@@ -2,8 +2,8 @@
 title: "XRP ETF 五月吸金1.31億美元，比特幣基金卻連十天黑"
 slug: XRP-ETFs-Pulled-In-131M-in-May-While-Bitcoin-Funds-2026-06-01
 date: 2026-06-01T21:21:10
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/crypto/articles/xrp-etfs-pulled-131m-may-120138120.html

@@ -2,8 +2,8 @@
 title: "今日最佳貨幣市場帳戶利率：4.01% APY"
 slug: Best-money-market-account-rates-today-Sunday-May-3-2026-06-01
 date: 2026-06-01T13:19:39
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: "https://finance.yahoo.com/personal-finance/banking/article/best-money-market-account-rates-today-sunday-may-31-2026-100000836.html"

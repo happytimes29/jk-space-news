@@ -2,8 +2,8 @@
 title: "Nvidia入侵Intel PC市場，五大受益股票出列"
 slug: Top-5-Stocks-That-Will-Profit-From-Nvidias-PC-Mark-2026-06-01
 date: 2026-06-01T21:30:05
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/top-5-stocks-profit-nvidia-123330432.html

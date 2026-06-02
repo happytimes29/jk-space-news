@@ -2,8 +2,8 @@
 title: "西南航空（LUV）是億萬富翁Paul Singer投資組合中最好的航空股嗎？"
 slug: Is-Southwest-Airlines-LUV-The-Best-Airline-Stock-i-2026-06-01
 date: 2026-06-02T05:54:55
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/southwest-airlines-luv-best-airline-131421905.html

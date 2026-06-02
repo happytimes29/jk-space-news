@@ -2,8 +2,8 @@
 title: 何庭波署名论文曝光！华为"芯"技术细节首次披露
 slug: huawei-chip-paper-2026-05-26
 date: 2026-05-27T14:36:06
-category: AI
-tags: ["AI", "華為", "半導體", "晶片", "麒麟"]
+category: 科技
+tags: ["華為", "半導體", "晶片", "麒麟"]
 excerpt: 華為Fellow何庭波署名論文發布，首次詳解「韜定律」背後的晶片技術细节。這不只是一篇論文，這是一份「中國芯」的成績單。
 source: 華爾街見聞
 url: "https://wallstreetcn.com/articles/3773031"

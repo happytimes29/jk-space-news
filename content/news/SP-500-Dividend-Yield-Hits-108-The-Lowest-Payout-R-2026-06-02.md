@@ -2,8 +2,8 @@
 title: "標普500股息殖利率跌至1.08%，創19世紀以來最低，退休警訊響起"
 slug: SP-500-Dividend-Yield-Hits-108-The-Lowest-Payout-R-2026-06-02
 date: 2026-06-02T06:00:05
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/p-500-dividend-yield-hits-122647212.html

@@ -2,8 +2,8 @@
 title: "为什么一家房地产基金抛售了6200万美元的Cousins Properties股票"
 slug: Why-One-Real-Estate-Fund-Dumped-62-Million-of-Cous-2026-06-01
 date: 2026-06-01T16:21:03
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/why-one-real-estate-fund-203234031.html

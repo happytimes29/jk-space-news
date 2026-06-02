@@ -2,8 +2,8 @@
 title: "Galaxy Digital：Leopold Aschenbrenner 持謹慎立場"
 slug: Galaxy-Digital-GLXY-Leopold-Aschenbrenner-Is-Beari-2026-06-01
 date: 2026-06-01T13:53:07
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/galaxy-digital-glxy-leopold-aschenbrenner-195727813.html

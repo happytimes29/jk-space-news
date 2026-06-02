@@ -2,8 +2,8 @@
 title: "為何這檔基金在 Floor & Decor 股價暴跌 30% 時仍豪擲 3000 萬美元？"
 slug: Why-This-Fund-Made-a-30-Million-Bet-on-Floor-Deco-2026-06-01
 date: 2026-06-01T15:00:05
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/why-fund-made-30-million-190705782.html

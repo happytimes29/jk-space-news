@@ -2,8 +2,8 @@
 title: "比特幣ETF 10天虧損近30億美元，年初至今資金流量轉負"
 slug: Bitcoin-ETF-Losses-Near-3B-Across-10-Days-as-YTD-F-2026-06-01
 date: 2026-06-01T20:40:03
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/crypto/articles/bitcoin-etf-losses-near-3b-114635976.html

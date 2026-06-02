@@ -2,8 +2,8 @@
 title: "Cal-Maine Foods 獲 1800 萬美元神祕押注"
 slug: What-to-Know-About-a-New-18-Million-Bet-on-CalMain-2026-06-01
 date: 2026-06-01T14:00:05
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/know-18-million-bet-cal-182127233.html

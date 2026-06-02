@@ -2,8 +2,8 @@
 title: 華為發布「韜定律」：半導體戰國時代來了！
 slug: huawei-tau-law-2026-05-26
 date: 2026-05-28T16:31:16
-category: AI
-tags: ["AI", "半導體", "華為", "晶片", "科技戰"]
+category: 科技
+tags: ["半導體", "華為", "晶片", "科技戰"]
 excerpt: 華為發布「韜定律」，半導體竞争从「節點」轉向「時間」，這次不是彎道超車，是直接換賽道了。
 source: 華爾街見聞 / 財联社
 url: "https://wallstreetcn.com/articles/3773040"

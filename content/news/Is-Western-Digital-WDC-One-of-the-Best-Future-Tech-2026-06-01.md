@@ -2,8 +2,8 @@
 title: "西部數據（WDC）是億萬富翁眼中最值得買入的未來科技股之一嗎？"
 slug: Is-Western-Digital-WDC-One-of-the-Best-Future-Tech-2026-06-01
 date: 2026-06-01T20:51:07
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/sectors/technology/articles/western-digital-wdc-one-best-112258900.html

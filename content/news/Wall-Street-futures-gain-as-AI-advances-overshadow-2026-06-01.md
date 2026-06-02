@@ -2,8 +2,8 @@
 title: "華爾街期貨因AI進展而上漲，壓過美伊緊張局勢"
 slug: Wall-Street-futures-gain-as-AI-advances-overshadow-2026-06-01
 date: 2026-06-01T19:00:06
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/wall-street-futures-gain-ai-095009105.html

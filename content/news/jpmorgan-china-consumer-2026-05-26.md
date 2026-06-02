@@ -2,8 +2,8 @@
 title: 华尔街投行突然看好"大消费"？这背后藏着什么逻辑？
 slug: jp-morgan-china-consumer-2026-05-26
 date: 2026-05-27T14:36:06
-category: AI
-tags: ["AI", "摩根大通", "投資", "消費", "機器人"]
+category: 科技
+tags: ["摩根大通", "投資", "消費", "機器人"]
 excerpt: 摩根大通的中國峰會建議用「大消費」作為AI和機器人配置的资金来源，這邏輯很繞——但認真想想，其實很清晰。
 source: 華爾街見聞
 url: "https://wallstreetcn.com/articles/3773014"

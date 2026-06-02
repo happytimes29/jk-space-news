@@ -2,8 +2,8 @@
 title: "週一華爾街頂級分析師研究報告：Accenture、Caesars Entertainment、Carnival、Dell Technologies、IBM、Kohl's、Microsoft、Zscaler 等"
 slug: Here-Are-Mondays-Top-Wall-Street-Analyst-Research-2026-06-01
 date: 2026-06-01T21:10:05
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/monday-top-wall-street-analyst-120110391.html

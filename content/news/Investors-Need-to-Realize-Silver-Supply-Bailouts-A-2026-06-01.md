@@ -2,8 +2,8 @@
 title: "投資者需知：白銀供應紓困已成過去式"
 slug: Investors-Need-to-Realize-Silver-Supply-Bailouts-A-2026-06-01
 date: 2026-06-01
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/commodities/articles/investors-realize-silver-supply-bailouts-124737484.html

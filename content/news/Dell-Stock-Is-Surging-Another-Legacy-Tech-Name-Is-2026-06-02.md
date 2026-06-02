@@ -2,8 +2,8 @@
 title: "戴爾股價飆升：又一家傳統科技巨頭成為AI贏家"
 slug: Dell-Stock-Is-Surging-Another-Legacy-Tech-Name-Is-2026-06-02
 date: 2026-06-02T05:56:11
-category: AI
-tags: ["AI", "科技", "趨勢"]
+category: 科技
+tags: []
 excerpt: JK Space News 每日科技新聞選輯。
 source: TrendRadar
 url: https://finance.yahoo.com/markets/stocks/articles/dell-stock-surging-another-legacy-130002137.html
