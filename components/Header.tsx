@@ -7,7 +7,6 @@ import { Zap, Menu, X, Mail, Mic, Wrench } from "lucide-react";
 
 const NAV = [
   { label: "首頁", href: "/" },
-  { label: "趨勢", href: "/trending" },
   { label: "訪談", href: "/interview" },
   { label: "工具", href: "/tools" },
   { label: "訂閱", href: "/subscribe" },
@@ -49,6 +48,7 @@ export function Header() {
                 {item.label === "訂閱" && <Mail size={13} />}
                 {item.label === "訪談" && <Mic size={13} />}
                 {item.label === "工具" && <Wrench size={13} />}
+                {item.label === "首頁" && <Zap size={13} />}
                 {item.label}
               </Link>
             ))}
@@ -83,6 +83,8 @@ export function Header() {
               onClick={() => setMobileOpen(false)}
             >
               {item.label === "訂閱" && <Mail size={13} className="inline mr-1.5" />}
+              {item.label === "訪談" && <Mic size={13} className="inline mr-1.5" />}
+              {item.label === "工具" && <Wrench size={13} className="inline mr-1.5" />}
               {item.label}
             </Link>
           ))}
