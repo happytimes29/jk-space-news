@@ -3,8 +3,6 @@ import Link from "next/link";
 import {
   Bot,
   Cpu,
-  Mail,
-  MessageSquare,
   RadioTower,
   Sparkles,
   Zap,
@@ -79,7 +77,7 @@ export default function ProfilePage() {
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Link
-              href="#contact"
+              href="/contact"
               className="inline-flex items-center justify-center rounded-lg bg-[#0070F3] px-6 py-3 text-sm font-semibold text-white shadow-[0_0_24px_rgba(0,112,243,0.35)] transition hover:bg-[#1a7ff5]"
             >
               聯絡合作
@@ -120,52 +118,6 @@ export default function ProfilePage() {
                 <p className="mt-3 text-sm leading-relaxed text-[#888888]">{text}</p>
               </article>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="contact" className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-10 text-center">
-            <span className="mb-3 block font-mono text-xs font-medium uppercase tracking-[0.2em] text-[#60a5fa]">
-              Contact
-            </span>
-            <h2 className="text-3xl font-bold sm:text-4xl">聯絡我</h2>
-            <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-[#888888]">
-              合作提案、技術討論或單純打聲招呼，我很樂意回覆。
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <a
-              href="mailto:hello@jkspace.dev"
-              className="flex items-center gap-4 rounded-lg border border-[#1a1a1a] bg-[#0A0A0A] p-5 transition hover:border-[#0070F3]/40"
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#0070F3]/25 bg-[#0070F3]/10 text-[#60a5fa]">
-                <Mail size={16} />
-              </span>
-              <span>
-                <span className="block text-xs text-[#888888]">Email</span>
-                <span className="text-sm font-medium">hello@jkspace.dev</span>
-              </span>
-            </a>
-
-            <div className="flex items-center gap-4 rounded-lg border border-[#1a1a1a] bg-[#0A0A0A] p-5">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#0070F3]/25 bg-[#0070F3]/10 text-[#60a5fa]">
-                <MessageSquare size={16} />
-              </span>
-              <span>
-                <span className="block text-xs text-[#888888]">回覆時間</span>
-                <span className="text-sm font-medium">通常 24 小時內</span>
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-lg border border-[#0070F3]/20 bg-[#0070F3]/10 p-5">
-            <p className="text-sm font-medium text-[#60a5fa]">開放合作中</p>
-            <p className="mt-2 text-sm leading-relaxed text-[#a1a1aa]">
-              AI 自動化顧問、硬體系統評估、技術白皮書撰寫與 SaaS 產品共創。
-            </p>
           </div>
         </div>
       </section>
