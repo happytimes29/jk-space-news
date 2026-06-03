@@ -10,6 +10,9 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: "/",
+  },
   title: {
     default: "JK Space News — 科技情報站",
     template: "%s | JK Space News",

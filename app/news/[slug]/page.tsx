@@ -13,6 +13,8 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com";
+
 export async function generateStaticParams() {
   const news = await getAllNews();
   return news.map((n) => ({ slug: n.slug }));
@@ -28,9 +30,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: news.title,
     description: news.excerpt,
+    alternates: {
+      canonical: `${siteUrl}/news/${slug}`,
+    },
     openGraph: {
       title: news.title,
       description: news.excerpt,
+      url: `${siteUrl}/news/${slug}`,
       images: [{ url: ogUrl, width: 1200, height: 630 }],
       type: "article",
       publishedTime: news.date,
