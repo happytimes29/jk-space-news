@@ -35,9 +35,7 @@ export function Footer() {
             </Link>
             <span className="text-[#e5e5e7] dark:text-[#1a1a1a]">|</span>
             <Link
-              href="https://personal-website-one-sable-19.vercel.app/zh-TW"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/profile"
               className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors"
             >
               JK Space

@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Zap, Menu, X, Mic, Wrench } from "lucide-react";
+import { Zap, Menu, X, Mic, Wrench, User } from "lucide-react";
 
 const NAV = [
   { label: "首頁", href: "/" },
   { label: "訪談", href: "/interview" },
   { label: "工具", href: "/tools" },
+  { label: "關於我", href: "/profile" },
 ];
 
 export function Header() {
@@ -48,6 +49,7 @@ export function Header() {
                 {item.label === "訪談" && <Mic size={13} />}
                 {item.label === "工具" && <Wrench size={13} />}
                 {item.label === "首頁" && <Zap size={13} />}
+                {item.label === "關於我" && <User size={13} />}
                 {item.label}
               </Link>
             ))}
@@ -84,6 +86,7 @@ export function Header() {
 
               {item.label === "訪談" && <Mic size={13} className="inline mr-1.5" />}
               {item.label === "工具" && <Wrench size={13} className="inline mr-1.5" />}
+              {item.label === "關於我" && <User size={13} className="inline mr-1.5" />}
               {item.label}
             </Link>
           ))}
