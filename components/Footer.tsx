@@ -1,5 +1,18 @@
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { AtSign, Github, Linkedin, Mail, Music2, Youtube, Zap } from "lucide-react";
+
+const socialLinks: Array<{
+  label: string;
+  icon: LucideIcon;
+}> = [
+  { label: "GitHub", icon: Github },
+  { label: "LinkedIn", icon: Linkedin },
+  { label: "Email", icon: Mail },
+  { label: "Threads / X", icon: AtSign },
+  { label: "YouTube", icon: Youtube },
+  { label: "TikTok", icon: Music2 },
+];
 
 export function Footer() {
   return (
@@ -21,25 +34,39 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+          <div className="flex flex-col items-start md:items-end gap-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+              <Link href="/about" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
+                關於我們
+              </Link>
+              <Link href="/privacy" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
+                隱私權政策
+              </Link>
+              <Link href="/contact" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
+                聯絡我們
+              </Link>
+              <span className="text-[#e5e5e7] dark:text-[#1a1a1a]">|</span>
+              <Link
+                href="/profile"
+                className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors"
+              >
+                JK Space
+              </Link>
+            </div>
 
-
-            <Link href="/about" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
-              關於我們
-            </Link>
-            <Link href="/privacy" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
-              隱私權政策
-            </Link>
-            <Link href="/contact" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
-              聯絡我們
-            </Link>
-            <span className="text-[#e5e5e7] dark:text-[#1a1a1a]">|</span>
-            <Link
-              href="/profile"
-              className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors"
-            >
-              JK Space
-            </Link>
+            <div className="flex items-center gap-2" aria-label="社群媒體連結">
+              {socialLinks.map(({ label, icon: Icon }) => (
+                <span
+                  key={label}
+                  role="img"
+                  aria-label={`${label} 連結即將開放`}
+                  title={`${label} 連結即將開放`}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#e5e5e7] bg-white text-[#6e6e73] transition-colors hover:border-[#0070F3] hover:text-[#0070F3] dark:border-[#1a1a1a] dark:bg-[#0A0A0A] dark:text-[#888888]"
+                >
+                  <Icon size={15} aria-hidden="true" />
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
