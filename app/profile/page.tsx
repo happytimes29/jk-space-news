@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  ArrowRight,
   Bot,
   Cpu,
   Mail,
@@ -30,8 +29,8 @@ export const metadata: Metadata = {
 
 const stats = [
   { value: "15+", label: "年硬體研發" },
-  { value: "100", label: "AI Apps 挑戰" },
-  { value: "4+", label: "跨域核心技術" },
+  { value: "AI", label: "自動化工作流" },
+  { value: "4+", label: "核心技術領域" },
 ];
 
 const focusAreas = [
@@ -52,20 +51,7 @@ const focusAreas = [
   },
 ];
 
-const recentApps = [
-  "n8n Webhook Bot",
-  "Dify 文件摘要",
-  "BOM 比對系統",
-  "RF 測試報告",
-  "Code Review Bot",
-  "BMS Dashboard",
-];
-
 export default function ProfilePage() {
-  const completedDays = 6;
-  const totalDays = 100;
-  const progress = Math.round((completedDays / totalDays) * 100);
-
   return (
     <div className="bg-black text-[#EDEDED]">
       <section className="relative min-h-[calc(100vh-3.5rem)] overflow-hidden px-4 sm:px-6 lg:px-8">
@@ -93,15 +79,8 @@ export default function ProfilePage() {
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Link
-              href="#ai-progress"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0070F3] px-6 py-3 text-sm font-semibold text-white shadow-[0_0_24px_rgba(0,112,243,0.35)] transition hover:bg-[#1a7ff5]"
-            >
-              進入 AI 100 實驗室
-              <ArrowRight size={15} />
-            </Link>
-            <Link
               href="#contact"
-              className="inline-flex items-center justify-center rounded-lg border border-white/15 px-6 py-3 text-sm font-semibold text-[#EDEDED] transition hover:border-[#0070F3]/50 hover:bg-white/5"
+              className="inline-flex items-center justify-center rounded-lg bg-[#0070F3] px-6 py-3 text-sm font-semibold text-white shadow-[0_0_24px_rgba(0,112,243,0.35)] transition hover:bg-[#1a7ff5]"
             >
               聯絡合作
             </Link>
@@ -140,48 +119,6 @@ export default function ProfilePage() {
                 <h3 className="text-base font-semibold">{title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-[#888888]">{text}</p>
               </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="ai-progress" className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl rounded-lg border border-[#1a1a1a] bg-gradient-to-br from-[#0A0A0A] to-[#07111f] p-8 text-center sm:p-10">
-          <div className="mb-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#60a5fa]">
-            <span className="h-2 w-2 rounded-full bg-[#0070F3] shadow-[0_0_8px_rgba(0,112,243,0.8)]" />
-            Live Challenge · AI 100 Apps
-          </div>
-
-          <div className="flex items-baseline justify-center gap-3">
-            <span className="font-mono text-5xl font-bold text-[#60a5fa] sm:text-6xl">
-              {String(completedDays).padStart(2, "0")}
-            </span>
-            <span className="font-mono text-2xl text-[#888888]">/ {totalDays}</span>
-          </div>
-
-          <p className="mt-3 text-sm text-[#888888]">
-            已完成 {completedDays} 個 AI 應用，目標 100 天打造 100 款實戰工具
-          </p>
-
-          <div className="mt-8 h-2 overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-[#0070F3] to-[#00e5ff] shadow-[0_0_12px_rgba(0,112,243,0.55)]"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {recentApps.map((app, index) => (
-              <span
-                key={app}
-                className={`rounded-md border px-2.5 py-1 font-mono text-xs ${
-                  index === completedDays - 1
-                    ? "border-[#0070F3]/40 bg-[#0070F3]/15 text-[#60a5fa]"
-                    : "border-white/10 bg-white/[0.03] text-[#888888]"
-                }`}
-              >
-                {app}
-              </span>
             ))}
           </div>
         </div>
