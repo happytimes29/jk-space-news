@@ -142,7 +142,7 @@ export async function GET(req: NextRequest) {
                 background: accentColor,
               }}
             />
-            <span style={{ color: "#888888", fontSize: "13px" }}>jkspacenews.com</span>
+            <span style={{ color: "#888888", fontSize: "13px" }}>jk-space.com</span>
           </div>
           <span style={{ color: "#444444", fontSize: "12px" }}>
             {new Date().toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric" })}

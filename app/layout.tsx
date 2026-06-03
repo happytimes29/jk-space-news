@@ -6,8 +6,10 @@ import { Footer } from "@/components/Footer";
 import { CommandPalette } from "@/components/CommandPalette";
 import { getAllNews } from "@/lib/news";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "JK Space News — 科技情報站",
     template: "%s | JK Space News",
@@ -23,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    url: "https://jkspacenews.com",
+    url: siteUrl,
     siteName: "JK Space News",
     title: "JK Space News — 科技情報站",
     description: "專注於 科技、金融理財、創業 的極速情報站。",

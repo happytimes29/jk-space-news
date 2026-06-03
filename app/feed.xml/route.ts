@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAllNews } from "@/lib/news";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jkspacenews.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com";
 const SITE_NAME = "JK Space News";
 const SITE_DESCRIPTION = "專注於 科技、金融理財、創業 的極速情報站。";
 
@@ -47,14 +47,14 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"
   xmlns:atom="http://www.w3.org/2005/Atom"
-  xmlns:jk="https://jkspacenews.com/rss/extensions">
+  xmlns:jk="https://jk-space.com/rss/extensions">
   <channel>
     <title>${escapeXml(SITE_NAME)}</title>
     <link>${SITE_URL}</link>
     <description>${escapeXml(SITE_DESCRIPTION)}</description>
     <language>zh-TW</language>
-    <managingEditor>news@jkspacenews.com (${SITE_NAME})</managingEditor>
-    <webMaster>tech@jkspacenews.com (${SITE_NAME})</webMaster>
+    <managingEditor>news@jk-space.com (${SITE_NAME})</managingEditor>
+    <webMaster>tech@jk-space.com (${SITE_NAME})</webMaster>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <ttl>60</ttl>
     <image>
