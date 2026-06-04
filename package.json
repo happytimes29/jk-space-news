@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:local": "next build --webpack",
+    "verify:content": "node scripts/validate-news-content.mjs",
+    "verify": "npm run verify:content && npm run build:local",
     "start": "next start",
     "lint": "next lint"
   },

@@ -28,34 +28,73 @@ function estimateReadingTime(text: string): number {
   return Math.max(1, Math.ceil(words / wordsPerMin));
 }
 
+function normalizeString(value: unknown, fallback: string): string {
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
+}
+
+function normalizeStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .filter((item): item is string => typeof item === "string")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  if (typeof value === "string" && value.trim()) return [value.trim()];
+  return [];
+}
+
+function normalizeDate(value: unknown): string {
+  const parsed = typeof value === "string" || value instanceof Date ? new Date(value) : new Date();
+  return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+}
+
+function stripMarkdown(value: string): string {
+  return value.replace(/[#*[\]()`>]/g, "").replace(/\s+/g, " ").trim();
+}
+
 export async function getAllNews(): Promise<NewsItem[]> {
   if (!fs.existsSync(CONTENT_DIR)) return [];
 
   const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith(".md") || f.endsWith(".mdx"));
 
-  const news = files.map((filename) => {
+  const news = files.flatMap((filename) => {
     const slug = filename.replace(/\.mdx?$/, "");
     const filePath = path.join(CONTENT_DIR, filename);
-    const raw = fs.readFileSync(filePath, "utf-8");
-    const { data, content } = matter(raw);
+    let data: Record<string, unknown>;
+    let content: string;
 
-    return {
+    try {
+      const raw = fs.readFileSync(filePath, "utf-8");
+      const parsed = matter(raw);
+      data = parsed.data;
+      content = parsed.content;
+    } catch (error) {
+      console.warn(`[news] Skipping invalid content file ${filename}:`, error);
+      return [];
+    }
+
+    const excerpt = normalizeString(
+      data.excerpt,
+      `${stripMarkdown(content).slice(0, 120)}…`,
+    );
+
+    return [{
       slug,
-      title: data.title || "無標題",
-      date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
-      excerpt: data.excerpt || content.slice(0, 120).replace(/[#*\[\]]/g, "") + "…",
-      category: data.category || "科技",
-      tags: data.tags || [],
+      title: normalizeString(data.title, "無標題"),
+      date: normalizeDate(data.date),
+      excerpt,
+      category: normalizeString(data.category, "科技"),
+      tags: normalizeStringArray(data.tags),
       hot: data.hot === true,
-      coverImage: data.coverImage || `/images/default-cover.svg`,
-      audioUrl: data.audioUrl || undefined,
-      author: data.author || "JK Space News",
+      coverImage: normalizeString(data.coverImage, "/images/default-cover.svg"),
+      audioUrl: typeof data.audioUrl === "string" && data.audioUrl.trim() ? data.audioUrl.trim() : undefined,
+      author: normalizeString(data.author, "JK Space News"),
       readingTime: estimateReadingTime(content),
-      tldr: data.tldr || [],
-      url: data.url || undefined,
-      source: data.source || undefined,
+      tldr: normalizeStringArray(data.tldr),
+      url: typeof data.url === "string" && data.url.trim() ? data.url.trim() : undefined,
+      source: typeof data.source === "string" && data.source.trim() ? data.source.trim() : undefined,
       content,
-    } satisfies NewsItem;
+    } satisfies NewsItem];
   });
 
   // Sort by date descending
