@@ -17,6 +17,28 @@ function warn(file, message) {
   warnings.push(`${file}: ${message}`);
 }
 
+function validateMdxText(file, content) {
+  const lines = content.split(/\r?\n/);
+  let inFence = false;
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (/^\s*(```|~~~)/.test(line)) {
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence) continue;
+
+    const invalidTag = line.match(/<\s*(?=[0-9.+-])/);
+    if (invalidTag) {
+      fail(
+        file,
+        `line ${index + 1} contains '${invalidTag[0].trim()}' that MDX treats as an invalid JSX tag; use '&lt;' instead`,
+      );
+    }
+  }
+}
+
 if (!fs.existsSync(newsDir)) {
   fail("content/news", "directory does not exist");
 } else {
@@ -33,7 +55,9 @@ if (!fs.existsSync(newsDir)) {
     let parsed;
 
     try {
-      parsed = matter(fs.readFileSync(filePath, "utf8"));
+      const raw = fs.readFileSync(filePath, "utf8");
+      parsed = matter(raw);
+      validateMdxText(file, parsed.content);
     } catch (error) {
       fail(file, `invalid frontmatter: ${error.message}`);
       continue;
