@@ -71,6 +71,7 @@ const projects = [
     tags: ["Next.js", "OrCAD", "DXF", "Canvas", "Claude Code"],
     detail: "在 AI (Claude Code) 協助開發的過程中，克服了幾個硬體領域的經典課題：報表結構解析、全板資料過濾、DXF 座標系對齊（mil vs mm 縮放 39.37x）、以及開發環境的無痛化。專案完全 client-side 運作，所有 CAD 資料不出瀏覽器。",
     images: ["/images/pcb-tool-1.png", "/images/pcb-tool-2.png"],
+    href: "https://docs.google.com/document/d/17gT3FE2FSjhSNp-3iCyTRYylj1oq-14hItXQuhg4oqg/edit?tab=t.0",
   },
 ];
 
@@ -175,68 +176,77 @@ export default function ProfilePage() {
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
-            {projects.map(({ icon: Icon, title, desc, tags, href, detail, images }) => (
-              <article
-                key={title}
-                className={`group rounded-lg border border-[#1a1a1a] bg-[#0A0A0A] p-6 transition hover:border-[#0070F3]/40 hover:bg-[#111111] ${
-                  images ? "md:col-span-2" : ""
-                }`}
-              >
-                <div className="mb-4 flex items-start justify-between">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#0070F3]/25 bg-[#0070F3]/10 text-[#60a5fa]">
-                    <Icon size={18} />
+            {projects.map(({ icon: Icon, title, desc, tags, href, detail, images }) => {
+              const Card = (
+                <article
+                  className={`group rounded-lg border border-[#1a1a1a] bg-[#0A0A0A] p-6 transition hover:border-[#0070F3]/40 hover:bg-[#111111] ${
+                    images ? "md:col-span-2" : ""
+                  } ${href ? "cursor-pointer" : ""}`}
+                >
+                  <div className="mb-4 flex items-start justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#0070F3]/25 bg-[#0070F3]/10 text-[#60a5fa]">
+                      <Icon size={18} />
+                    </div>
+                    {href && (
+                      <span className="flex items-center gap-1.5 rounded-full border border-[#0070F3]/20 bg-[#0070F3]/5 px-3 py-1 text-xs font-medium text-[#60a5fa]">
+                        <ExternalLink size={12} />
+                        閱讀全文
+                      </span>
+                    )}
                   </div>
-                  {href && (
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#555555] transition group-hover:text-[#60a5fa]"
-                    >
-                      <ExternalLink size={15} />
-                    </a>
+                  <h3 className="text-base font-semibold">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[#888888]">{desc}</p>
+                  {detail && (
+                    <p className="mt-3 text-sm leading-relaxed text-[#666666] border-l-2 border-[#0070F3]/30 pl-3 italic">
+                      {detail}
+                    </p>
                   )}
-                </div>
-                <h3 className="text-base font-semibold">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#888888]">{desc}</p>
-                {detail && (
-                  <p className="mt-3 text-sm leading-relaxed text-[#666666] border-l-2 border-[#0070F3]/30 pl-3 italic">
-                    {detail}
-                  </p>
-                )}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-md border border-[#1a1a1a] bg-[#141414] px-2.5 py-0.5 text-xs font-medium text-[#a1a1aa]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                {images && (
-                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                    {images.map((src, i) => (
-                      <a
-                        key={src}
-                        href={src}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="relative aspect-video overflow-hidden rounded-lg border border-[#1a1a1a] bg-[#141414] transition hover:border-[#0070F3]/40"
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-md border border-[#1a1a1a] bg-[#141414] px-2.5 py-0.5 text-xs font-medium text-[#a1a1aa]"
                       >
-                        <Image
-                          src={src}
-                          alt={`${title} 截圖 ${i + 1}`}
-                          fill
-                          className="object-contain p-2"
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                        />
-                      </a>
+                        {tag}
+                      </span>
                     ))}
                   </div>
-                )}
-              </article>
-            ))}
+                  {images && (
+                    <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                      {images.map((src, i) => (
+                        <div
+                          key={src}
+                          className="relative aspect-video overflow-hidden rounded-lg border border-[#1a1a1a] bg-[#141414]"
+                        >
+                          <Image
+                            src={src}
+                            alt={`${title} 截圖 ${i + 1}`}
+                            fill
+                            className="object-contain p-2"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </article>
+              );
+
+              if (href) {
+                return (
+                  <a
+                    key={title}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    {Card}
+                  </a>
+                );
+              }
+              return <div key={title}>{Card}</div>;
+            })}
           </div>
         </div>
       </section>
