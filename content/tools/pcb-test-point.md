@@ -6,12 +6,14 @@ excerpt: "上傳新舊 OrCAD 測試點報表，自動比對 RefDes 座標差異�
 category: "硬體工具"
 tags: ["OrCAD", "PCB", "測試點", "比對", "DXF"]
 coverImage: /images/pcb-tool-1.png
-url: /tools/pcb-test-point
+url: /tools/pcb-test-point/app
 pricing: "免費"
 author: "JK Space News"
 ---
 
 PCB 改版時最頭痛的事之一，就是人工比對成千上百個測試點座標。
+
+[🚀 開啟工具 →](/tools/pcb-test-point/app)
 
 這個工具讓你直接上傳新舊 OrCAD Testprep Report 的 HTML / CSV 報表，自動比對並標示：
 

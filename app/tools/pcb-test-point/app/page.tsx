@@ -88,11 +88,11 @@ export default function PcbTestPointTool() {
       <header className="border-b border-[#30363d] bg-[#161b22]">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-3">
           <Link
-            href="/profile"
+            href="/tools/pcb-test-point"
             className="inline-flex items-center gap-1 text-xs text-[#8b949e] hover:text-[#58a6ff] transition-colors"
           >
             <ChevronLeft size={14} />
-            返回個人頁
+            返回工具介紹
           </Link>
           <div className="w-px h-5 bg-[#30363d]" />
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(88,166,255,0.15)", border: "1px solid #1f6feb" }}>
