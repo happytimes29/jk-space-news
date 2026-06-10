@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Bot,
   Cpu,
@@ -11,6 +12,7 @@ import {
   HardDrive,
   Workflow,
   Blocks,
+  Microchip,
 } from "lucide-react";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com";
@@ -61,6 +63,14 @@ const projects = [
     title: "n8n 自動化工作流",
     desc: "多套跨平台自動化：YT→Sheet 同步、Telegram 通知代理、RSS 排程擷取、Google Sheets 日報生產線。",
     tags: ["n8n", "Python", "Google Sheets", "Telegram"],
+  },
+  {
+    icon: Microchip,
+    title: "PCB 測試點自動比對工具",
+    desc: "硬體改版時，比對新舊 OrCAD 報表中的測試點座標，自動標示 Unchanged / Moved / Added / Removed。支援 DXF 板框疊圖、白名單篩選、mil↔mm 座標對齊。完全在瀏覽器端運算，確保 CAD 資料不外流。",
+    tags: ["Next.js", "OrCAD", "DXF", "Canvas", "Claude Code"],
+    detail: "在 AI (Claude Code) 協助開發的過程中，克服了幾個硬體領域的經典課題：報表結構解析、全板資料過濾、DXF 座標系對齊（mil vs mm 縮放 39.37x）、以及開發環境的無痛化。專案完全 client-side 運作，所有 CAD 資料不出瀏覽器。",
+    images: ["/images/pcb-tool-1.png", "/images/pcb-tool-2.png"],
   },
 ];
 
@@ -165,10 +175,12 @@ export default function ProfilePage() {
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
-            {projects.map(({ icon: Icon, title, desc, tags, href }) => (
+            {projects.map(({ icon: Icon, title, desc, tags, href, detail, images }) => (
               <article
                 key={title}
-                className="group rounded-lg border border-[#1a1a1a] bg-[#0A0A0A] p-6 transition hover:border-[#0070F3]/40 hover:bg-[#111111]"
+                className={`group rounded-lg border border-[#1a1a1a] bg-[#0A0A0A] p-6 transition hover:border-[#0070F3]/40 hover:bg-[#111111] ${
+                  images ? "md:col-span-2" : ""
+                }`}
               >
                 <div className="mb-4 flex items-start justify-between">
                   <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#0070F3]/25 bg-[#0070F3]/10 text-[#60a5fa]">
@@ -187,6 +199,11 @@ export default function ProfilePage() {
                 </div>
                 <h3 className="text-base font-semibold">{title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-[#888888]">{desc}</p>
+                {detail && (
+                  <p className="mt-3 text-sm leading-relaxed text-[#666666] border-l-2 border-[#0070F3]/30 pl-3 italic">
+                    {detail}
+                  </p>
+                )}
                 <div className="mt-4 flex flex-wrap gap-2">
                   {tags.map((tag) => (
                     <span
@@ -197,6 +214,27 @@ export default function ProfilePage() {
                     </span>
                   ))}
                 </div>
+                {images && (
+                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                    {images.map((src, i) => (
+                      <a
+                        key={src}
+                        href={src}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative aspect-video overflow-hidden rounded-lg border border-[#1a1a1a] bg-[#141414] transition hover:border-[#0070F3]/40"
+                      >
+                        <Image
+                          src={src}
+                          alt={`${title} 截圖 ${i + 1}`}
+                          fill
+                          className="object-contain p-2"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                )}
               </article>
             ))}
           </div>
