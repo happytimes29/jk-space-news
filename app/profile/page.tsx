@@ -6,6 +6,11 @@ import {
   RadioTower,
   Sparkles,
   Zap,
+  ExternalLink,
+  Newspaper,
+  HardDrive,
+  Workflow,
+  Blocks,
 } from "lucide-react";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com";
@@ -29,6 +34,34 @@ const stats = [
   { value: "15+", label: "年硬體研發" },
   { value: "AI", label: "自動化工作流" },
   { value: "4+", label: "核心技術領域" },
+];
+
+const projects = [
+  {
+    icon: Newspaper,
+    title: "JK Space News",
+    desc: "AI 驅動的新聞聚合平台。自動爬取、DeepSeek 改寫、圖像生成，每 30 分鐘一篇文章，全自動部署至 Vercel。",
+    tags: ["Next.js", "DeepSeek", "ComfyUI", "Vercel", "n8n"],
+    href: "https://jk-space.com",
+  },
+  {
+    icon: HardDrive,
+    title: "TIFA 加密備份系統",
+    desc: "macOS 每日自動加密 USB 備份。FileVault 驗證、rsync 差異同步、自動輪替保留最近 3 次備份。",
+    tags: ["Shell", "rsync", "FileVault", "cron"],
+  },
+  {
+    icon: Workflow,
+    title: "TrendRadar Pipeline",
+    desc: "完整的新聞生產線。RSS 監控 → SQLite 儲存 → DeepSeek 摘要 → Agnes/ComfyUI 配圖 → git push → Vercel 部署。",
+    tags: ["Python", "DeepSeek", "SQLite", "Agnes AI"],
+  },
+  {
+    icon: Blocks,
+    title: "n8n 自動化工作流",
+    desc: "多套跨平台自動化：YT→Sheet 同步、Telegram 通知代理、RSS 排程擷取、Google Sheets 日報生產線。",
+    tags: ["n8n", "Python", "Google Sheets", "Telegram"],
+  },
 ];
 
 const focusAreas = [
@@ -116,6 +149,54 @@ export default function ProfilePage() {
                 </div>
                 <h3 className="text-base font-semibold">{title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-[#888888]">{text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 實作專案 */}
+      <section className="px-4 pb-24 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8 flex items-center gap-3">
+            <ExternalLink size={16} className="text-[#0070F3]" />
+            <h2 className="text-lg font-semibold">實作專案</h2>
+            <div className="h-px flex-1 bg-[#1a1a1a]" />
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            {projects.map(({ icon: Icon, title, desc, tags, href }) => (
+              <article
+                key={title}
+                className="group rounded-lg border border-[#1a1a1a] bg-[#0A0A0A] p-6 transition hover:border-[#0070F3]/40 hover:bg-[#111111]"
+              >
+                <div className="mb-4 flex items-start justify-between">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#0070F3]/25 bg-[#0070F3]/10 text-[#60a5fa]">
+                    <Icon size={18} />
+                  </div>
+                  {href && (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#555555] transition group-hover:text-[#60a5fa]"
+                    >
+                      <ExternalLink size={15} />
+                    </a>
+                  )}
+                </div>
+                <h3 className="text-base font-semibold">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#888888]">{desc}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-md border border-[#1a1a1a] bg-[#141414] px-2.5 py-0.5 text-xs font-medium text-[#a1a1aa]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </article>
             ))}
           </div>
