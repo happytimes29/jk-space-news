@@ -71,7 +71,7 @@ const projects = [
     tags: ["Next.js", "OrCAD", "DXF", "Canvas", "Claude Code"],
     detail: "在 AI (Claude Code) 協助開發的過程中，克服了幾個硬體領域的經典課題：報表結構解析、全板資料過濾、DXF 座標系對齊（mil vs mm 縮放 39.37x）、以及開發環境的無痛化。專案完全 client-side 運作，所有 CAD 資料不出瀏覽器。",
     images: ["/images/pcb-tool-1.png", "/images/pcb-tool-2.png"],
-    href: "https://docs.google.com/document/d/17gT3FE2FSjhSNp-3iCyTRYylj1oq-14hItXQuhg4oqg/edit?tab=t.0",
+    href: "/projects/pcb-test-point-comparison",
   },
 ];
 
@@ -233,16 +233,24 @@ export default function ProfilePage() {
               );
 
               if (href) {
+                const isExternal = href.startsWith("http");
+                if (isExternal) {
+                  return (
+                    <a
+                      key={title}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      {Card}
+                    </a>
+                  );
+                }
                 return (
-                  <a
-                    key={title}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block"
-                  >
+                  <Link key={title} href={href} className="block">
                     {Card}
-                  </a>
+                  </Link>
                 );
               }
               return <div key={title}>{Card}</div>;
