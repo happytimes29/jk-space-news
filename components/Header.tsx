@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Zap, Menu, X, Mic, Wrench, User } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const NAV = [
   { label: "首頁", href: "/" },
@@ -17,39 +17,32 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#e5e5e7] dark:border-[#1a1a1a] bg-white dark:bg-black">
+    <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur-xl">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2 group"
+            className="group text-sm font-semibold tracking-tight text-[var(--color-text)]"
           >
-            <div className="w-7 h-7 rounded-md bg-[#0070F3] flex items-center justify-center group-hover:shadow-[0_0_12px_#0070F3] transition-shadow duration-300">
-              <Zap size={14} className="text-white" fill="white" />
-            </div>
-            <span className="font-bold text-sm tracking-tight text-[#1a1a1a] dark:text-[#EDEDED]">
-              JK<span className="text-[#0070F3]"> Space</span> News
+            <span>
+              JK Space
+              <span className="text-[var(--color-accent)]"> News</span>
             </span>
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)]/70 p-1">
             {NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
+                className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
                   pathname === item.href
-                    ? "text-[#1a1a1a] dark:text-[#EDEDED] bg-[#f5f5f7] dark:bg-[#0A0A0A]"
-                    : "text-[#6e6e73] dark:text-[#888888] hover:text-[#1a1a1a] dark:hover:text-[#EDEDED] hover:bg-[#f5f5f7] dark:hover:bg-[#0A0A0A]"
+                    ? "text-[var(--color-text)] bg-[var(--color-card-hover)]"
+                    : "text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-card-hover)]"
                 }`}
               >
-
-                {item.label === "訪談" && <Mic size={13} />}
-                {item.label === "工具" && <Wrench size={13} />}
-                {item.label === "首頁" && <Zap size={13} />}
-                {item.label === "關於我" && <User size={13} />}
                 {item.label}
               </Link>
             ))}
@@ -57,14 +50,14 @@ export function Header() {
 
           {/* Kbd hint */}
           <div className="hidden md:flex items-center gap-2">
-            <kbd className="hidden lg:flex items-center gap-1 px-2 py-0.5 text-xs text-[#6e6e73] dark:text-[#888888] border border-[#e5e5e7] dark:border-[#1a1a1a] rounded bg-[#f5f5f7] dark:bg-[#0A0A0A] cursor-default select-none">
+            <kbd className="hidden lg:flex items-center gap-1 px-2.5 py-1 text-xs text-[var(--color-muted)] border border-[var(--color-border)] rounded-full bg-[var(--color-card)] cursor-default select-none">
               <span>⌘</span>K
             </kbd>
           </div>
 
           {/* Mobile toggle */}
           <button
-            className="md:hidden p-2 text-[#6e6e73] dark:text-[#888888] hover:text-[#1a1a1a] dark:hover:text-[#EDEDED] transition-colors"
+            className="md:hidden p-2 text-[var(--color-muted)] hover:text-[var(--color-text)] transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
@@ -75,18 +68,14 @@ export function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-[#e5e5e7] dark:border-[#1a1a1a] bg-white/95 dark:bg-black/95 px-4 pb-4 pt-2">
+        <div className="md:hidden border-t border-[var(--color-border)] bg-[var(--color-bg)]/95 px-4 pb-4 pt-2 backdrop-blur-xl">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="block py-2.5 text-sm text-[#6e6e73] dark:text-[#888888] hover:text-[#1a1a1a] dark:hover:text-[#EDEDED] transition-colors border-b border-[#f5f5f7] dark:border-[#0A0A0A] last:border-0"
+              className="block rounded-xl px-3 py-2.5 text-sm text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-card-hover)] transition-colors"
               onClick={() => setMobileOpen(false)}
             >
-
-              {item.label === "訪談" && <Mic size={13} className="inline mr-1.5" />}
-              {item.label === "工具" && <Wrench size={13} className="inline mr-1.5" />}
-              {item.label === "關於我" && <User size={13} className="inline mr-1.5" />}
               {item.label}
             </Link>
           ))}

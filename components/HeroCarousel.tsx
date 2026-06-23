@@ -33,7 +33,7 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
   const news = articles[current];
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl bg-[#f5f5f7] dark:bg-[#0A0A0A] border border-[#e5e5e7] dark:border-[#1a1a1a]">
+    <div className="relative w-full overflow-hidden rounded-2xl bg-[var(--color-card)] border border-[var(--color-border)]">
       {/* Image area */}
       <div className="relative aspect-[16/7] w-full">
         <Image
@@ -41,13 +41,14 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
           alt={news.title}
           fill
           className="object-cover transition-opacity duration-500"
+          sizes="(max-width: 1280px) 100vw, 1152px"
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
         {/* Category */}
         <div className="absolute top-4 right-4">
-          <span className="text-xs px-2.5 py-1 rounded-full border border-[#0070F3]/30 text-[#0070F3] dark:text-[#60a5fa] bg-[#f5f5f7]/80 dark:bg-[#0A0A0A]/80 backdrop-blur-sm">
+          <span className="text-xs px-2.5 py-1 rounded-full border border-white/20 text-white bg-black/35 backdrop-blur-sm">
             {news.category}
           </span>
         </div>
@@ -68,7 +69,7 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
               {news.readingTime} 分鐘
             </span>
             {news.source && (
-              <span className="text-[#0070F3]">{news.source}</span>
+              <span className="text-white">{news.source}</span>
             )}
           </div>
         </div>
@@ -82,14 +83,14 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
         <>
           <button
             onClick={prev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white hover:bg-black/80 transition-all backdrop-blur-sm z-20"
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/45 border border-white/15 text-white/80 hover:text-white hover:bg-black/70 transition-all backdrop-blur-sm z-20"
             aria-label="上一篇"
           >
             <ChevronLeft size={18} />
           </button>
           <button
             onClick={next}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 border border-white/10 text-white/80 hover:text-white hover:bg-black/80 transition-all backdrop-blur-sm z-20"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/45 border border-white/15 text-white/80 hover:text-white hover:bg-black/70 transition-all backdrop-blur-sm z-20"
             aria-label="下一篇"
           >
             <ChevronRight size={18} />
@@ -106,7 +107,7 @@ export function HeroCarousel({ articles, autoPlayInterval = 5 }: HeroCarouselPro
               onClick={() => setCurrent(i)}
               className={`rounded-full transition-all ${
                 i === current
-                  ? "w-5 h-1.5 bg-[#0070F3]"
+                  ? "w-5 h-1.5 bg-white"
                   : "w-1.5 h-1.5 bg-white/30 hover:bg-white/50"
               }`}
               aria-label={`第 ${i + 1} 篇`}

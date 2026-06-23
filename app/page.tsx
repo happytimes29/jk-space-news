@@ -1,7 +1,7 @@
 import { getAllNews, getHotNews } from "@/lib/news";
 import { LatestNewsList } from "@/components/LatestNewsList";
 import { HeroCarousel } from "@/components/HeroCarousel";
-import { ArrowRight, Zap, TrendingUp } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export const revalidate = 60; // ISR every 60s
@@ -17,18 +17,18 @@ export default async function HomePage() {
   const carouselArticles = latestNews.slice(0, 5);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* ─── Hero section label ─── */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#0070F3]/30 bg-[#0070F3]/5">
-            <span className="pulse-dot" />
-            <span className="text-xs text-[#0070F3] font-medium">24H 科技熱點頭條</span>
-          </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-6">
+        <div>
+          <p className="mb-2 text-xs font-semibold text-[var(--color-accent)]">24H 科技熱點頭條</p>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--color-text)]">
+            JK Space News
+          </h1>
         </div>
         <Link
           href="/trending"
-          className="flex items-center gap-1.5 text-xs text-[#888888] hover:text-[#0070F3] transition-colors group"
+          className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-1.5 text-xs text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors group"
         >
           查看全部趨勢
           <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
@@ -36,17 +36,18 @@ export default async function HomePage() {
       </div>
 
       {/* ─── Hero Carousel ─── */}
-      <div className="mb-10">
+      <div className="mb-12">
         <HeroCarousel articles={carouselArticles} autoPlayInterval={5} />
       </div>
 
       {/* ─── Latest news grid ─── */}
       <section>
-        <div className="flex items-center gap-3 mb-6">
-          <TrendingUp size={16} className="text-[#0070F3]" />
-          <h2 className="font-semibold text-[var(--color-text)]">最新情報</h2>
-          <div className="flex-1 h-px bg-[#1a1a1a]" />
-          <span className="text-xs text-[#888888]">{allNews.length} 篇文章</span>
+        <div className="flex items-end justify-between gap-4 mb-6">
+          <div>
+            <p className="text-xs font-semibold text-[var(--color-accent)] mb-1">Latest</p>
+            <h2 className="text-2xl font-bold tracking-tight text-[var(--color-text)]">最新情報</h2>
+          </div>
+          <span className="text-xs text-[var(--color-muted)]">{allNews.length} 篇文章</span>
         </div>
 
         <LatestNewsList articles={latestNews} />
@@ -57,9 +58,8 @@ export default async function HomePage() {
         <div className="mt-12 text-center">
           <Link
             href="/trending"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[#e5e5e7] dark:border-[#1a1a1a] text-xs text-[#6e6e73] dark:text-[#888888] hover:border-[#0070F3]/30 hover:text-[#0070F3] transition-all duration-200 bg-white dark:bg-[#0A0A0A]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[var(--color-border)] text-xs text-[var(--color-muted)] hover:border-[var(--color-accent)]/30 hover:text-[var(--color-accent)] transition-colors duration-200 bg-[var(--color-card)]"
           >
-            <Zap size={14} className="text-[#0070F3]" />
             查看所有 {allNews.length} 篇文章
             <ArrowRight size={14} />
           </Link>
