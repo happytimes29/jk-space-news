@@ -8,7 +8,7 @@ excerpt: "被動收入投資組合如何實現每年兩次郵輪旅行？本文�
 source: TrendRadar
 hot: true
 author: "JK Space News"
-coverImage: /images/finance-digest-2026-06-26-1001-cover.png
+coverImage: /images/finance-digest-2026-06-26-1001-cover.webp
 ---
 
 
