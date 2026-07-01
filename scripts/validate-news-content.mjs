@@ -29,6 +29,14 @@ function validateMdxText(file, content) {
     }
     if (inFence) continue;
 
+    const invalidClosingVoidTag = line.match(/<\/\s*(br|hr|img|input|meta|link|area|base|col|embed|source|track|wbr)\s*>/i);
+    if (invalidClosingVoidTag) {
+      fail(
+        file,
+        `line ${index + 1} contains '${invalidClosingVoidTag[0]}' that MDX treats as an invalid JSX closing tag; use '<${invalidClosingVoidTag[1].toLowerCase()} />' instead`,
+      );
+    }
+
     const invalidTag = line.match(/<\s*(?=[0-9.+-])/);
     if (invalidTag) {
       fail(
