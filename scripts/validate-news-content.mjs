@@ -37,6 +37,14 @@ function validateMdxText(file, content) {
       );
     }
 
+    const bareVoidTag = line.match(/<(br|hr|img|input|meta|link|area|base|col|embed|source|track|wbr)(\s[^>/]*)?\s*>/i);
+    if (bareVoidTag) {
+      fail(
+        file,
+        `line ${index + 1} contains '${bareVoidTag[0]}' that MDX treats as an unclosed JSX tag; use '<${bareVoidTag[1].toLowerCase()} />' instead`,
+      );
+    }
+
     const invalidTag = line.match(/<\s*(?=[0-9.+-])/);
     if (invalidTag) {
       fail(
