@@ -52,6 +52,14 @@ function validateMdxText(file, content) {
         `line ${index + 1} contains '${invalidTag[0].trim()}' that MDX treats as an invalid JSX tag; use '&lt;' instead`,
       );
     }
+
+    const genericType = line.match(/\b[A-Za-z_][\w:.]*<([A-Za-z_][\w:.,\s?&|]*)>/);
+    if (genericType) {
+      fail(
+        file,
+        `line ${index + 1} contains '${genericType[0]}' that MDX may parse as JSX; use '&lt;' and '&gt;' for generic type brackets`,
+      );
+    }
   }
 }
 
