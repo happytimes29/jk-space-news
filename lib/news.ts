@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { cache } from "react";
 
 const CONTENT_DIR = path.join(process.cwd(), "content/news");
 
@@ -52,7 +53,35 @@ function stripMarkdown(value: string): string {
   return value.replace(/[#*[\]()`>]/g, "").replace(/\s+/g, " ").trim();
 }
 
-export async function getAllNews(): Promise<NewsItem[]> {
+function escapeMdxExpressions(markdown: string): string {
+  const lines = markdown.split(/(\r?\n)/);
+  let inFence = false;
+
+  return lines.map((line) => {
+    if (line === "\n" || line === "\r\n") return line;
+    if (/^\s*(```|~~~)/.test(line)) {
+      inFence = !inFence;
+      return line;
+    }
+    if (inFence) return line;
+
+    let inInlineCode = false;
+    let escaped = "";
+    for (let index = 0; index < line.length; index += 1) {
+      const char = line[index];
+      const previous = line[index - 1];
+      if (char === "`" && previous !== "\\") inInlineCode = !inInlineCode;
+      if (!inInlineCode && (char === "{" || char === "}") && previous !== "\\") {
+        escaped += `\\${char}`;
+      } else {
+        escaped += char;
+      }
+    }
+    return escaped;
+  }).join("");
+}
+
+export const getAllNews = cache(async function getAllNews(): Promise<NewsItem[]> {
   if (!fs.existsSync(CONTENT_DIR)) return [];
 
   const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith(".md") || f.endsWith(".mdx"));
@@ -67,7 +96,7 @@ export async function getAllNews(): Promise<NewsItem[]> {
       const raw = fs.readFileSync(filePath, "utf-8");
       const parsed = matter(raw);
       data = parsed.data;
-      content = parsed.content;
+      content = escapeMdxExpressions(parsed.content);
     } catch (error) {
       console.warn(`[news] Skipping invalid content file ${filename}:`, error);
       return [];
@@ -99,7 +128,7 @@ export async function getAllNews(): Promise<NewsItem[]> {
 
   // Sort by date descending
   return news.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-}
+});
 
 export async function getNewsBySlug(slug: string): Promise<NewsItem | null> {
   const all = await getAllNews();

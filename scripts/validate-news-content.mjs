@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { serialize } from "next-mdx-remote/serialize";
 
 const root = process.cwd();
 const newsDir = path.join(root, "content", "news");
@@ -63,6 +64,42 @@ function validateMdxText(file, content) {
   }
 }
 
+function escapeMdxExpressions(markdown) {
+  const lines = markdown.split(/(\r?\n)/);
+  let inFence = false;
+
+  return lines.map((line) => {
+    if (line === "\n" || line === "\r\n") return line;
+    if (/^\s*(```|~~~)/.test(line)) {
+      inFence = !inFence;
+      return line;
+    }
+    if (inFence) return line;
+
+    let inInlineCode = false;
+    let escaped = "";
+    for (let index = 0; index < line.length; index += 1) {
+      const char = line[index];
+      const previous = line[index - 1];
+      if (char === "`" && previous !== "\\") inInlineCode = !inInlineCode;
+      if (!inInlineCode && (char === "{" || char === "}") && previous !== "\\") {
+        escaped += `\\${char}`;
+      } else {
+        escaped += char;
+      }
+    }
+    return escaped;
+  }).join("");
+}
+
+async function validateMdxCompile(file, content) {
+  try {
+    await serialize(escapeMdxExpressions(content));
+  } catch (error) {
+    fail(file, `MDX compile failed: ${error.message}`);
+  }
+}
+
 if (!fs.existsSync(newsDir)) {
   fail("content/news", "directory does not exist");
 } else {
@@ -81,11 +118,13 @@ if (!fs.existsSync(newsDir)) {
     try {
       const raw = fs.readFileSync(filePath, "utf8");
       parsed = matter(raw);
-      validateMdxText(file, parsed.content);
     } catch (error) {
       fail(file, `invalid frontmatter: ${error.message}`);
       continue;
     }
+
+    validateMdxText(file, parsed.content);
+    await validateMdxCompile(file, parsed.content);
 
     const data = parsed.data || {};
     const slug = typeof data.slug === "string" && data.slug.trim() ? data.slug.trim() : expectedSlug;
