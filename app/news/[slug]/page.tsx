@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getAllNews, getNewsBySlug, getAdjacentNews, formatDate } from "@/lib/news";
+import { getArchivedNewsBySlug } from "@/lib/archived-news";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { TldrBlock } from "@/components/TldrBlock";
 import { MDXRenderer } from "@/components/MDXRenderer";
-import { Clock, Calendar, Tag, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { Archive, Clock, Calendar, Tag, User, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
@@ -23,7 +24,20 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const news = await getNewsBySlug(slug);
-  if (!news) return { title: "找不到文章" };
+  if (!news) {
+    const archived = await getArchivedNewsBySlug(slug);
+    if (archived) {
+      return {
+        title: `${archived.title} - 已下架`,
+        description: "這篇文章已從公開網站下架，JK Space News 目前只保留最近 7 天內容。",
+        robots: {
+          index: false,
+          follow: true,
+        },
+      };
+    }
+    return { title: "找不到文章" };
+  }
 
   const ogUrl = `/api/og?title=${encodeURIComponent(news.title)}&category=${encodeURIComponent(news.category)}`;
 
@@ -57,7 +71,41 @@ export default async function NewsPage({ params }: Props) {
     getAdjacentNews(slug),
   ]);
 
-  if (!news) notFound();
+  if (!news) {
+    const archived = await getArchivedNewsBySlug(slug);
+    if (!archived) notFound();
+
+    return (
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors mb-8 group"
+        >
+          <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+          返回首頁
+        </Link>
+
+        <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-6 sm:p-8">
+          <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-accent)]">
+            <Archive size={22} />
+          </div>
+          <p className="mb-3 text-xs font-medium text-[var(--color-accent)]">文章已下架</p>
+          <h1 className="mb-4 text-2xl font-bold leading-tight text-[var(--color-text)] sm:text-3xl">
+            {archived.title}
+          </h1>
+          <div className="mb-6 flex flex-wrap items-center gap-3 text-xs text-[var(--color-muted)]">
+            <span>{archived.category}</span>
+            <span>{formatDate(archived.date)}</span>
+            {archived.source && <span>{archived.source}</span>}
+          </div>
+          <p className="text-sm leading-7 text-[var(--color-muted)]">
+            這篇文章已從公開網站下架。JK Space News 的 Vercel 網站目前只保留最近 7 天內容，
+            舊文章文案已保存到本機歸檔，可在本機閱讀器查看。
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
