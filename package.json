@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "build:local": "next build --webpack",
+    "archive:prune": "node scripts/prune-news-content.mjs --apply",
+    "archive:prune:dry": "node scripts/prune-news-content.mjs",
     "verify:content": "node scripts/validate-news-content.mjs",
     "verify": "npm run verify:content && npm run build:local",
     "start": "next start",
