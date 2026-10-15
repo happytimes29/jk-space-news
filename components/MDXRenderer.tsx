@@ -7,7 +7,7 @@ interface Props {
 
 const components = {
   // Custom code block with copy button
-  pre: ({ children, ...props }: React.HTMLAttributes<HTMLPreElement>) => {
+  pre: ({ children }: React.HTMLAttributes<HTMLPreElement>) => {
     const child = (children as React.ReactElement<{ className?: string; children?: string }>);
     const className = child?.props?.className || "";
     const language = className.replace("language-", "") || "text";

@@ -23,6 +23,24 @@ test("owned tool details explain formats and privacy and lead to working example
   await expect(page.getByRole("row", { name: /TP4 Added/ })).toBeVisible();
   await expect(page.getByRole("row", { name: /TP3 Removed/ })).toBeVisible();
   await expect(page.getByRole("row", { name: /TP2 Unchanged/ })).toBeVisible();
+  await expect(page.locator("canvas")).toBeVisible();
+  // A table alone must not hide a broken dynamically loaded map.
+  expect(await page.locator("canvas").evaluate((canvas: HTMLCanvasElement) => {
+    const pixels = canvas.getContext("2d")!.getImageData(0, 0, canvas.width, canvas.height).data;
+    return pixels.some((channel, index) => index % 4 === 3 && channel > 0);
+  })).toBe(true);
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "匯出 CSV", exact: true }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^pcb-tp-diff_.*\.csv$/);
+  const stream = await download.createReadStream();
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+  const csv = Buffer.concat(chunks).toString("utf8");
+  expect(csv).toContain('"TP1","Moved",100.00,100.00,130.00,140.00,30.00,40.00,50.00');
+  expect(csv).toContain('"TP4","Added"');
+  expect(csv).toContain('"TP3","Removed"');
+  expect(csv).toContain('"TP2","Unchanged"');
 });
 
 test("selecting local reports produces comparison results without network uploads", async ({ page }) => {
@@ -58,3 +76,14 @@ test("a failed sample download explains how to continue", async ({ page }) => {
   await page.getByRole("button", { name: "載入範例", exact: true }).click();
   await expect(page.getByRole("region", { name: "隱私與範例" }).getByRole("alert")).toContainText("請重試或選取本機 HTML 報表");
 });
+
+for (const width of [320, 768, 1440]) {
+  test(`loaded PCB sample remains usable without page overflow at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/tools/pcb-test-point/app");
+    await page.getByRole("button", { name: "載入範例", exact: true }).click();
+    await expect(page.getByRole("row", { name: /TP1 Moved/ })).toBeVisible();
+    await expect(page.locator("canvas")).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}

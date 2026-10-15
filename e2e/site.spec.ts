@@ -21,6 +21,86 @@ test("homepage provides the primary site landmarks", async ({ page }) => {
   await expect(page.getByRole("banner")).toBeVisible();
   await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("contentinfo")).toBeVisible();
+  await expect(page.getByRole("region", { name: "把工程上的麻煩事，做成好用的工具。" }).getByText(/這裡是我的個人工程實驗室/)).toBeVisible();
+});
+
+// These journeys catch broken mobile-menu links as well as desktop navigation.
+for (const width of [320, 1440]) {
+  test(`all six primary navigation destinations are reachable at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    for (const [label, href] of [["首頁", "/"], ["專案", "/projects"], ["工具", "/tools"], ["筆記與觀點", "/notes"], ["關於我", "/about"], ["聯絡", "/contact"]]) {
+      if (width < 768) await page.getByRole("button", { name: "開啟選單" }).click();
+      const navigation = page.getByRole("navigation", { name: width < 768 ? "行動版主導覽" : "主導覽", exact: true });
+      await navigation.getByRole("link", { name: label, exact: true }).click();
+      await expect(page).toHaveURL(href);
+      await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toBeVisible();
+    }
+  });
+}
+
+for (const shortcut of ["Meta+k", "Control+k"]) {
+  test(`${shortcut} searches and keyboard-selects both project and tool`, async ({ page }) => {
+    await page.goto("/");
+    for (const [type, destination] of [["專案", "/projects/pcb-test-point-comparison"], ["工具", "/tools/pcb-test-point"]]) {
+      await page.keyboard.press(shortcut);
+      const search = page.getByRole("textbox", { name: "搜尋專案、工具與筆記" });
+      await expect(search).toBeFocused();
+      await search.fill("PCB");
+      await expect(page.getByRole("button", { name: `PCB 測試點自動比對工具 ${type}`, exact: true })).toBeVisible();
+      // Search ordering is projects followed by tools; exercise down/up selection.
+      await page.keyboard.press("ArrowDown");
+      if (type === "專案") await page.keyboard.press("ArrowUp");
+      await page.keyboard.press("Enter");
+      await expect(page).toHaveURL(destination);
+      await expect(search).toHaveCount(0);
+    }
+  });
+}
+
+for (const width of [320, 768, 1440]) {
+  test(`representative public pages fit ${width}px without horizontal overflow`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    for (const route of ["/", "/projects", "/projects/pcb-test-point-comparison", "/projects/jk-space-news-automation", "/tools", "/tools/pcb-test-point", "/notes", "/about", "/contact", "/privacy"]) {
+      await page.goto(route);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), route).toBe(true);
+    }
+  });
+}
+
+test("reduced motion disables page and search animation and transitions", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.keyboard.press("Control+k");
+  await expect(page.getByRole("textbox", { name: "搜尋專案、工具與筆記" })).toBeVisible();
+  // Query the page document, excluding the development toolbar's shadow root.
+  const movingElements = await page.evaluate(() => Array.from(document.querySelectorAll("body *")).filter((element) =>
+    [null, "::before", "::after"].some((pseudo) => {
+      const style = getComputedStyle(element, pseudo);
+      return [...style.animationDuration.split(","), ...style.transitionDuration.split(",")].some((duration) => parseFloat(duration) > 0.001);
+    })
+  ).map((element) => element.tagName));
+  expect(movingElements).toEqual([]);
+});
+
+test("Contact renders real linked channels without placeholder email or inert social controls", async ({ page }) => {
+  await page.goto("/contact");
+  const main = page.getByRole("main");
+  await expect(main).not.toContainText("jk@example.com");
+  await expect(main.locator("a:not([href]), a[href=''], a[href='#'], button")).toHaveCount(0);
+  await expect(main.getByRole("link", { name: "GitHub", exact: true })).toHaveAttribute("href", "https://github.com/happytimes29");
+  await expect(main.getByRole("link", { name: "Telegram", exact: true })).toHaveAttribute("href", "https://t.me/JK_Sapce");
+});
+
+test("RSS serves the original Notes feed without retired articles", async ({ request }) => {
+  const response = await request.get("/feed.xml");
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toContain("application/rss+xml");
+  const source = await response.text();
+  expect(source).toContain("<title>JK Space</title>");
+  expect(source).toContain("<link>https://jk-space.com/notes</link>");
+  expect(source).not.toContain("<item>");
+  expect(source).not.toContain("/news/");
 });
 
 test("homepage introduces real work and reaches collaboration at every supported width", async ({ page }) => {
