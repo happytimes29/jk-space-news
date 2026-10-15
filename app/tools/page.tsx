@@ -3,11 +3,13 @@ import Image from "next/image";
 import { getAllTools } from "@/lib/tools";
 import { StatusBadge } from "@/components/content/StatusBadge";
 import { OpenToolLink } from "@/components/tools/OpenToolLink";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = buildPageMetadata({
+  route: "/tools",
   title: "我做的工具",
   description: "JK Space 開發的工程工具：用途、格式、限制與資料處理方式。",
-};
+});
 
 export default async function ToolsPage() {
   const tools = await getAllTools();

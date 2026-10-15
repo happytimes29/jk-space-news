@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { getEnabledContactLinks, siteConfig } from "@/lib/site-config";
 import { ContactLinks } from "@/app/contact/ContactLinks";
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
+  route: "/about",
   title: "關於我",
   description: "15+ 年硬體研發經驗，從高頻電路與系統架構，延伸至 AI 自動化與獨立產品實驗。",
-  alternates: { canonical: "/about" },
-};
+});
 
 const expertise = [
   { title: "硬體系統與高頻電路", text: "從 RF、BMS 到系統架構，把硬體邊界條件轉成可落地的工程決策。" },

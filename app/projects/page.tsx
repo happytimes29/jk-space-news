@@ -1,15 +1,16 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import { getAllProjects } from "@/lib/projects";
 import { ContentCard } from "@/components/content/ContentCard";
 import { ContentMeta } from "@/components/content/ContentMeta";
 import { StatusBadge } from "@/components/content/StatusBadge";
 import { filterProjects, projectAreaLabels } from "./projects-view";
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
+  route: "/projects",
   title: "專案",
   description: "JK Space 的工程案例：記錄實際問題、角色、限制、關鍵決策與成果。",
-};
+});
 
 interface Props {
   searchParams: Promise<{ area?: string; status?: string }>;

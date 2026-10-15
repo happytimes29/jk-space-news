@@ -1,14 +1,14 @@
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { getAllNotes, type NoteType } from "@/lib/notes";
 import { ContentCard } from "@/components/content/ContentCard";
 import { NoteFilter } from "@/components/notes/NoteFilter";
 import { filterNotes, noteTypeLabels } from "./notes-view";
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
+  route: "/notes",
   title: "筆記與觀點", description: "JK Space 的原創工程筆記、AI 與自動化、專案紀錄與新聞觀點。",
-  alternates: { canonical: "/notes" },
-};
+});
 
 interface Props { searchParams: Promise<{ type?: string | string[] }> }
 

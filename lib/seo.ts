@@ -1,8 +1,24 @@
-import type { MetadataRoute } from "next";
+import type { Metadata, MetadataRoute } from "next";
 import type { ProjectItem } from "./projects";
 import type { ToolItem } from "./tools";
 import type { NoteItem } from "./notes";
-import type { SiteConfig } from "./site-config";
+import { siteConfig, type SiteConfig } from "./site-config";
+
+export function buildPageMetadata({ route, title, description }: {
+  route: string;
+  title: string;
+  description: string;
+}): Metadata {
+  const shareTitle = `${title} | ${siteConfig.name}`;
+  return {
+    title, description, alternates: { canonical: route },
+    openGraph: {
+      type: "website", locale: "zh_TW", siteName: siteConfig.name,
+      url: route, title: shareTitle, description,
+      images: [{ url: `/api/og?${new URLSearchParams({ title: shareTitle })}`, width: 1200, height: 630, alt: shareTitle }],
+    },
+  };
+}
 
 function absoluteUrl(baseUrl: string, route: string): string {
   return `${baseUrl.replace(/\/+$/, "")}${route}`;

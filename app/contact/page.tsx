@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import { getEnabledContactLinks, siteConfig } from "@/lib/site-config";
 import { ContactLinks } from "./ContactLinks";
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
+  route: "/contact",
   title: "聯絡我",
   description: `${siteConfig.name} 的技術交流、工具回饋與合作討論管道。`,
-  alternates: { canonical: "/contact" },
-};
+});
 
 export default function ContactPage() {
   return (

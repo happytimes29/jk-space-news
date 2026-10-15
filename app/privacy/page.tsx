@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { siteConfig } from "@/lib/site-config";
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
+  route: "/privacy",
   title: "隱私權政策",
   description: `${siteConfig.name} 的網站連線、匿名瀏覽統計與 PCB 工具檔案處理說明。`,
-  alternates: { canonical: "/privacy" },
-};
+});
 
 export default function PrivacyPage() {
   return (
