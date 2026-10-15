@@ -8,6 +8,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./tests/setup.ts"],
-    exclude: ["**/node_modules/**", "**/.next/**", "e2e/**"],
+    // Executable CLI fixtures use Node's test runner, invoked separately in verification.
+    exclude: ["**/node_modules/**", "**/.next/**", "e2e/**", "scripts/**/*.test.mjs"],
   },
 });

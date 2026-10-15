@@ -1,9 +1,10 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
+import { siteConfig } from "@/lib/site-config";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
-  const title = searchParams.get("title") ?? "JK Space News";
+  const title = searchParams.get("title") ?? siteConfig.title;
   const category = searchParams.get("category") ?? "科技";
 
   const CATEGORY_COLORS: Record<string, string> = {
@@ -74,10 +75,10 @@ export async function GET(req: NextRequest) {
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span style={{ color: "#EDEDED", fontSize: "16px", fontWeight: 700, letterSpacing: "-0.5px" }}>
-                JK Space News
+                {siteConfig.name}
               </span>
               <span style={{ color: "#888888", fontSize: "11px" }}>
-                AI & 科技情報站
+                {siteConfig.tagline}
               </span>
             </div>
           </div>

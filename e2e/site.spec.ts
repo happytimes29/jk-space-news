@@ -1,5 +1,19 @@
 import { expect, test } from "@playwright/test";
 
+test("retired entry points redirect permanently and article URLs return noindex 404", async ({ page, request }) => {
+  for (const [source, destination] of [["/news", "/notes"], ["/trending", "/notes"], ["/profile", "/about"], ["/interview", "/about"], ["/interview/previous-guest", "/about"]]) {
+    const response = await request.get(source, { maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(response.headers().location).toBe(destination);
+  }
+  for (const slug of ["ai-digest-2026-08-09-1531", "never-published"]) {
+    const response = await page.goto(`/news/${slug}`);
+    expect(response?.status()).toBe(404);
+    await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
+    await expect(page.getByRole("navigation", { name: "繼續探索" })).toBeVisible();
+  }
+});
+
 test("homepage provides the primary site landmarks", async ({ page }) => {
   const response = await page.goto("/");
 
