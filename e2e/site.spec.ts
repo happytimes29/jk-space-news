@@ -53,3 +53,21 @@ test("project filters combine and empty results can be reset", async ({ page }) 
   await page.getByRole("link", { name: "清除篩選" }).click();
   await expect(page.getByRole("article")).toHaveCount(2);
 });
+
+test("Notes categories preserve the honest empty collection without legacy news paths", async ({ page }) => {
+  await page.goto("/notes");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("筆記與觀點");
+  for (const [label, type] of [["工程筆記", "engineering"], ["AI 與自動化", "automation"], ["專案紀錄", "project-log"], ["新聞觀點", "commentary"]]) {
+    await page.getByRole("navigation", { name: "筆記分類" }).getByRole("link", { name: label }).click();
+    await expect(page).toHaveURL(`/notes?type=${type}`);
+    await expect(page.getByText("筆記正在整理中")).toBeVisible();
+    await expect(page.getByRole("article")).toHaveCount(0);
+    await expect(page.locator('a[href^="/news"]')).toHaveCount(0);
+  }
+  await page.getByRole("navigation", { name: "筆記分類" }).getByRole("link", { name: "全部" }).click();
+  await expect(page).toHaveURL("/notes");
+  await page.setViewportSize({ width: 320, height: 740 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  const response = await page.goto("/notes/no-placeholder");
+  expect(response?.status()).toBe(404);
+});

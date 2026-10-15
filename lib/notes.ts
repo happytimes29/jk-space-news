@@ -1,5 +1,6 @@
 import path from "node:path";
 import { ContentFields, estimateReadingTime, loadContentCollection } from "./content/shared";
+import { parseCommentaryContent } from "./notes-content";
 
 export type NoteType = "engineering" | "automation" | "project-log" | "commentary";
 
@@ -43,10 +44,15 @@ export function loadNotes(directory = path.join(process.cwd(), "content/notes"))
       relatedProjects: fields.optionalStrings("relatedProjects"), relatedTools: fields.optionalStrings("relatedTools"),
       readingTime: estimateReadingTime(content), content,
     };
-    return type === "commentary" ? {
-      ...base, type, sourceTitle: fields.string("sourceTitle"), sourceUrl: fields.url("sourceUrl"),
-      sourcePublishedAt: fields.date("sourcePublishedAt"),
-    } : { ...base, type };
+    if (type === "commentary") {
+      const note: CommentaryNote = {
+        ...base, type, sourceTitle: fields.string("sourceTitle"), sourceUrl: fields.url("sourceUrl"),
+        sourcePublishedAt: fields.date("sourcePublishedAt"),
+      };
+      parseCommentaryContent(content, file);
+      return note;
+    }
+    return { ...base, type };
   }).sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
 }
 

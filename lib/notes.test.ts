@@ -11,6 +11,7 @@ afterEach(() => {
   directories.splice(0).forEach((dir) => fs.rmSync(dir, { recursive: true }));
 });
 const source = { sourceTitle: "原始報導", sourceUrl: "https://example.com/report", sourcePublishedAt: "2026-10-12" };
+const commentaryContent = "## 事件摘要\n\n來源報導的事實。\n\n## 我的觀點\n\n我的工程判斷。";
 
 describe("notes", () => {
   it.each(["engineering", "automation", "project-log"])("loads an original %s note", (type) => {
@@ -21,7 +22,7 @@ describe("notes", () => {
 
   it("loads a commentary note with its mandatory source disclosure", () => {
     const dir = directory();
-    writeContent(dir, "commentary.md", { ...noteData, ...source, type: "commentary" });
+    writeContent(dir, "commentary.md", { ...noteData, ...source, type: "commentary" }, commentaryContent);
     expect(loadNotes(dir)[0]).toMatchObject({ type: "commentary", sourceTitle: "原始報導", sourceUrl: "https://example.com/report", sourcePublishedAt: "2026-10-12T00:00:00.000Z" });
   });
 
@@ -29,6 +30,22 @@ describe("notes", () => {
     const dir = directory();
     writeContent(dir, "missing-source.md", { ...noteData, ...source, type: "commentary", [field]: undefined });
     expect(() => loadNotes(dir)).toThrow(new RegExp(`missing-source\\.md.*${field}`));
+  });
+
+  // Catches publishing source metadata while the actual article lacks its required sections.
+  it.each([
+    ["missing summary", "## 我的觀點\n個人評論。"],
+    ["missing opinion", "## 事件摘要\n報導事實。"],
+    ["reversed sections", "## 我的觀點\n評論。\n## 事件摘要\n事實。"],
+    ["duplicate section", `${commentaryContent}\n## 我的觀點\n重複。`],
+    ["empty summary", "## 事件摘要\n\n## 我的觀點\n評論。"],
+    ["headings only inside a fence", "```md\n## 事件摘要\n事實。\n## 我的觀點\n評論。\n```"],
+    ["headings only inside a quote", "> ## 事件摘要\n> 事實。\n> ## 我的觀點\n> 評論。"],
+    ["headings only inside a comment", "<!--\n## 事件摘要\n事實。\n## 我的觀點\n評論。\n-->"],
+  ])("refuses commentary content with %s", (_case, content) => {
+    const dir = directory();
+    writeContent(dir, "invalid-sections.md", { ...noteData, ...source, type: "commentary" }, content);
+    expect(() => loadNotes(dir)).toThrow(/invalid-sections\.md.*content.*事件摘要.*我的觀點/);
   });
 
   it.each([["type", "news"], ["publishedAt", undefined], ["updatedAt", "invalid"], ["author", ""], ["featured", 1], ["tags", null]])("rejects invalid note %s", (field, value) => {
