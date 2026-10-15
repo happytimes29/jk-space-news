@@ -17,5 +17,12 @@ export function parseCommentaryContent(content: string, file: string): { summary
   for (const section of [summary, opinion]) {
     if (!fromMarkdown(section).children.some((node) => node.type !== "definition" && !(node.type === "html" && /^\s*<!--[\s\S]*-->\s*$/.test(node.value)))) fail();
   }
-  return { summary, opinion };
+  // Each MDX section needs the same document-wide reference definitions. Put them
+  // first, in source order, so a local duplicate cannot override the first one.
+  const definitions = nodes.filter((node) => node.type === "definition")
+    .map((node) => content.slice(node.position!.start.offset!, node.position!.end.offset!)).join("\n\n");
+  return {
+    summary: `${definitions}\n\n${summary}`,
+    opinion: `${definitions}\n\n${opinion}`,
+  };
 }

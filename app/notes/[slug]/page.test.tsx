@@ -11,7 +11,7 @@ afterEach(() => {
   directories.splice(0).forEach((dir) => fs.rmSync(dir, { recursive: true }));
 });
 
-function fixture(type: "engineering" | "commentary") {
+function fixture(type: "engineering" | "commentary", content?: string) {
   const root = fixtureDirectory();
   directories.push(root);
   const dir = path.join(root, "content/notes");
@@ -19,12 +19,25 @@ function fixture(type: "engineering" | "commentary") {
   writeContent(dir, "note.md", {
     ...noteData, type, relatedProjects: ["pcb-test-point-comparison"], relatedTools: ["pcb-test-point"],
     ...(type === "commentary" ? { sourceTitle: "原始工程報導", sourceUrl: "https://example.com/report", sourcePublishedAt: "2026-10-12" } : {}),
-  }, type === "commentary" ? "## 事件摘要\n\n原始報導的事實。\n\n## 我的觀點\n\n我的工程判斷。" : "## 工程紀錄\n\n實際驗證過的筆記。");
+  }, content ?? (type === "commentary" ? "## 事件摘要\n\n原始報導的事實。\n\n## 我的觀點\n\n我的工程判斷。" : "## 工程紀錄\n\n實際驗證過的筆記。"));
   vi.spyOn(process, "cwd").mockReturnValue(root);
   return { params: Promise.resolve({ slug: "test-note" }) };
 }
 
 describe("Note detail", () => {
+  it("resolves document-wide reference links across both commentary sections", async () => {
+    const props = fixture("commentary", "## 事件摘要\n\n依據[原始報導][report]整理事件。\n\n[method]: https://example.com/method \"工程方法\"\n\n## 我的觀點\n\n參照[驗證方法][method]作出判斷。\n\n[report]: https://example.com/report \"完整報導\"\n\n[method]: https://example.com/ignored \"重複定義不覆蓋前文\"");
+    const html = await new Response(await renderToReadableStream(await NotePage(props))).text();
+    const document = new DOMParser().parseFromString(html, "text/html");
+    const sections = [...document.querySelectorAll("article section")];
+    expect(sections.map((section) => section.querySelector("h2")?.textContent)).toEqual(["事件摘要", "我的觀點"]);
+    expect(sections[0].querySelector('a[href="https://example.com/report"]')?.textContent).toBe("原始報導");
+    expect(sections[0].querySelector('a[href="https://example.com/report"]')?.getAttribute("title")).toBe("完整報導");
+    expect(sections[1].querySelector('a[href="https://example.com/method"]')?.textContent).toBe("驗證方法");
+    expect(sections[1].querySelector('a[href="https://example.com/method"]')?.getAttribute("title")).toBe("工程方法");
+    expect(document.querySelector('aside[aria-label="原始來源"] a')?.textContent).toBe("原始工程報導");
+  });
+
   it("renders commentary as explicit fact and opinion sections with the original source", async () => {
     const props = fixture("commentary");
     const html = await new Response(await renderToReadableStream(await NotePage(props))).text();
