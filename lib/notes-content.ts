@@ -1,4 +1,5 @@
 import { fromMarkdown } from "mdast-util-from-markdown";
+import { toMarkdown } from "mdast-util-to-markdown";
 import { ContentValidationError } from "./content/shared";
 
 /** Commentary uses two top-level Markdown sections, rendered separately by the detail page. */
@@ -19,8 +20,12 @@ export function parseCommentaryContent(content: string, file: string): { summary
   }
   // Each MDX section needs the same document-wide reference definitions. Put them
   // first, in source order, so a local duplicate cannot override the first one.
-  const definitions = nodes.filter((node) => node.type === "definition")
-    .map((node) => content.slice(node.position!.start.offset!, node.position!.end.offset!)).join("\n\n");
+  const collectDefinitions = (children: typeof nodes): string[] => children.flatMap((node) => {
+    if (node.type === "definition") return [toMarkdown(node)];
+    return "children" in node ? collectDefinitions(node.children) : [];
+  });
+  // Serialize lifted nodes rather than copying their blockquote/list prefixes.
+  const definitions = collectDefinitions(nodes).join("\n");
   return {
     summary: `${definitions}\n\n${summary}`,
     opinion: `${definitions}\n\n${opinion}`,

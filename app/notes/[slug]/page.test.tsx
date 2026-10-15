@@ -25,6 +25,23 @@ function fixture(type: "engineering" | "commentary", content?: string) {
 }
 
 describe("Note detail", () => {
+  it.each([
+    ["blockquote", "> [report]: <https://example.com/first?x=1&y=2>\n>   \"第一份來源\""],
+    ["list", "- [report]: <https://example.com/first?x=1&y=2>\n    \"第一份來源\""],
+  ])("preserves the first reference definition nested in a %s", async (_container, definition) => {
+    const props = fixture("commentary", `## 事件摘要\n\n根據[事件來源][report]整理事實。\n\n${definition}\n\n## 我的觀點\n\n重新閱讀[完整來源][report]後的判斷。\n\n[report]: https://example.com/later \"後來的定義\"`);
+    const html = await new Response(await renderToReadableStream(await NotePage(props))).text();
+    const document = new DOMParser().parseFromString(html, "text/html");
+    const sections = [...document.querySelectorAll("article section")];
+    expect(sections.map((section) => section.querySelector("h2")?.textContent)).toEqual(["事件摘要", "我的觀點"]);
+    for (const section of sections) {
+      expect(section.querySelector("a")?.getAttribute("href")).toBe("https://example.com/first?x=1&y=2");
+      expect(section.querySelector("a")?.getAttribute("title")).toBe("第一份來源");
+      expect(section.querySelector('a[href="https://example.com/later"]')).toBeNull();
+    }
+    expect(document.querySelector('aside[aria-label="原始來源"] a')?.textContent).toBe("原始工程報導");
+  });
+
   it("resolves document-wide reference links across both commentary sections", async () => {
     const props = fixture("commentary", "## 事件摘要\n\n依據[原始報導][report]整理事件。\n\n[method]: https://example.com/method \"工程方法\"\n\n## 我的觀點\n\n參照[驗證方法][method]作出判斷。\n\n[report]: https://example.com/report \"完整報導\"\n\n[method]: https://example.com/ignored \"重複定義不覆蓋前文\"");
     const html = await new Response(await renderToReadableStream(await NotePage(props))).text();
