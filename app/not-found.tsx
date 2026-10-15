@@ -1,35 +1,24 @@
 import Link from "next/link";
-import { Zap } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">
-      {/* Glowing number */}
-      <div className="relative mb-8">
-        <p
-          className="text-[120px] sm:text-[180px] font-black text-[#0070F3]/10 select-none leading-none"
-          style={{ textShadow: "0 0 60px rgba(0,112,243,0.3)" }}
-        >
-          404
-        </p>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-xl bg-[#0070F3] flex items-center justify-center shadow-[0_0_40px_#0070F3]">
-            <Zap size={28} className="text-white" fill="white" />
-          </div>
-        </div>
-      </div>
-
-      <h1 className="text-2xl font-bold text-[#EDEDED] mb-3">頁面不存在</h1>
-      <p className="text-[#888888] text-sm mb-8 max-w-sm">
-        這篇情報已被列為機密或不存在。請回到基地繼續探索最新 AI 動態。
+    <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 py-16 text-center text-[var(--color-text)]">
+      <p className="mb-6 font-mono text-6xl font-bold text-[var(--color-accent)]" aria-hidden="true">404</p>
+      <h1 className="mb-3 text-2xl font-bold">頁面不存在</h1>
+      <p className="mb-8 max-w-md text-sm leading-7 text-[var(--color-muted)]">
+        這個網址可能已移動或不再提供。可以從專案、工具或筆記與觀點繼續探索工程實作。
       </p>
-
-      <Link
-        href="/"
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0070F3] text-white text-sm font-medium hover:bg-[#0070F3]/90 transition-colors shadow-[0_0_20px_rgba(0,112,243,0.4)]"
-      >
-        返回首頁
-      </Link>
+      <nav aria-label="繼續探索" className="flex max-w-lg flex-wrap justify-center gap-3">
+        {[["回到首頁", "/"], ["專案", "/projects"], ["工具", "/tools"], ["筆記與觀點", "/notes"]].map(([label, href]) => (
+          <Link
+            key={href}
+            href={href}
+            className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-sm font-medium transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
     </div>
   );
 }

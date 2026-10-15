@@ -95,3 +95,49 @@ test("Notes categories preserve the honest empty collection without legacy news 
   const response = await page.goto("/notes/no-placeholder");
   expect(response?.status()).toBe(404);
 });
+
+test("About connects verified expertise, real work, and enabled external profiles", async ({ page }) => {
+  await page.goto("/about");
+  const main = page.getByRole("main");
+  await expect(main.getByRole("heading", { level: 1 })).toHaveText("關於我");
+  for (const name of ["簡介", "專業領域", "工作方法", "經歷時間線", "目前關注方向", "外部連結"]) {
+    await expect(main.getByRole("region", { name })).toBeVisible();
+  }
+  await expect(main).toContainText("15+ 年");
+  await main.getByRole("link", { name: "PCB 測試點自動比對工具", exact: true }).click();
+  await expect(page).toHaveURL("/projects/pcb-test-point-comparison");
+  await page.goBack();
+  for (const [label, href] of [["GitHub", "https://github.com/happytimes29"], ["Telegram", "https://t.me/JK_Sapce"]]) {
+    const link = main.getByRole("region", { name: "外部連結" }).getByRole("link", { name: label, exact: true });
+    await expect(link).toHaveAttribute("href", href);
+    await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  }
+  await main.getByRole("link", { name: "聯絡我", exact: true }).click();
+  await expect(page).toHaveURL("/contact");
+  await expect(main.getByRole("heading", { level: 1 })).toHaveText("聯絡我");
+  await expect(main.getByRole("link")).toHaveCount(2);
+  await expect(main.locator("form, input, textarea")).toHaveCount(0);
+  await expect(main.locator('a[href^="mailto:"]')).toHaveCount(0);
+});
+
+test("trust pages and missing-page recovery stay usable on narrow screens", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  for (const route of ["/about", "/contact", "/privacy"]) {
+    const response = await page.goto(route);
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toHaveCount(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
+  await page.getByRole("main").getByRole("link", { name: "聯絡頁" }).click();
+  await expect(page).toHaveURL("/contact");
+
+  const response = await page.goto("/missing-engineering-page");
+  expect(response?.status()).toBe(404);
+  const recovery = page.getByRole("main").getByRole("navigation", { name: "繼續探索" });
+  for (const [label, href] of [["回到首頁", "/"], ["專案", "/projects"], ["工具", "/tools"], ["筆記與觀點", "/notes"]]) {
+    await expect(recovery.getByRole("link", { name: label, exact: true })).toHaveAttribute("href", href);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await recovery.getByRole("link", { name: "專案", exact: true }).click();
+  await expect(page).toHaveURL("/projects");
+});
