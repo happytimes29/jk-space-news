@@ -1,13 +1,18 @@
 ---
 title: "PCB 測試點自動比對工具"
 slug: pcb-test-point-comparison
-date: 2026-06-10
-excerpt: "硬體改版時，比對新舊 OrCAD 報表中的測試點座標，自動標示 Unchanged / Moved / Added / Removed。支援 DXF 板框疊圖、白名單篩選、mil↔mm 座標對齊。完全在瀏覽器端運算，確保 CAD 資料不外流。"
-category: "硬體工具"
+summary: "硬體改版時，比對新舊 OrCAD 報表中的測試點座標，自動標示 Unchanged / Moved / Added / Removed。支援 DXF 板框疊圖、白名單篩選、mil↔mm 座標對齊。完全在瀏覽器端運算，確保 CAD 資料不外流。"
+year: 2026
+status: maintained
+areas: [hardware, product]
+role: 設計與實作
+featured: true
+updatedAt: 2026-06-10
 tags: ["Next.js", "OrCAD", "DXF", "Canvas", "Claude Code"]
 coverImage: /images/pcb-tool-1.png
-author: "JK Space News"
-readingTime: 8
+gallery: [/images/pcb-tool-1.png, /images/pcb-tool-2.png]
+demoUrl: /tools/pcb-test-point/app
+relatedTools: [pcb-test-point]
 ---
 
 ## 專案架構

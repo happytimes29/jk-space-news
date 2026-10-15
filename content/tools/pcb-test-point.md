@@ -1,14 +1,15 @@
 ---
 title: "PCB 測試點自動比對工具"
 slug: pcb-test-point
-date: 2026-06-10
-excerpt: "上傳新舊 OrCAD 測試點報表，自動比對 RefDes 座標差異，支援 DXF 板框疊圖與白名單篩選。純瀏覽器端運算，機密資料不外流。"
-category: "硬體工具"
-tags: ["OrCAD", "PCB", "測試點", "比對", "DXF"]
+summary: "選取新舊 OrCAD 測試點報表，自動比對 RefDes 座標差異，支援 DXF 板框疊圖與白名單篩選。純瀏覽器端運算，機密資料不外流。"
+status: available
+privacy: 所有使用者檔案只在瀏覽器內解析，不上傳伺服器。
+inputTypes: [OrCAD HTML, DXF, Target List]
+outputTypes: [差異表, 2D 座標圖, CSV]
+updatedAt: 2026-06-10
 coverImage: /images/pcb-tool-1.png
-url: /tools/pcb-test-point/app
-pricing: "免費"
-author: "JK Space News"
+appUrl: /tools/pcb-test-point/app
+relatedProject: pcb-test-point-comparison
 ---
 
 [🚀 開啟工具 →](/tools/pcb-test-point/app)
