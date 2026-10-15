@@ -9,9 +9,14 @@ describe("shared JK Space identity", () => {
     expect(siteConfig.description).toBe("硬體研發、AI 自動化、工程工具與技術觀點。");
   });
 
-  it("provides the ordered primary navigation destinations", () => {
-    expect(siteConfig.navigation.map((item) => item.href)).toEqual([
-      "/", "/projects", "/tools", "/notes", "/about", "/contact",
+  it("provides the ordered primary navigation labels and destinations", () => {
+    expect(siteConfig.navigation).toEqual([
+      { label: "首頁", href: "/" },
+      { label: "專案", href: "/projects" },
+      { label: "工具", href: "/tools" },
+      { label: "筆記與觀點", href: "/notes" },
+      { label: "關於我", href: "/about" },
+      { label: "聯絡", href: "/contact" },
     ]);
   });
 
