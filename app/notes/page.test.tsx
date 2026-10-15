@@ -1,11 +1,19 @@
 import fs from "node:fs";
 import path from "node:path";
 import { render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fixtureDirectory, noteData, writeContent } from "@/lib/content/test-fixtures";
 import NotesPage from "./page";
 
 const directories: string[] = [];
+let noteDirectory: string;
+beforeEach(() => {
+  const root = fixtureDirectory();
+  directories.push(root);
+  noteDirectory = path.join(root, "content/notes");
+  fs.mkdirSync(noteDirectory, { recursive: true });
+  vi.spyOn(process, "cwd").mockReturnValue(root);
+});
 afterEach(() => {
   vi.restoreAllMocks();
   directories.splice(0).forEach((dir) => fs.rmSync(dir, { recursive: true }));
@@ -24,13 +32,8 @@ describe("NotesPage", () => {
   });
 
   it("uses the query category and presents publication context for real loaded fixtures", async () => {
-    const root = fixtureDirectory();
-    directories.push(root);
-    const dir = path.join(root, "content/notes");
-    fs.mkdirSync(dir, { recursive: true });
-    writeContent(dir, "engineering.md", noteData);
-    writeContent(dir, "automation.md", { ...noteData, title: "工作流程筆記", slug: "workflow", type: "automation", tags: ["AI"] });
-    vi.spyOn(process, "cwd").mockReturnValue(root);
+    writeContent(noteDirectory, "engineering.md", noteData);
+    writeContent(noteDirectory, "automation.md", { ...noteData, title: "工作流程筆記", slug: "workflow", type: "automation", tags: ["AI"] });
     render(await NotesPage({ searchParams: Promise.resolve({ type: "automation" }) }));
     expect(screen.getAllByRole("article")).toHaveLength(1);
     const article = screen.getByRole("article", { name: "工作流程筆記" });
@@ -43,8 +46,12 @@ describe("NotesPage", () => {
   });
 
   it("treats unsupported query categories as the full original collection", async () => {
+    writeContent(noteDirectory, "engineering.md", noteData);
+    writeContent(noteDirectory, "automation.md", { ...noteData, title: "工作流程筆記", slug: "workflow", type: "automation" });
     render(await NotesPage({ searchParams: Promise.resolve({ type: "news" }) }));
     expect(screen.getByRole("link", { name: "全部" })).toHaveAttribute("aria-current", "page");
-    expect(screen.getByText("筆記正在整理中")).toBeVisible();
+    expect(screen.getAllByRole("article")).toHaveLength(2);
+    expect(screen.getByRole("article", { name: noteData.title })).toBeVisible();
+    expect(screen.getByRole("article", { name: "工作流程筆記" })).toBeVisible();
   });
 });

@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import HomePage from "@/app/page";
 import { HomePageContent } from "./HomePageContent";
-import type { NoteItem } from "@/lib/notes";
+import { loadNotes, type NoteItem } from "@/lib/notes";
 
 describe("personal engineering lab homepage", () => {
   // Catches retaining the news landing page or losing the visitor's next steps.
@@ -38,7 +38,12 @@ describe("personal engineering lab homepage", () => {
     expect(tool).toHaveTextContent("所有使用者檔案只在瀏覽器內解析，不上傳伺服器。");
     expect(within(tool).getByRole("link", { name: "立即使用" })).toHaveAttribute("href", "/tools/pcb-test-point/app");
     expect(within(tool).getByRole("img")).toHaveAttribute("src", expect.stringContaining("pcb-tool-1.png"));
-    expect(screen.getByRole("region", { name: "最新筆記與觀點" })).toHaveTextContent("筆記正在整理中");
+    const recentNotes = loadNotes().slice(0, 3);
+    const notes = screen.getByRole("region", { name: "最新筆記與觀點" });
+    if (recentNotes.length === 0) expect(notes).toHaveTextContent("筆記正在整理中");
+    for (const note of recentNotes) {
+      expect(within(notes).getByRole("link", { name: note.title })).toHaveAttribute("href", `/notes/${encodeURIComponent(note.slug)}`);
+    }
     const now = screen.getByRole("region", { name: "最近在做什麼" });
     expect(now).toHaveTextContent("目前正將網站改造成個人工程實驗室");
     expect(within(now).getByText("2026-10-14")).toHaveAttribute("datetime", "2026-10-14T00:00:00.000Z");

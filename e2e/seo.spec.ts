@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { loadNotes } from "../lib/notes";
 
 test("published page source carries its own canonical, social image and structured data", async ({ page, request }) => {
   for (const [route, types, imageType] of [
@@ -33,7 +34,9 @@ test("crawl endpoints contain only public portfolio content", async ({ request }
   expect([...source.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1])).toEqual([
     "https://jk-space.com/", "https://jk-space.com/projects", "https://jk-space.com/tools", "https://jk-space.com/notes", "https://jk-space.com/about", "https://jk-space.com/contact", "https://jk-space.com/privacy",
     "https://jk-space.com/projects/jk-space-news-automation", "https://jk-space.com/projects/pcb-test-point-comparison", "https://jk-space.com/tools/pcb-test-point",
+    ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
   ]);
+  expect(source).not.toContain("https://jk-space.com/news/");
   const robots = await request.get("/robots.txt");
   expect(robots.status()).toBe(200);
   expect(await robots.text()).toBe("User-Agent: *\nAllow: /\n\nSitemap: https://jk-space.com/sitemap.xml\n");

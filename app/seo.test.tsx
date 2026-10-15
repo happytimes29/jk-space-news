@@ -5,6 +5,7 @@ import ProjectPage, { generateMetadata as projectMetadata } from "./projects/[sl
 import ToolPage, { generateMetadata as toolMetadata } from "./tools/[slug]/page";
 import sitemap from "./sitemap";
 import robots from "./robots";
+import { loadNotes } from "@/lib/notes";
 
 const props = (slug: string) => ({ params: Promise.resolve({ slug }) });
 async function structuredData(page: React.ReactNode) {
@@ -36,6 +37,7 @@ describe("public SEO integration", () => {
     expect((await sitemap()).map((item) => item.url)).toEqual([
       "https://jk-space.com/", "https://jk-space.com/projects", "https://jk-space.com/tools", "https://jk-space.com/notes", "https://jk-space.com/about", "https://jk-space.com/contact", "https://jk-space.com/privacy",
       "https://jk-space.com/projects/jk-space-news-automation", "https://jk-space.com/projects/pcb-test-point-comparison", "https://jk-space.com/tools/pcb-test-point",
+      ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
     ]);
     expect(robots()).toEqual({ rules: { userAgent: "*", allow: "/" }, sitemap: "https://jk-space.com/sitemap.xml" });
   });

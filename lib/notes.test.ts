@@ -82,7 +82,11 @@ describe("notes", () => {
   });
 
   it("accepts an empty notes directory and publishes no placeholder notes", async () => {
-    expect(loadNotes(directory())).toEqual([]);
+    const root = directory();
+    const dir = path.join(root, "content/notes");
+    fs.mkdirSync(dir, { recursive: true });
+    vi.spyOn(process, "cwd").mockReturnValue(root);
+    expect(loadNotes(dir)).toEqual([]);
     expect(await getAllNotes()).toEqual([]);
     expect(await getRecentNotes()).toEqual([]);
     expect(await getNoteBySlug("missing")).toBeNull();

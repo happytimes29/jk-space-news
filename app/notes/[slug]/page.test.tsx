@@ -97,6 +97,10 @@ describe("Note detail", () => {
   });
 
   it("generates no placeholder route and rejects a missing note", async () => {
+    const root = fixtureDirectory();
+    directories.push(root);
+    fs.mkdirSync(path.join(root, "content/notes"), { recursive: true });
+    vi.spyOn(process, "cwd").mockReturnValue(root);
     expect(await generateStaticParams()).toEqual([]);
     await expect(NotePage({ params: Promise.resolve({ slug: "missing" }) })).rejects.toThrow(/404/);
     expect(await generateMetadata({ params: Promise.resolve({ slug: "missing" }) })).toMatchObject({ robots: { index: false, follow: false } });

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { loadNotes } from "../lib/notes";
 
 test("retired entry points redirect permanently and article URLs return noindex 404", async ({ page, request }) => {
   for (const [source, destination] of [["/news", "/notes"], ["/trending", "/notes"], ["/profile", "/about"], ["/interview", "/about"], ["/interview/previous-guest", "/about"]]) {
@@ -92,15 +93,25 @@ test("Contact renders real linked channels without placeholder email or inert so
   await expect(main.getByRole("link", { name: "Telegram", exact: true })).toHaveAttribute("href", "https://t.me/JK_Sapce");
 });
 
-test("RSS serves the original Notes feed without retired articles", async ({ request }) => {
+test("RSS serves the original Notes feed without retired articles", async ({ page, request }) => {
+  const notes = loadNotes();
   const response = await request.get("/feed.xml");
   expect(response.status()).toBe(200);
   expect(response.headers()["content-type"]).toContain("application/rss+xml");
   const source = await response.text();
   expect(source).toContain("<title>JK Space</title>");
   expect(source).toContain("<link>https://jk-space.com/notes</link>");
-  expect(source).not.toContain("<item>");
-  expect(source).not.toContain("/news/");
+  const items = await page.evaluate((xml) => {
+    const document = new DOMParser().parseFromString(xml, "application/xml");
+    if (document.querySelector("parsererror")) throw new Error("Invalid RSS XML");
+    return Array.from(document.querySelectorAll("item")).map((item) => ({
+      title: item.querySelector("title")?.textContent,
+      link: item.querySelector("link")?.textContent,
+      summary: item.querySelector("description")?.textContent,
+    }));
+  }, source);
+  expect(items).toEqual(notes.map((note) => ({ title: note.title, link: `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`, summary: note.summary })));
+  expect(source).not.toContain("https://jk-space.com/news/");
 });
 
 test("homepage introduces real work and reaches collaboration at every supported width", async ({ page }) => {
@@ -172,21 +183,39 @@ test("project filters combine and empty results can be reset", async ({ page }) 
   await expect(page.getByRole("article")).toHaveCount(2);
 });
 
-test("Notes categories preserve the honest empty collection without legacy news paths", async ({ page }) => {
+test("Notes categories show published content or its honest empty state without legacy news paths", async ({ page }) => {
+  const notes = loadNotes();
   await page.goto("/notes");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("筆記與觀點");
   for (const [label, type] of [["工程筆記", "engineering"], ["AI 與自動化", "automation"], ["專案紀錄", "project-log"], ["新聞觀點", "commentary"]]) {
     await page.getByRole("navigation", { name: "筆記分類" }).getByRole("link", { name: label }).click();
     await expect(page).toHaveURL(`/notes?type=${type}`);
-    await expect(page.getByText("筆記正在整理中")).toBeVisible();
-    await expect(page.getByRole("article")).toHaveCount(0);
+    const expected = notes.filter((note) => note.type === type);
+    await expect(page.getByRole("article")).toHaveCount(expected.length);
+    if (expected.length === 0) {
+      await expect(page.getByText(notes.length === 0 ? "筆記正在整理中" : "沒有符合分類的筆記", { exact: true })).toBeVisible();
+    }
+    for (const note of expected) {
+      await expect(page.getByRole("article", { name: note.title, exact: true }).getByRole("link", { name: note.title, exact: true })).toHaveAttribute("href", `/notes/${encodeURIComponent(note.slug)}`);
+    }
     await expect(page.locator('a[href^="/news"]')).toHaveCount(0);
   }
   await page.getByRole("navigation", { name: "筆記分類" }).getByRole("link", { name: "全部" }).click();
   await expect(page).toHaveURL("/notes");
+  await expect(page.getByRole("article")).toHaveCount(notes.length);
+  if (notes.length > 0) {
+    const note = notes[0];
+    await page.getByRole("article", { name: note.title, exact: true }).getByRole("link", { name: note.title, exact: true }).click();
+    await expect(page).toHaveURL(`/notes/${encodeURIComponent(note.slug)}`);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(note.title);
+    await page.goBack();
+    await expect(page).toHaveURL("/notes");
+  }
   await page.setViewportSize({ width: 320, height: 740 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  const response = await page.goto("/notes/no-placeholder");
+  let missingSlug = "no-placeholder";
+  while (notes.some((note) => note.slug === missingSlug)) missingSlug += "-missing";
+  const response = await page.goto(`/notes/${missingSlug}`);
   expect(response?.status()).toBe(404);
 });
 

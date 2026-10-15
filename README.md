@@ -6,7 +6,7 @@ Next.js App Router、React、TypeScript 與 Tailwind CSS 建立的繁體中文�
 
 ## 本機環境
 
-- Node.js 20.9 以上及 npm；使用支援中的 Node LTS。此次驗收環境為 Node 26.8.2 / npm 11.19.1。
+- 建議使用 Node.js 24 LTS（至少 24.15.0）及 npm。鎖定的測試依賴要求 Node `^22.22.2 || ^24.15.0 || >=26.0.0`，不能只依 Next.js 的 Node 20.9 最低需求安裝。此次驗收環境為 Node 26.8.2 / npm 11.19.1。
 - Chromium（Playwright 可自動安裝）；Lighthouse 需要本機 Chrome／Chromium。
 - 不需要 CMS、資料庫或登入憑證。
 
