@@ -11,13 +11,8 @@ import { getAllNotes } from "@/lib/notes";
 import { buildSearchItems } from "@/lib/search";
 import { siteConfig } from "@/lib/site-config";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  alternates: {
-    canonical: "/",
-  },
+  metadataBase: new URL(siteConfig.url),
   title: {
     default: siteConfig.title,
     template: `%s | ${siteConfig.name}`,
@@ -33,10 +28,11 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    url: siteUrl,
+    url: siteConfig.url,
     siteName: siteConfig.name,
     title: siteConfig.title,
     description: siteConfig.description,
+    images: [{ url: `/api/og?${new URLSearchParams({ title: siteConfig.title })}`, width: 1200, height: 630, alt: siteConfig.title }],
   },
   robots: {
     index: true,

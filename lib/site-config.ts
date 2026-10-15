@@ -6,6 +6,7 @@ export interface ContactLink {
 
 export interface SiteConfig {
   name: string;
+  url: string;
   title: string;
   tagline: string;
   description: string;
@@ -15,6 +16,7 @@ export interface SiteConfig {
 
 export const siteConfig: SiteConfig = {
   name: "JK Space",
+  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com").replace(/\/+$/, ""),
   title: "JK Space — 個人工程實驗室",
   tagline: "把工程上的麻煩事，做成好用的工具。",
   description: "硬體研發、AI 自動化、工程工具與技術觀點。",

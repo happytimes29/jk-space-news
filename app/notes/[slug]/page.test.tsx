@@ -86,9 +86,14 @@ describe("Note detail", () => {
   });
 
   it("describes authored content as an article without claiming a news publisher", async () => {
-    const metadata = await generateMetadata(fixture("commentary"));
+    const props = fixture("commentary");
+    const metadata = await generateMetadata(props);
     expect(metadata).toMatchObject({ title: "測試筆記", description: "筆記摘要", alternates: { canonical: "/notes/test-note" }, openGraph: { type: "article", publishedTime: "2026-10-13T00:00:00.000Z", modifiedTime: "2026-10-14T00:00:00.000Z", authors: ["JK Space"] } });
     expect(metadata.openGraph).not.toHaveProperty("publishers");
+    expect(metadata.openGraph).toMatchObject({ url: "/notes/test-note", images: [{ url: "/api/og?type=note&title=%E6%B8%AC%E8%A9%A6%E7%AD%86%E8%A8%98" }] });
+    const html = await new Response(await renderToReadableStream(await NotePage(props))).text();
+    const document = new DOMParser().parseFromString(html, "text/html");
+    expect(JSON.parse(document.querySelector('script[type="application/ld+json"]')?.textContent ?? "null")).toMatchObject({ "@type": "Article", headline: "測試筆記", url: "https://jk-space.com/notes/test-note", citation: { url: "https://example.com/report" } });
   });
 
   it("generates no placeholder route and rejects a missing note", async () => {

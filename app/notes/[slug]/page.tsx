@@ -6,6 +6,9 @@ import { parseCommentaryContent } from "@/lib/notes-content";
 import { MDXRenderer } from "@/components/MDXRenderer";
 import { SourceDisclosure } from "@/components/notes/SourceDisclosure";
 import { noteTypeLabels } from "../notes-view";
+import { JsonLd } from "@/components/JsonLd";
+import { articleJsonLd } from "@/lib/seo";
+import { siteConfig } from "@/lib/site-config";
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -20,9 +23,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: note.title, description: note.summary,
     alternates: { canonical: `/notes/${encodeURIComponent(note.slug)}` },
     openGraph: {
+      siteName: siteConfig.name, locale: "zh_TW",
       title: note.title, description: note.summary, type: "article",
+      url: `/notes/${encodeURIComponent(note.slug)}`,
       publishedTime: note.publishedAt, modifiedTime: note.updatedAt, authors: [note.author],
-      ...(note.coverImage ? { images: [note.coverImage] } : {}),
+      images: [{ url: `/api/og?${new URLSearchParams({ type: "note", title: note.title })}`, width: 1200, height: 630, alt: note.title }],
     },
   };
 }
@@ -33,6 +38,7 @@ export default async function NotePage({ params }: Props) {
   const commentary = note.type === "commentary" ? parseCommentaryContent(note.content, note.slug) : undefined;
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+      <JsonLd data={articleJsonLd(note, siteConfig)} />
       <nav aria-label="麵包屑" className="mb-8 text-sm"><Link href="/notes" className="text-blue-700 underline underline-offset-4 dark:text-blue-300">返回筆記列表</Link></nav>
       <header className="mb-8 space-y-5 border-b border-[#d4d4d8] pb-8 dark:border-[#303036]">
         <p className="text-sm text-blue-700 dark:text-blue-300">{noteTypeLabels[note.type]}</p>

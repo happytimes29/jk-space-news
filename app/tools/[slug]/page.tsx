@@ -6,6 +6,9 @@ import { MDXRenderer } from "@/components/MDXRenderer";
 import { StatusBadge } from "@/components/content/StatusBadge";
 import { OpenToolLink } from "@/components/tools/OpenToolLink";
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { toolJsonLd } from "@/lib/seo";
+import { siteConfig } from "@/lib/site-config";
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -16,7 +19,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const tool = await getToolBySlug((await params).slug);
   if (!tool) return { title: "找不到工具" };
-  return { title: tool.title, description: tool.summary, openGraph: { title: tool.title, description: tool.summary, type: "website" } };
+  return {
+    title: tool.title, description: tool.summary,
+    alternates: { canonical: `/tools/${encodeURIComponent(tool.slug)}` },
+    openGraph: {
+      siteName: siteConfig.name, locale: "zh_TW",
+      title: tool.title, description: tool.summary, type: "website", url: `/tools/${encodeURIComponent(tool.slug)}`,
+      images: [{ url: `/api/og?${new URLSearchParams({ type: "tool", title: tool.title })}`, width: 1200, height: 630, alt: tool.title }],
+    },
+  };
 }
 
 export default async function ToolSlugPage({ params }: Props) {
@@ -24,6 +35,7 @@ export default async function ToolSlugPage({ params }: Props) {
   if (!tool) notFound();
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+      <JsonLd data={toolJsonLd(tool, siteConfig)} />
       <Link href="/tools" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">返回工具列表</Link>
       <header className="mb-8 mt-8">
         <StatusBadge status={tool.status} />

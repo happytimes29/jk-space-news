@@ -7,6 +7,9 @@ import { MDXRenderer } from "@/components/MDXRenderer";
 import { ContentMeta } from "@/components/content/ContentMeta";
 import { StatusBadge } from "@/components/content/StatusBadge";
 import { projectAreaLabels } from "../projects-view";
+import { JsonLd } from "@/components/JsonLd";
+import { projectJsonLd } from "@/lib/seo";
+import { siteConfig } from "@/lib/site-config";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -22,7 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: project.title,
     description: project.summary,
-    openGraph: { title: project.title, description: project.summary, type: "article" },
+    alternates: { canonical: `/projects/${encodeURIComponent(project.slug)}` },
+    openGraph: {
+      siteName: siteConfig.name, locale: "zh_TW",
+      title: project.title, description: project.summary, type: "article", url: `/projects/${encodeURIComponent(project.slug)}`,
+      images: [{ url: `/api/og?${new URLSearchParams({ type: "project", title: project.title })}`, width: 1200, height: 630, alt: project.title }],
+    },
   };
 }
 
@@ -32,6 +40,7 @@ export default async function ProjectSlugPage({ params }: Props) {
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+      <JsonLd data={projectJsonLd(project, siteConfig)} />
       <nav aria-label="麵包屑" className="mb-8 text-sm">
         <Link href="/projects" className="text-blue-700 underline underline-offset-4 dark:text-blue-300">返回專案列表</Link>
       </nav>
