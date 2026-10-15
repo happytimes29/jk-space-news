@@ -29,6 +29,8 @@ for (const [file, source, diagnostic] of [
   ["components/Header.tsx", '<a href="/trending">Trending</a>', "retired public link"],
   ["content/notes/new.md", '[Old feed](/news/old-story)', "retired public link"],
   ["app/api/og/route.tsx", 'const title = "JK Space News";', "retired site brand"],
+  ["public/images/default-cover.svg", '<svg><text>JK SPACE NEWS</text></svg>', "retired site brand"],
+  ["public/fallback.svg", '<svg><text>AI &amp; 科技情報站</text></svg>', "retired site brand"],
   ["content/news/story.md", "old article", "retired path"],
   ["content/archived-news.json", "[]", "retired path"],
   ["lib/archived-news.ts", "export {};", "retired path"],
@@ -48,6 +50,7 @@ test("accepts current public sources and a historical project with the old name"
   const result = verify({
     "app/news/[slug]/page.tsx": 'import { notFound } from "next/navigation"; export default function Page() { notFound(); }',
     "app/layout.tsx": 'const name = "JK Space";',
+    "public/images/default-cover.svg": '<svg><text>JK Space</text><text>把工程上的麻煩事，做成好用的工具。</text></svg>',
     "components/Header.test.tsx": 'expect(text).not.toContain("JK Space News")',
     "content/projects/jk-space-news-automation.md": "# JK Space News historical automation project\nRetired publication.",
     "content/notes/original.md": "[A real project](/projects/jk-space-news-automation)",

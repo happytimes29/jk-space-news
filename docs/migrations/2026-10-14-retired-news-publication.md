@@ -16,10 +16,10 @@ The one-time generator parsed only tracked news frontmatter, traversed its strin
 
 ## Routing and checks
 
-- `/news` and `/trending` permanently redirect to `/notes`.
-- `/profile`, `/interview`, and `/interview/:path*` permanently redirect to `/about`.
+- `/news`, `/trending`, `/interview`, and `/interview/:path*` permanently redirect to `/notes`.
+- `/profile` permanently redirects to `/about`.
 - `/news/[slug]` is a dynamic noindex 404, including previously published slugs.
-- `npm run verify:no-legacy-news` rejects retired filesystem inputs, publication workflows, legacy content reads/imports, public retired links, and obsolete site branding. The old name is allowed only in the historical project Markdown. Tests and migration documentation are outside the public-source scan.
+- `npm run verify:no-legacy-news` rejects retired filesystem inputs, publication workflows, legacy content reads/imports, public retired links, and obsolete site branding, including public SVG assets. The old name is allowed only in the historical project Markdown. Tests and migration documentation are outside the public-source scan.
 - Run `node --test scripts/verify-no-legacy-news.test.mjs` for controlled CLI fixtures and `npm test` for application unit tests.
 
 The sitemap now reads current content collections so the deleted news module cannot enter the build. The OG endpoint uses centralized site identity. Further SEO refinement remains in the SEO task.

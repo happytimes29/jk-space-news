@@ -7,8 +7,8 @@ describe("retired public routes", () => {
     ["/news", "/notes"],
     ["/trending", "/notes"],
     ["/profile", "/about"],
-    ["/interview", "/about"],
-    ["/interview/:path*", "/about"],
+    ["/interview", "/notes"],
+    ["/interview/:path*", "/notes"],
   ])("permanently redirects %s to %s", async (source, destination) => {
     const redirects = await nextConfig.redirects!();
     expect(redirects.find((redirect) => redirect.source === source)).toEqual({ source, destination, permanent: true });

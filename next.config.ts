@@ -19,8 +19,8 @@ const nextConfig: NextConfig = {
       { source: "/news", destination: "/notes", permanent: true },
       { source: "/trending", destination: "/notes", permanent: true },
       { source: "/profile", destination: "/about", permanent: true },
-      { source: "/interview", destination: "/about", permanent: true },
-      { source: "/interview/:path*", destination: "/about", permanent: true },
+      { source: "/interview", destination: "/notes", permanent: true },
+      { source: "/interview/:path*", destination: "/notes", permanent: true },
     ];
   },
   images: {

@@ -32,9 +32,12 @@ function walk(directory) {
   });
 }
 
-const sources = ["app", "components", "lib", "content/projects", "content/tools", "content/notes"].flatMap(walk);
+const sources = [
+  ...["app", "components", "lib", "content/projects", "content/tools", "content/notes"].flatMap(walk),
+  ...walk("public").filter((file) => file.endsWith(".svg")),
+];
 for (const file of sources) {
-  if (!/\.(?:[cm]?[jt]sx?|mdx?)$/.test(file) || /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(file)) continue;
+  if (!/\.(?:[cm]?[jt]sx?|mdx?|svg)$/.test(file) || /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(file)) continue;
   const source = readFileSync(path.join(root, file), "utf8");
   const checks = [
     ["legacy content import", /(?:@\/lib\/|(?:\.\.?\/)+)(?:news|archived-news|interviews)(?:\.[cm]?[jt]sx?)?["']/],
@@ -42,7 +45,7 @@ for (const file of sources) {
     ["retired public link", /\/(?:news|trending|interview|profile)(?=[\/\s?#"'`)}]|$)/],
   ];
   // Only this published case study may use the historical product name.
-  if (file !== "content/projects/jk-space-news-automation.md") checks.push(["retired site brand", /JK Space News/]);
+  if (file !== "content/projects/jk-space-news-automation.md") checks.push(["retired site brand", /JK\s+Space\s+News|AI\s*&(?:amp;)?\s*科技情報站/i]);
   for (const [diagnostic, pattern] of checks) {
     if (pattern.test(source)) errors.push(`${file}: ${diagnostic}`);
   }
