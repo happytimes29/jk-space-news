@@ -1,84 +1,43 @@
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
-import { AtSign, Github, Linkedin, Mail, Music2, Youtube, Zap } from "lucide-react";
+import { Github, Mail, Send } from "lucide-react";
+import { getEnabledContactLinks, siteConfig } from "@/lib/site-config";
 
-const socialLinks: Array<{
-  label: string;
-  icon: LucideIcon;
-}> = [
-  { label: "GitHub", icon: Github },
-  { label: "LinkedIn", icon: Linkedin },
-  { label: "Email", icon: Mail },
-  { label: "Threads / X", icon: AtSign },
-  { label: "YouTube", icon: Youtube },
-  { label: "TikTok", icon: Music2 },
-];
+const contactIcons = { github: Github, telegram: Send, email: Mail };
 
 export function Footer() {
+  const contacts = getEnabledContactLinks(siteConfig);
+
   return (
-    <footer className="border-t border-[#e5e5e7] dark:border-[#1a1a1a] mt-20">
+    <footer className="border-t border-[var(--color-border)] mt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          {/* Brand */}
           <div className="space-y-3">
-            <Link href="/" className="flex items-center gap-2 group w-fit">
-              <div className="w-7 h-7 rounded-md bg-[#0070F3] flex items-center justify-center">
-                <Zap size={14} className="text-white" fill="white" />
-              </div>
-              <span className="font-bold text-sm text-[#1a1a1a] dark:text-[#EDEDED]">
-                JK<span className="text-[#0070F3]"> Space</span> News
-              </span>
-            </Link>
-            <p className="text-xs text-[#6e6e73] dark:text-[#888888] max-w-xs leading-relaxed">
-              專注 科技、金融理財、創業 的極速情報站。每日精選最前線科技脈動。
-            </p>
+            <Link href="/" className="font-bold text-sm text-[var(--color-text)]">{siteConfig.name}</Link>
+            <p className="text-xs text-[var(--color-muted)] max-w-xs leading-relaxed">{siteConfig.tagline}</p>
           </div>
-
           <div className="flex flex-col items-start md:items-end gap-4">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-              <Link href="/about" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
-                關於我們
-              </Link>
-              <Link href="/privacy" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
-                隱私權政策
-              </Link>
-              <Link href="/contact" className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors">
-                聯絡我們
-              </Link>
-              <span className="text-[#e5e5e7] dark:text-[#1a1a1a]">|</span>
-              <Link
-                href="/profile"
-                className="text-[#6e6e73] dark:text-[#888888] hover:text-[#0070F3] transition-colors"
-              >
-                JK Space
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-2" aria-label="社群媒體連結">
-              {socialLinks.map(({ label, icon: Icon }) => (
-                <span
-                  key={label}
-                  role="img"
-                  aria-label={`${label} 連結即將開放`}
-                  title={`${label} 連結即將開放`}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#e5e5e7] bg-white text-[#6e6e73] transition-colors hover:border-[#0070F3] hover:text-[#0070F3] dark:border-[#1a1a1a] dark:bg-[#0A0A0A] dark:text-[#888888]"
-                >
-                  <Icon size={15} aria-hidden="true" />
-                </span>
-              ))}
-            </div>
+            <nav aria-label="網站資訊" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--color-muted)]">
+              <Link href="/about" className="hover:text-[var(--color-accent)] transition-colors">關於我</Link>
+              <Link href="/privacy" className="hover:text-[var(--color-accent)] transition-colors">隱私權政策</Link>
+              <Link href="/contact" className="hover:text-[var(--color-accent)] transition-colors">聯絡</Link>
+            </nav>
+            {contacts.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2" aria-label="聯絡管道">
+                {contacts.map(({ label, href, kind }) => {
+                  const Icon = contactIcons[kind];
+                  return (
+                    <a key={kind} href={href} aria-label={label} className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors">
+                      <Icon size={15} aria-hidden="true" />
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
-
-        <div className="mt-10 pt-6 border-t border-[#e5e5e7] dark:border-[#1a1a1a] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#6e6e73] dark:text-[#888888]">
-          <p>© 2026 JK Space News. All rights reserved.</p>
-          <p>
-            按下{" "}
-            <kbd className="px-1.5 py-0.5 border border-[#e5e5e7] dark:border-[#1a1a1a] rounded bg-[#f5f5f7] dark:bg-[#0A0A0A] text-[#6e6e73] dark:text-[#888888]">
-              ⌘K
-            </kbd>{" "}
-            開啟全站搜尋
-          </p>
+        <div className="mt-10 pt-6 border-t border-[var(--color-border)] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[var(--color-muted)]">
+          <p>© 2026 {siteConfig.name}. All rights reserved.</p>
+          <p>按下 <kbd className="px-1.5 py-0.5 border border-[var(--color-border)] rounded bg-[var(--color-card)]">⌘K</kbd> 開啟全站搜尋</p>
         </div>
       </div>
     </footer>
