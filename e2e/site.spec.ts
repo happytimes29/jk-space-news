@@ -9,6 +9,30 @@ test("homepage provides the primary site landmarks", async ({ page }) => {
   await expect(page.getByRole("contentinfo")).toBeVisible();
 });
 
+test("homepage introduces real work and reaches collaboration at every supported width", async ({ page }) => {
+  for (const width of [320, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    const hero = page.getByRole("region", { name: "把工程上的麻煩事，做成好用的工具。" });
+    for (const [label, href] of [["查看專案", "/projects"], ["使用工具", "/tools"]]) {
+      const cta = hero.getByRole("link", { name: label, exact: true });
+      await expect(cta).toHaveAttribute("href", href);
+      await expect(cta).toBeInViewport();
+    }
+    const projects = page.getByRole("region", { name: "精選專案" });
+    await expect(projects.getByRole("article").nth(1)).toBeVisible();
+    for (const slug of ["pcb-test-point-comparison", "jk-space-news-automation"]) {
+      await expect(projects.locator(`a[href="/projects/${slug}"]`)).toBeVisible();
+    }
+    await expect(page.getByRole("region", { name: "精選工具" }).getByRole("link", { name: "立即使用" })).toHaveAttribute("href", "/tools/pcb-test-point/app");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.getByRole("link", { name: "聯絡我", exact: true }).click();
+    await expect(page).toHaveURL("/contact");
+    await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toContainText("聯絡");
+  }
+});
+
 test("PCB tool article leads to the browser application", async ({ page }) => {
   await page.goto("/tools/pcb-test-point");
 

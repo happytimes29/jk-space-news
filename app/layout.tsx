@@ -58,7 +58,7 @@ export default async function RootLayout({
         {/* Reading progress bar for article pages */}
         <div id="reading-progress" />
 
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <Header />
           <CommandPalette items={searchItems} />
           <main className="flex-1">{children}</main>
