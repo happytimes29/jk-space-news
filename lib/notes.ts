@@ -53,7 +53,7 @@ export function loadNotes(directory = path.join(process.cwd(), "content/notes"))
       return note;
     }
     return { ...base, type };
-  }).sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+  }, { allowMissingDirectory: true }).sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
 }
 
 export async function getAllNotes(): Promise<NoteItem[]> {
