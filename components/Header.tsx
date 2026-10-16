@@ -4,13 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-
-const NAV = [
-  { label: "首頁", href: "/" },
-  { label: "訪談", href: "/interview" },
-  { label: "工具", href: "/tools" },
-  { label: "關於我", href: "/profile" },
-];
+import { siteConfig } from "@/lib/site-config";
 
 export function Header() {
   const pathname = usePathname();
@@ -25,15 +19,12 @@ export function Header() {
             href="/"
             className="group text-sm font-semibold tracking-tight text-[var(--color-text)]"
           >
-            <span>
-              JK Space
-              <span className="text-[var(--color-accent)]"> News</span>
-            </span>
+            {siteConfig.name}
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)]/70 p-1">
-            {NAV.map((item) => (
+          <nav aria-label="主導覽" className="hidden md:flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)]/70 p-1">
+            {siteConfig.navigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -59,7 +50,9 @@ export function Header() {
           <button
             className="md:hidden p-2 text-[var(--color-muted)] hover:text-[var(--color-text)] transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
+            aria-label={mobileOpen ? "關閉選單" : "開啟選單"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
           >
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -67,20 +60,18 @@ export function Header() {
       </div>
 
       {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="md:hidden border-t border-[var(--color-border)] bg-[var(--color-bg)]/95 px-4 pb-4 pt-2 backdrop-blur-xl">
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block rounded-xl px-3 py-2.5 text-sm text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-card-hover)] transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-      )}
+      <nav id="mobile-navigation" aria-label="行動版主導覽" hidden={!mobileOpen} className="md:hidden border-t border-[var(--color-border)] bg-[var(--color-bg)]/95 px-4 pb-4 pt-2 backdrop-blur-xl">
+        {siteConfig.navigation.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="block rounded-xl px-3 py-2.5 text-sm text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-card-hover)] transition-colors"
+            onClick={() => setMobileOpen(false)}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }

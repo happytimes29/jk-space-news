@@ -1,71 +1,47 @@
 ---
 title: "PCB 測試點自動比對工具"
 slug: pcb-test-point
-date: 2026-06-10
-excerpt: "上傳新舊 OrCAD 測試點報表，自動比對 RefDes 座標差異，支援 DXF 板框疊圖與白名單篩選。純瀏覽器端運算，機密資料不外流。"
-category: "硬體工具"
-tags: ["OrCAD", "PCB", "測試點", "比對", "DXF"]
+summary: "比對新舊 OrCAD HTML 報表的 RefDes 座標，找出移動、新增與移除的測試點；支援 Target List 篩選與 DXF 板框疊圖。"
+status: available
+privacy: 所有使用者檔案只在瀏覽器內解析，不上傳伺服器。
+inputTypes: [OrCAD HTML, DXF, Target List]
+outputTypes: [差異表, 2D 座標圖, CSV]
+updatedAt: 2026-10-15
 coverImage: /images/pcb-tool-1.png
-url: /tools/pcb-test-point/app
-pricing: "免費"
-author: "JK Space News"
+appUrl: /tools/pcb-test-point/app
+sampleUrl: /samples/pcb-test-point-old.html
+relatedProject: pcb-test-point-comparison
 ---
 
-[🚀 開啟工具 →](/tools/pcb-test-point/app)
+## 用途與使用方式
 
-## 專案架構
+適合在 PCB 改版後，以 RefDes 核對測試點是否移位、新增或移除。先選取舊版與新版 HTML 報表，工具會自動產生 Moved、Added、Removed、Unchanged 四種結果，以及 ΔX、ΔY 與位移距離。
 
-本專案採用現代化的 Web 前端技術棧開發，並完全在瀏覽器端（Client-side）運行，確保機密 CAD 資料不外流。
+可貼上 Target List，只比較指定 RefDes；每行一個或使用逗號分隔。DXF 為選填底圖，匯入後可調整縮放與偏移，協助人工判讀。最後可將差異表匯出為 CSV。
 
-- **核心框架：** Next.js (App Router) + React
-- **視覺與 UI：** Tailwind CSS（全面採用深色模式 Dark Mode，並以科技藍 Tech Blue 作為狀態高亮主色，降低工程師視覺疲勞）。
-- **資料解析層：**
-  - **HTML 解析：** 使用瀏覽器原生 DOMParser，精準萃取 OrCAD 報表中的 `<table>` 數據。
-  - **DXF 解析：** 導入輕量級開源庫（如 dxf-parser）提取板框幾何資料。
-- **視覺化渲染層：** 使用 HTML5 Canvas 或 SVG，負責繪製 2D 點位分佈圖、板框底圖、以及位移向量（虛線）。
+## 支援格式與限制
 
-## 系統工作流程
+- HTML／HTM：報表必須包含表格與 RefDes、SYM_X、SYM_Y 欄位，也支援部分常見 X／Y 欄名。標題列上方可有報表資訊，座標可含千分位逗號；缺少名稱、座標或無法解析數字的列會略過。
+- CSV、純文字、Gerber 與原生 PCB 檔不能直接作為座標報表輸入；CSV 是匯出格式。請先從 CAD 匯出符合上述欄位的 HTML。
+- RefDes 區分大小寫，重複 RefDes 以最後一筆為準；請先確認報表中名稱唯一。座標差異大於 0.000001 才視為移動，這不是可設定的製造公差。
+- 座標不會自動換算單位，報表必須使用一致的原點與單位；CSV 標示為 mil，請使用 mil 報表。DXF 疊圖的縮放與偏移需要自行確認。
+- DXF 僅支援 ASCII 的 LINE、LWPOLYLINE、ARC、CIRCLE，不支援二進位 DXF、BLOCK／INSERT 或完整 CAD 語意。優先取板框名稱的圖層；找不到時使用非圓形幾何作為備援，可能包含非板框線段。
+- 檔案在瀏覽器記憶體處理，大型報表與複雜 DXF 的速度受裝置影響。結果供工程核對，不能取代 CAD、DRC 或製造驗證。
 
-1. **輸入：** 接收舊版 HTML、新版 HTML、以及可選的白名單 (Target List) 與 DXF 板框檔。
-2. **清洗：** 透過白名單機制，剔除不需要檢測的無關測試點。
-3. **比對：** 以 RefDes 為 Unique Key，計算 ΔX 與 ΔY，判定狀態（Unchanged, Moved, Added, Removed）。
-4. **對齊：** 將 DXF 的座標套用使用者自訂的「縮放倍率」與「偏移量」，與測試點座標系疊合。
-5. **輸出：** 呈現 2D 視覺化圖表與可篩選的明細資料表。
+## 資料處理與隱私
 
-## 開發過程遇到的挑戰與解決方案
+資料不離開瀏覽器。選取的 HTML、DXF、Target List 與比對結果不會上傳，CSV 也在瀏覽器內產生；重新整理後需重新選取檔案。載入範例只讀取本站公開的靜態合成報表，不需要登入。
 
-在使用 AI (Claude Code) 協助開發的過程中，我們遇到並克服了幾個極具代表性的「軟硬體資料交接」問題：
+網站保留匿名頁面瀏覽分析，頁面網址會移除查詢字串與片段，不包含使用者檔名、座標、RefDes 或報表內容。開啟工具的自訂事件介面僅傳公開工具 slug；Vercel 自訂事件的可見性取決於方案支援及網站的隱私過濾設定。目前網站僅保留匿名 pageview，仍可透過應用頁的瀏覽量觀察使用入口。
 
-### 1. 報表解析失敗（資料結構不符預期）
+## 範例輸入與預期結果
 
-**問題點：** 最初設定時，AI 寫的解析邏輯抓不到任何資料（顯示 0 筆）。因為 OrCAD 匯出的 HTML 結構帶有特定的老舊標籤與未知的欄位名稱，與 AI 預設猜測的標準表格不同。
+開啟工具後按「載入範例」，即可讀取兩份沒有真實 PCB 資料的合成報表；也可以下載 [舊版 HTML](/samples/pcb-test-point-old.html) 與 [新版 HTML](/samples/pcb-test-point-new.html) 自行選取。
 
-**解法：** 採取「餵實例」策略。直接打開 OrCAD 的 HTML 原始碼，複製一小段真實的 `<table>` 結構貼給 Claude Code，讓 AI 針對真實的 DOM 結構重新撰寫特製的萃取函式，成功精準抓出 RefDes, X, Y。
+預期結果為 TP1 從 (100, 100) 移至 (130, 140)，距離為 50，顯示 Moved；TP2 顯示 Unchanged；TP3 顯示 Removed；TP4 顯示 Added。範例不含 DXF，也不需要 Target List。
 
-### 2. 全板資料過載（缺乏焦點）
+## 已知問題與回饋
 
-**問題點：** 當 PCB 複雜時，成百上千的測試點全上畫布，會讓畫面佈滿雜訊，工程師難以聚焦在這次改版的局部區域。
+各 CAD 版本的報表欄名與 DXF 圖層可能不同。若顯示 0 筆，請檢查 HTML 是否包含表格與必要欄位，並確認座標是數字。若底圖不對齊，請先確認 DXF 單位、縮放與原點。
 
-**解法：** 導入「Target List 白名單」功能。在核心比對邏輯執行前，先做一層 Data Culling（資料剔除），讓程式只處理並渲染工程師貼上的目標測試點，大幅提升判讀效率。
-
-### 3. 缺乏實體空間感（點位懸浮）
-
-**問題點：** 單純比對 X/Y 座標，畫面上只是一群懸浮的點，無法判斷點位是否太靠近板邊或螺絲孔，缺乏物理防呆機制。
-
-**解法：** 決定擴展架構，加入讀取「DXF 板框」作為底圖的功能，讓測試點能映射回真實的 PCB 輪廓中。
-
-### 4. 座標系崩壞：單位縮放與原點偏移 (mil vs. mm)
-
-**問題點：** 匯入 DXF 後，板框縮成一個極小的點。這是硬體 CAD 最經典的坑：HTML 測試點座標是 mil（數值動輒幾千），而 DXF 解析出來被當成 mm（數值只有幾百），導致兩者相差了近 40 倍的 Scale，且原點可能不同。
-
-**解法：** 在前端 UI 加入「動態對齊控制面板」。不要求工程師回 OrCAD 重新出圖，而是直接在網頁端加入「縮放倍率 (預設 39.37)」、「X 偏移」、「Y 偏移」的滑塊/輸入框。透過數學公式 $Target = (Original \times Scale) + Offset$ 即時重繪畫布，完美解決疊圖不匹配的問題。
-
-### 5. 開發環境與日常使用的摩擦力
-
-**問題點：** 現代前端框架 (Next.js) 需要透過終端機執行 localhost 伺服器，這對於習慣「雙擊軟體直接開啟」的硬體工程師來說，每次啟動都非常繁瑣。
-
-**解法：** 撰寫了專屬的 .bat 批次檔，實現一鍵在背景啟動環境並自動開啟瀏覽器。同時也確立了未來將專案部署上雲端（Vercel）的最佳實踐方向，實現真正的隨插即用。
-
----
-
-這個專案不僅解決了實務問題，更證明了利用 AI 工具（如 Dify、Claude Code 等）能極大地縮短硬體工程師跨足軟體開發的學習曲線。這是一個非常精彩的起點！
+可透過頁尾的「工具回饋」前往聯絡頁，查看已設定的聯絡管道。回報時請提供 CAD 版本、欄名與去識別化的最小範例，不要傳送機密板檔或客戶資料。

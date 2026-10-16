@@ -11,6 +11,7 @@ import ResultTable from "@/components/pcb-tool/ResultTable";
 import { parseHTML, parseTargetList } from "@/lib/pcb-tool/parser";
 import { parseDXF } from "@/lib/pcb-tool/parseDXF";
 import { compareTestPoints } from "@/lib/pcb-tool/compare";
+import { loadExampleFiles } from "@/lib/pcb-tool/examples";
 import { TestPoint, CompareResult, ChangeStatus, DXFData } from "@/lib/pcb-tool/types";
 
 const CanvasMap = dynamic(() => import("@/components/pcb-tool/CanvasMap"), { ssr: false });
@@ -26,6 +27,8 @@ export default function PcbTestPointTool() {
   const [dxfData, setDxfData] = useState<DXFData | null>(null);
   const [targetText, setTargetText] = useState("");
   const [filter, setFilter] = useState<ChangeStatus | "all">("all");
+  const [loadingExamples, setLoadingExamples] = useState(false);
+  const [exampleError, setExampleError] = useState("");
 
   const handleOldFile = useCallback((content: string, filename: string) => {
     const points = parseHTML(content);
@@ -55,9 +58,24 @@ export default function PcbTestPointTool() {
 
   const hasResults = results.length > 0;
 
+  const handleLoadExamples = async () => {
+    setLoadingExamples(true);
+    setExampleError("");
+    try {
+      const { oldContent, newContent } = await loadExampleFiles();
+      handleOldFile(oldContent, "pcb-test-point-old.html");
+      handleNewFile(newContent, "pcb-test-point-new.html");
+      setTargetText("");
+      setFilter("all");
+      setDxfData(null);
+    } catch {
+      setExampleError("無法載入範例，請重試或選取本機 HTML 報表。");
+    } finally {
+      setLoadingExamples(false);
+    }
+  };
+
   const exportCSV = useCallback(() => {
-    const OLD = oldFile?.name ?? "old";
-    const NEW = newFile?.name ?? "new";
     const date = new Date().toISOString().slice(0, 10);
     const headers = ["RefDes", "Status", "Old X (mil)", "Old Y (mil)", "New X (mil)", "New Y (mil)", "ΔX (mil)", "ΔY (mil)", "Distance (mil)"];
     const statusLabel: Record<string, string> = { moved: "Moved", added: "Added", removed: "Removed", unchanged: "Unchanged" };
@@ -81,7 +99,7 @@ export default function PcbTestPointTool() {
     a.download = `pcb-tp-diff_${date}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [results, oldFile, newFile]);
+  }, [results]);
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#e6edf3]">
@@ -108,6 +126,15 @@ export default function PcbTestPointTool() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8 flex flex-col gap-8">
+        <section aria-label="隱私與範例" className="rounded-lg border border-[#30363d] bg-[#161b22] p-5">
+          <p className="font-medium">資料不離開瀏覽器</p>
+          <p className="mt-2 text-sm text-[#8b949e]">本機 HTML、DXF 與 Target List 只在此瀏覽器記憶體中處理，不上傳伺服器。重新整理會清除資料。</p>
+          <p className="mt-2 text-sm text-[#8b949e]">可先載入公開的合成範例；這會取代目前報表，並清除 Target List、篩選與 DXF 底圖。</p>
+          <button type="button" onClick={handleLoadExamples} disabled={loadingExamples} className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
+            {loadingExamples ? "載入中…" : "載入範例"}
+          </button>
+          {exampleError && <p role="alert" className="mt-3 text-sm text-red-300">{exampleError}</p>}
+        </section>
         {/* Step 1 */}
         <section className="flex flex-col gap-4">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-[#8b949e]">Step 1 — 上傳零件配置檔</h2>
@@ -116,7 +143,7 @@ export default function PcbTestPointTool() {
             <p className="text-xs font-semibold uppercase tracking-wider mb-3 text-[#8b949e]">操作步驟</p>
             <ol className="flex flex-col gap-2">
               {["在 OrCAD 中打開舊版 PCB，點選 Tools → Reports。",
-                "選擇 Testprep Report，匯出成 .csv 或 .txt。",
+                "匯出包含 RefDes、SYM_X、SYM_Y 的 HTML 表格報表（.html / .htm）。",
                 "重複上述步驟，匯出新版 PCB 的報表。",
                 "匯入 PCB 的 DXF 檔（選填）。",
               ].map((step, i) => (

@@ -1,56 +1,49 @@
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
+import path from "node:path";
+import { ContentFields, estimateReadingTime, loadContentCollection } from "./content/shared";
 
-const CONTENT_DIR = path.join(process.cwd(), "content/tools");
+export type ToolStatus = "available" | "experimental" | "maintenance" | "archived";
 
 export interface ToolItem {
-  slug: string;
   title: string;
-  date: string;
-  excerpt: string;
-  category: string;
-  tags: string[];
-  coverImage: string;
-  author: string;
+  slug: string;
+  summary: string;
+  status: ToolStatus;
+  privacy: string;
+  inputTypes: string[];
+  outputTypes: string[];
+  updatedAt: string;
+  appUrl?: string;
+  coverImage?: string;
+  sampleUrl?: string;
+  repositoryUrl?: string;
+  relatedProject?: string;
   readingTime: number;
   content: string;
-  url?: string;
-  pricing?: string;
 }
 
-function estimateReadingTime(text: string): number {
-  const wordsPerMin = 200;
-  const words = text.trim().split(/\s+/).length;
-  return Math.max(1, Math.ceil(words / wordsPerMin));
+export function loadTools(directory = path.join(process.cwd(), "content/tools")): ToolItem[] {
+  return loadContentCollection(directory, ({ file, data, content }) => {
+    const fields = new ContentFields(file, data);
+    return {
+      title: fields.string("title"), slug: fields.string("slug"), summary: fields.string("summary"),
+      status: fields.enum("status", ["available", "experimental", "maintenance", "archived"]),
+      privacy: fields.string("privacy"), inputTypes: fields.strings("inputTypes", true), outputTypes: fields.strings("outputTypes", true),
+      updatedAt: fields.date("updatedAt"), appUrl: fields.optionalUrl("appUrl", true),
+      coverImage: fields.optionalUrl("coverImage", true), sampleUrl: fields.optionalUrl("sampleUrl", true),
+      repositoryUrl: fields.optionalUrl("repositoryUrl"), relatedProject: fields.optionalString("relatedProject"),
+      readingTime: estimateReadingTime(content), content,
+    } satisfies ToolItem;
+  }).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
 }
 
 export async function getAllTools(): Promise<ToolItem[]> {
-  if (!fs.existsSync(CONTENT_DIR)) return [];
-  const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith(".md"));
-  const items = files.map((filename) => {
-    const slug = filename.replace(/\.mdx?$/, "");
-    const raw = fs.readFileSync(path.join(CONTENT_DIR, filename), "utf-8");
-    const { data, content } = matter(raw);
-    return {
-      slug,
-      title: data.title || "無標題",
-      date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
-      excerpt: data.excerpt || content.slice(0, 120).replace(/[#*\[\]]/g, "") + "…",
-      category: data.category || "工具",
-      tags: data.tags || [],
-      coverImage: data.coverImage || "/images/default-cover.svg",
-      author: data.author || "JK Space News",
-      readingTime: estimateReadingTime(content),
-      content,
-      url: data.url || undefined,
-      pricing: data.pricing || undefined,
-    } satisfies ToolItem;
-  });
-  return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return loadTools();
+}
+
+export async function getFeaturedTool(): Promise<ToolItem | null> {
+  return (await getAllTools()).find((tool) => tool.status === "available") ?? null;
 }
 
 export async function getToolBySlug(slug: string): Promise<ToolItem | null> {
-  const all = await getAllTools();
-  return all.find((t) => t.slug === slug) ?? null;
+  return (await getAllTools()).find((tool) => tool.slug === slug) ?? null;
 }

@@ -6,6 +6,12 @@
 
 # testing
 /coverage
+/playwright-report/
+/test-results/
+/.lighthouseci/
+
+# isolated feature worktrees
+/.worktrees/
 
 # next.js
 /.next/

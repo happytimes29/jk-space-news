@@ -3,12 +3,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, FileText, TrendingUp, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { filterSearchItems, type SearchItem } from "@/lib/search";
 
-interface SearchItem {
-  slug: string;
-  title: string;
-  category: string;
-}
+const typeLabels: Record<SearchItem["type"], string> = { project: "專案", tool: "工具", note: "筆記" };
 
 interface CommandPaletteProps {
   items: SearchItem[];
@@ -37,16 +35,11 @@ export function CommandPalette({ items }: CommandPaletteProps) {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const filtered = query.length < 1
-    ? items.slice(0, 7)
-    : items.filter((item) =>
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.category.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 10);
+  const filtered = filterSearchItems(items, query);
 
   const navigate = useCallback(
-    (slug: string) => {
-      router.push(`/news/${slug}`);
+    (href: string) => {
+      router.push(href);
       setOpen(false);
       setQuery("");
     },
@@ -59,12 +52,12 @@ export function CommandPalette({ items }: CommandPaletteProps) {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSelected((s) => Math.min(s + 1, filtered.length - 1));
+        setSelected((s) => Math.max(0, Math.min(s + 1, filtered.length - 1)));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setSelected((s) => Math.max(s - 1, 0));
       } else if (e.key === "Enter" && filtered[selected]) {
-        navigate(filtered[selected].slug);
+        navigate(filtered[selected].href);
       }
     };
     document.addEventListener("keydown", handler);
@@ -94,8 +87,9 @@ export function CommandPalette({ items }: CommandPaletteProps) {
                 setQuery(e.target.value);
                 setSelected(0);
               }}
-              placeholder="搜尋文章標題..."
-              className="flex-1 py-4 bg-transparent text-sm text-[#EDEDED] placeholder-[#888888] outline-none"
+              aria-label="搜尋專案、工具與筆記"
+              placeholder="搜尋專案、工具與筆記..."
+              className="min-w-0 flex-1 py-4 bg-transparent text-sm text-[#EDEDED] placeholder-[#888888]"
             />
             <kbd className="text-[10px] text-[#888888] border border-[#1a1a1a] rounded px-1.5 py-0.5 bg-black">
               ESC
@@ -106,17 +100,22 @@ export function CommandPalette({ items }: CommandPaletteProps) {
           <div className="py-2 max-h-80 overflow-y-auto">
             {filtered.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-[#888888]">
-                找不到相關文章
+                <p>找不到相關內容</p>
+                <div className="mt-4 flex flex-wrap justify-center gap-4 text-[#7ea0ff]">
+                  <Link href="/projects" onClick={() => setOpen(false)}>專案</Link>
+                  <Link href="/tools" onClick={() => setOpen(false)}>工具</Link>
+                  <Link href="/notes" onClick={() => setOpen(false)}>筆記與觀點</Link>
+                </div>
               </div>
             ) : (
               <>
                 <p className="px-4 py-1.5 text-[10px] text-[#888888] uppercase tracking-wider font-medium">
-                  {query ? `搜尋結果 (${filtered.length})` : "最新文章"}
+                  {query.trim() ? `搜尋結果 (${filtered.length})` : "探索內容"}
                 </p>
                 {filtered.map((item, i) => (
                   <button
-                    key={item.slug}
-                    onClick={() => navigate(item.slug)}
+                    key={item.href}
+                    onClick={() => navigate(item.href)}
                     onMouseEnter={() => setSelected(i)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
                       i === selected ? "bg-[#0070F3]/10 text-[#EDEDED]" : "text-[#888888] hover:text-[#EDEDED]"
@@ -134,7 +133,7 @@ export function CommandPalette({ items }: CommandPaletteProps) {
                           : "border-[#1a1a1a] text-[#888888]"
                       }`}
                     >
-                      {item.category}
+                      {typeLabels[item.type]}
                     </span>
                     {i === selected && (
                       <ArrowRight size={13} className="text-[#0070F3] flex-shrink-0" />

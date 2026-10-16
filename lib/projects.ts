@@ -1,54 +1,55 @@
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
+import path from "node:path";
+import { ContentFields, estimateReadingTime, loadContentCollection } from "./content/shared";
 
-const CONTENT_DIR = path.join(process.cwd(), "content/projects");
+export type ProjectStatus = "active" | "completed" | "maintained" | "archived";
+export type ProjectArea = "hardware" | "automation" | "product";
 
 export interface ProjectItem {
-  slug: string;
   title: string;
-  date: string;
-  excerpt: string;
-  category: string;
+  slug: string;
+  summary: string;
+  year: number;
+  status: ProjectStatus;
+  areas: ProjectArea[];
+  role: string;
   tags: string[];
-  coverImage: string;
-  author: string;
+  featured: boolean;
+  updatedAt: string;
+  coverImage?: string;
+  gallery?: string[];
+  demoUrl?: string;
+  repositoryUrl?: string;
+  relatedTools?: string[];
+  relatedNotes?: string[];
+  outcome?: string;
   readingTime: number;
   content: string;
-  url?: string;
 }
 
-function estimateReadingTime(text: string): number {
-  const wordsPerMin = 200;
-  const words = text.trim().split(/\s+/).length;
-  return Math.max(1, Math.ceil(words / wordsPerMin));
+export function loadProjects(directory = path.join(process.cwd(), "content/projects")): ProjectItem[] {
+  return loadContentCollection(directory, ({ file, data, content }) => {
+    const fields = new ContentFields(file, data);
+    return {
+      title: fields.string("title"), slug: fields.string("slug"), summary: fields.string("summary"),
+      year: fields.year("year"), status: fields.enum("status", ["active", "completed", "maintained", "archived"]),
+      areas: fields.enums("areas", ["hardware", "automation", "product"]), role: fields.string("role"),
+      tags: fields.strings("tags"), featured: fields.boolean("featured"), updatedAt: fields.date("updatedAt"),
+      coverImage: fields.optionalUrl("coverImage", true), gallery: fields.optionalStrings("gallery"),
+      demoUrl: fields.optionalUrl("demoUrl", true), repositoryUrl: fields.optionalUrl("repositoryUrl"),
+      relatedTools: fields.optionalStrings("relatedTools"), relatedNotes: fields.optionalStrings("relatedNotes"),
+      outcome: fields.optionalString("outcome"), readingTime: estimateReadingTime(content), content,
+    } satisfies ProjectItem;
+  }).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
 }
 
 export async function getAllProjects(): Promise<ProjectItem[]> {
-  if (!fs.existsSync(CONTENT_DIR)) return [];
-  const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith(".md"));
-  const items = files.map((filename) => {
-    const slug = filename.replace(/\.mdx?$/, "");
-    const raw = fs.readFileSync(path.join(CONTENT_DIR, filename), "utf-8");
-    const { data, content } = matter(raw);
-    return {
-      slug,
-      title: data.title || "無標題",
-      date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
-      excerpt: data.excerpt || content.slice(0, 120).replace(/[#*\[\]]/g, "") + "…",
-      category: data.category || "專案",
-      tags: data.tags || [],
-      coverImage: data.coverImage || "/images/default-cover.svg",
-      author: data.author || "JK Space News",
-      readingTime: estimateReadingTime(content),
-      content,
-      url: data.url || undefined,
-    } satisfies ProjectItem;
-  });
-  return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return loadProjects();
+}
+
+export async function getFeaturedProjects(limit = 4): Promise<ProjectItem[]> {
+  return (await getAllProjects()).filter((project) => project.featured).slice(0, limit);
 }
 
 export async function getProjectBySlug(slug: string): Promise<ProjectItem | null> {
-  const all = await getAllProjects();
-  return all.find((t) => t.slug === slug) ?? null;
+  return (await getAllProjects()).find((project) => project.slug === slug) ?? null;
 }

@@ -1,17 +1,13 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
+import { siteConfig } from "@/lib/site-config";
+import { ogTypeLabel } from "@/lib/seo";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
-  const title = searchParams.get("title") ?? "JK Space News";
-  const category = searchParams.get("category") ?? "科技";
-
-  const CATEGORY_COLORS: Record<string, string> = {
-    科技: "#0070F3",
-    金融理財: "#10b981",
-    創業: "#a855f7",
-  };
-  const accentColor = CATEGORY_COLORS[category] || "#0070F3";
+  const title = searchParams.get("title") ?? siteConfig.title;
+  const label = ogTypeLabel(searchParams.get("type"));
+  const accentColor = "#38bdf8";
 
   return new ImageResponse(
     (
@@ -23,21 +19,17 @@ export async function GET(req: NextRequest) {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "60px 64px",
-          background: "#000000",
+          background: "#09090b",
           fontFamily: "system-ui, -apple-system, sans-serif",
           position: "relative",
           overflow: "hidden",
         }}
       >
         {/* Grid background */}
-        <div
-          style={{
-            position: "absolute",
-            inset: "0",
-            backgroundImage: `linear-gradient(rgba(0,112,243,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,112,243,0.04) 1px, transparent 1px)`,
-            backgroundSize: "48px 48px",
-          }}
-        />
+        <svg width="1200" height="630" style={{ position: "absolute", top: 0, left: 0 }}>
+          {Array.from({ length: 26 }, (_, index) => <line key={`x-${index}`} x1={index * 48} y1="0" x2={index * 48} y2="630" stroke="#38bdf8" strokeOpacity="0.12" />)}
+          {Array.from({ length: 14 }, (_, index) => <line key={`y-${index}`} x1="0" y1={index * 48} x2="1200" y2={index * 48} stroke="#38bdf8" strokeOpacity="0.12" />)}
+        </svg>
 
         {/* Glow orb */}
         <div
@@ -52,7 +44,7 @@ export async function GET(req: NextRequest) {
           }}
         />
 
-        {/* Top: Logo + Category */}
+        {/* Top: Logo + content type */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           {/* Logo */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -74,15 +66,15 @@ export async function GET(req: NextRequest) {
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span style={{ color: "#EDEDED", fontSize: "16px", fontWeight: 700, letterSpacing: "-0.5px" }}>
-                JK Space News
+                {siteConfig.name}
               </span>
               <span style={{ color: "#888888", fontSize: "11px" }}>
-                AI & 科技情報站
+                {siteConfig.tagline}
               </span>
             </div>
           </div>
 
-          {/* Category badge */}
+          {/* Content type */}
           <div
             style={{
               padding: "6px 16px",
@@ -95,7 +87,7 @@ export async function GET(req: NextRequest) {
               letterSpacing: "1px",
             }}
           >
-            {category.toUpperCase()}
+            {label}
           </div>
         </div>
 
@@ -140,10 +132,10 @@ export async function GET(req: NextRequest) {
                 background: accentColor,
               }}
             />
-            <span style={{ color: "#888888", fontSize: "13px" }}>jk-space.com</span>
+            <span style={{ color: "#888888", fontSize: "13px" }}>{new URL(siteConfig.url).host}</span>
           </div>
           <span style={{ color: "#444444", fontSize: "12px" }}>
-            {new Date().toLocaleDateString("zh-TW", { year: "numeric", month: "long", day: "numeric" })}
+            ENGINEERING LAB
           </span>
         </div>
       </div>

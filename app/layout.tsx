@@ -4,23 +4,23 @@ import { ThemeProvider } from "next-themes";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CommandPalette } from "@/components/CommandPalette";
-import { getAllNews } from "@/lib/news";
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com";
+import { Analytics } from "@/components/Analytics";
+import { getAllProjects } from "@/lib/projects";
+import { getAllTools } from "@/lib/tools";
+import { getAllNotes } from "@/lib/notes";
+import { buildSearchItems } from "@/lib/search";
+import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  alternates: {
-    canonical: "/",
-  },
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "JK Space News — 科技情報站",
-    template: "%s | JK Space News",
+    default: siteConfig.title,
+    template: `%s | ${siteConfig.name}`,
   },
-  description: "專注於 科技、金融理財、創業 的極速情報站。每日精選最前線科技脈動。",
-  keywords: ["科技", "金融理財", "創業", "AI", "人工智慧", "科技新聞", "JK Space News"],
-  authors: [{ name: "JK Space News" }],
-  creator: "JK Space News",
+  description: siteConfig.description,
+  keywords: ["硬體研發", "AI 自動化", "工程工具", "技術觀點", siteConfig.name],
+  authors: [{ name: siteConfig.name }],
+  creator: siteConfig.name,
   icons: {
     icon: "/icons/icon.svg",
     apple: "/icons/icon.svg",
@@ -28,10 +28,11 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    url: siteUrl,
-    siteName: "JK Space News",
-    title: "JK Space News — 科技情報站",
-    description: "專注於 科技、金融理財、創業 的極速情報站。",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: siteConfig.title,
+    description: siteConfig.description,
+    images: [{ url: `/api/og?${new URLSearchParams({ title: siteConfig.title })}`, width: 1200, height: 630, alt: siteConfig.title }],
   },
   robots: {
     index: true,
@@ -44,25 +45,22 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const allNews = await getAllNews();
-  const searchItems = allNews.map((n) => ({
-    slug: n.slug,
-    title: n.title,
-    category: n.category,
-  }));
+  const [projects, tools, notes] = await Promise.all([getAllProjects(), getAllTools(), getAllNotes()]);
+  const searchItems = buildSearchItems(projects, tools, notes);
 
   return (
-    <html lang="zh-TW" suppressHydrationWarning>
+    <html lang="zh-Hant-TW" suppressHydrationWarning>
       <body className="antialiased min-h-screen flex flex-col">
         {/* Reading progress bar for article pages */}
         <div id="reading-progress" />
 
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <Header />
           <CommandPalette items={searchItems} />
           <main className="flex-1">{children}</main>
           <Footer />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
