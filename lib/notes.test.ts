@@ -91,4 +91,13 @@ describe("notes", () => {
     expect(await getRecentNotes()).toEqual([]);
     expect(await getNoteBySlug("missing")).toBeNull();
   });
+
+  it("treats a missing notes directory as an empty collection in production bundles", async () => {
+    const root = directory();
+    const dir = path.join(root, "content/notes");
+    vi.spyOn(process, "cwd").mockReturnValue(root);
+    expect(fs.existsSync(dir)).toBe(false);
+    expect(loadNotes(dir)).toEqual([]);
+    expect(await getAllNotes()).toEqual([]);
+  });
 });

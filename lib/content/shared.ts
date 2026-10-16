@@ -32,9 +32,21 @@ export function readContentFile(file: string): ContentFile {
   }
 }
 
-export function loadContentCollection<T extends { slug: string }>(directory: string, parse: (source: ContentFile) => T): T[] {
+export function loadContentCollection<T extends { slug: string }>(
+  directory: string,
+  parse: (source: ContentFile) => T,
+  options: { allowMissingDirectory?: boolean } = {},
+): T[] {
   const slugs = new Set<string>();
-  return fs.readdirSync(directory, { withFileTypes: true })
+  let entries: fs.Dirent[];
+  try {
+    entries = fs.readdirSync(directory, { withFileTypes: true });
+  } catch (error) {
+    if (options.allowMissingDirectory && (error as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw error;
+  }
+
+  return entries
     .filter((entry) => entry.isFile() && /\.mdx?$/.test(entry.name))
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((entry) => {
