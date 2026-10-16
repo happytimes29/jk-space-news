@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
+import { vitestExcludes } from "./tests/vitest-boundaries";
 
 export default defineConfig({
   resolve: {
@@ -9,6 +10,6 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./tests/setup.ts"],
     // Executable CLI fixtures use Node's test runner, invoked separately in verification.
-    exclude: ["**/node_modules/**", "**/.next/**", "e2e/**", "scripts/**/*.test.mjs"],
+    exclude: vitestExcludes,
   },
 });
