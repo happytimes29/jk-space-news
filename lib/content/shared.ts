@@ -107,6 +107,10 @@ export class ContentFields {
     return value;
   }
 
+  optionalBoolean(field: string): boolean | undefined {
+    return this.data[field] === undefined ? undefined : this.boolean(field);
+  }
+
   year(field: string): number {
     const value = this.data[field];
     if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > 9999) this.fail(field, "expected an integer year from 1 to 9999");

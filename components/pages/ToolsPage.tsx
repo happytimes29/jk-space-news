@@ -19,7 +19,7 @@ export async function ToolsPage({ locale }: { locale: Locale }) {
           {tool.coverImage && <div className="relative aspect-video"><Image src={tool.coverImage} alt={`${tool.title}${copy.toolImageAltSuffix}`} fill className="object-cover" /></div>}
           <div className="p-6"><StatusBadge status={tool.status} locale={locale} /><h2 className="mt-4 text-xl font-semibold"><Link href={localePath(locale, `/tools/${tool.slug}`)}>{tool.title}</Link></h2><p className="mt-3 leading-relaxed text-[var(--color-muted)]">{tool.summary}</p>
             <dl className="my-5 space-y-3 text-sm"><div><dt className="font-medium">{copy.toolDataProcessing}</dt><dd>{tool.privacy}</dd></div><div><dt className="font-medium">{copy.toolInputFormats}</dt><dd>{tool.inputTypes.join("、")}</dd></div><div><dt className="font-medium">{copy.toolOutputResults}</dt><dd>{tool.outputTypes.join("、")}</dd></div></dl>
-            <div className="flex flex-wrap items-center gap-4">{tool.appUrl && <OpenToolLink slug={tool.slug} href={tool.appUrl}>{copy.toolOpen}</OpenToolLink>}<Link href={localePath(locale, `/tools/${tool.slug}`)} className="text-sm text-blue-600 hover:underline dark:text-blue-400">{copy.toolIntroduction}</Link></div>
+            <div className="flex flex-wrap items-center gap-4">{tool.appUrl && <OpenToolLink slug={tool.slug} href={tool.appUrl} locale={locale} localized={tool.localizedApp}>{copy.toolOpen}</OpenToolLink>}<Link href={localePath(locale, `/tools/${tool.slug}`)} className="text-sm text-blue-600 hover:underline dark:text-blue-400">{copy.toolIntroduction}</Link></div>
           </div>
         </article>
       ))}</div>}

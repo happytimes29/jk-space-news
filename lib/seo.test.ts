@@ -77,10 +77,12 @@ describe("portfolio GEO schemas", () => {
     const project: ProjectItem = { ...originalProject, locale: "en", title: "PCB comparison", translationStatus: "published" };
     const originalTool = loadTools()[0];
     const tool: ToolItem = { ...originalTool, locale: "en", title: "PCB comparison tool", translationStatus: "published" };
+    const localizedTool: ToolItem = { ...tool, slug: "engineering-converter", appUrl: "/tools/engineering-converter/app", localizedApp: true };
     const translatedNote: NoteItem = { ...note, locale: "en", title: "Engineering tradeoffs", translationStatus: "published" };
 
     expect(projectJsonLd(project, "en", config)).toMatchObject({ "@type": "CreativeWork", url: "https://lab.example.com/en/projects/pcb-test-point-comparison", inLanguage: "en", creator: { "@id": "https://lab.example.com/#person" } });
     expect(toolJsonLd(tool, "en", config)).toMatchObject({ "@type": "SoftwareApplication", url: "https://lab.example.com/en/tools/pcb-test-point", installUrl: "https://lab.example.com/tools/pcb-test-point/app", inLanguage: "en" });
+    expect(toolJsonLd(localizedTool, "en", config)).toMatchObject({ installUrl: "https://lab.example.com/en/tools/engineering-converter/app" });
     expect(articleJsonLd(translatedNote, "en", config)).toMatchObject({ "@type": "Article", url: "https://lab.example.com/en/notes/engineering%20tradeoffs", mainEntityOfPage: "https://lab.example.com/en/notes/engineering%20tradeoffs", inLanguage: "en" });
     expect(breadcrumbJsonLd("en", [{ name: "Projects", pathname: "/projects" }, { name: "PCB comparison", pathname: "/projects/pcb-test-point-comparison" }], config)).toMatchObject({
       "@type": "BreadcrumbList",

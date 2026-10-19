@@ -19,6 +19,7 @@ export interface ToolItem extends LocalizedContent {
   outputTypes: string[];
   updatedAt: string;
   appUrl?: string;
+  localizedApp: boolean;
   coverImage?: string;
   sampleUrl?: string;
   repositoryUrl?: string;
@@ -33,7 +34,7 @@ function parseTool({ file, data, content }: ContentFile): WithoutLocalization<To
       title: fields.string("title"), slug: fields.string("slug"), summary: fields.string("summary"),
       status: fields.enum("status", ["available", "experimental", "maintenance", "archived"]),
       privacy: fields.string("privacy"), inputTypes: fields.strings("inputTypes", true), outputTypes: fields.strings("outputTypes", true),
-      updatedAt: fields.date("updatedAt"), appUrl: fields.optionalUrl("appUrl", true),
+      updatedAt: fields.date("updatedAt"), appUrl: fields.optionalUrl("appUrl", true), localizedApp: fields.optionalBoolean("localizedApp") ?? false,
       coverImage: fields.optionalUrl("coverImage", true), sampleUrl: fields.optionalUrl("sampleUrl", true),
       repositoryUrl: fields.optionalUrl("repositoryUrl"), relatedProject: fields.optionalString("relatedProject"),
       readingTime: estimateReadingTime(content), content,

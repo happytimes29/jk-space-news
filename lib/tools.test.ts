@@ -15,7 +15,7 @@ describe("tools", () => {
   it("loads privacy, formats and optional links without inventing metadata", () => {
     const dir = directory();
     writeContent(dir, "tool.md", { ...toolData, relatedProject: "pcb-test-point-comparison" });
-    expect(loadTools(dir)[0]).toMatchObject({ ...toolData, updatedAt: "2026-10-14T00:00:00.000Z", relatedProject: "pcb-test-point-comparison", locale: "zh-TW", translationOf: "test-tool", translationStatus: "published" });
+    expect(loadTools(dir)[0]).toMatchObject({ ...toolData, localizedApp: false, updatedAt: "2026-10-14T00:00:00.000Z", relatedProject: "pcb-test-point-comparison", locale: "zh-TW", translationOf: "test-tool", translationStatus: "published" });
     expect(loadTools(dir)[0].privacy).toContain("瀏覽器");
     expect(loadTools(dir)[0].coverImage).toBeUndefined();
   });
@@ -25,6 +25,12 @@ describe("tools", () => {
     writeContent(dir, "test-tool.md", toolData);
     writeTranslation(dir, "zh-cn", "test-tool.md", { ...toolData, title: "测试工具", locale: "zh-CN", translationOf: "test-tool", translationStatus: "published", translatedAt: "2026-10-19" });
     expect(loadTools(dir, { locale: "zh-CN", visibility: "production" })).toMatchObject([{ title: "测试工具", locale: "zh-CN", translationStatus: "published" }]);
+  });
+
+  it("accepts an explicit localized application boundary", () => {
+    const dir = directory();
+    writeContent(dir, "localized.md", { ...toolData, localizedApp: true });
+    expect(loadTools(dir)[0]).toMatchObject({ localizedApp: true });
   });
 
   it("sorts tools newest first", () => {
@@ -55,7 +61,7 @@ describe("tools", () => {
     expect(await getFeaturedTool()).toBeNull();
   });
 
-  it.each([["status", "active"], ["privacy", ""], ["inputTypes", []], ["outputTypes", "CSV"], ["updatedAt", undefined], ["appUrl", "javascript:alert(1)"]])("rejects invalid tool %s", (field, value) => {
+  it.each([["status", "active"], ["privacy", ""], ["inputTypes", []], ["outputTypes", "CSV"], ["updatedAt", undefined], ["appUrl", "javascript:alert(1)"], ["localizedApp", "yes"]])("rejects invalid tool %s", (field, value) => {
     const dir = directory();
     writeContent(dir, "invalid.md", { ...toolData, [field]: value });
     expect(() => loadTools(dir)).toThrow(new RegExp(`invalid\\.md.*${field}`));

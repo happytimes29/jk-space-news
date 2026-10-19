@@ -20,7 +20,7 @@ export function FeaturedTool({ tool, locale, dictionary }: { tool: ToolItem | nu
               <p className="text-sm leading-7"><span className="font-medium">{dictionary.home.toolAudienceLabel}：</span>{dictionary.home.toolAudience}</p>
               <p className="border-l-2 border-blue-500 pl-4 text-sm leading-7 text-zinc-600 dark:text-zinc-300">{tool.privacy}</p>
               <div className="flex flex-wrap items-center gap-5 pt-2">
-                {tool.appUrl && <OpenToolLink slug={tool.slug} href={tool.appUrl}>{dictionary.home.toolUseNow}</OpenToolLink>}
+                {tool.appUrl && <OpenToolLink slug={tool.slug} href={tool.appUrl} locale={locale} localized={tool.localizedApp}>{dictionary.home.toolUseNow}</OpenToolLink>}
                 <Link href={localePath(locale, `/tools/${tool.slug}`)} className="text-sm text-blue-700 underline underline-offset-4 dark:text-blue-300">{dictionary.home.toolDetails}</Link>
               </div>
             </div>

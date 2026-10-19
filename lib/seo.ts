@@ -162,7 +162,14 @@ export function toolJsonLd(tool: ToolItem, locale: Locale, config: SiteConfig) {
     dateModified: tool.updatedAt, inLanguage: localeConfig(locale).htmlLang,
     applicationCategory: "DeveloperApplication", operatingSystem: "Web browser",
     creator: { "@id": absoluteUrl(config.url, "/#person") },
-    ...(tool.appUrl ? { installUrl: new URL(tool.appUrl, `${config.url}/`).href } : {}),
+    ...(tool.appUrl ? {
+      installUrl: new URL(
+        tool.localizedApp && tool.appUrl.startsWith("/") && !tool.appUrl.startsWith("//")
+          ? localePath(locale, tool.appUrl)
+          : tool.appUrl,
+        `${config.url}/`,
+      ).href,
+    } : {}),
     ...(tool.coverImage ? { image: new URL(tool.coverImage, `${config.url}/`).href } : {}),
   };
 }
