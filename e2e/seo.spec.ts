@@ -108,6 +108,7 @@ test("crawl endpoints contain only public portfolio content", async ({ request }
     "https://jk-space.com/zh-cn/tools/pcb-test-point", "https://jk-space.com/en/tools/pcb-test-point",
     "https://jk-space.com/tools/engineering-converter/app", "https://jk-space.com/tools/passive-circuit-calculator/app", "https://jk-space.com/tools/rf-calculator/app",
     "https://jk-space.com/tools/smith-chart/app",
+    "https://jk-space.com/tools/transmission-line/app",
     ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
   ]));
   expect(source).toContain('<xhtml:link rel="alternate" hreflang="en" href="https://jk-space.com/en/projects/pcb-test-point-comparison" />');

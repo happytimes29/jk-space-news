@@ -104,7 +104,52 @@ test("Smith chart supports keyboard input, mobile layout, and every visible loca
   }
 });
 
-for (const route of ["engineering-converter", "passive-circuit-calculator", "rf-calculator", "smith-chart"]) {
+test("Transmission Line analyzes and synthesizes all three geometry models", async ({ page }) => {
+  const unexpected: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (!url.pathname.startsWith("/_vercel/insights/") && ["fetch", "xhr"].includes(request.resourceType())) unexpected.push(request.url());
+  });
+  await page.goto("/tools/transmission-line/app");
+  for (const [kind, formula] of [["microstrip", "Hammerstad–Jensen"], ["stripline", "Wheeler 1965"], ["cpwg", "Qucs 技術指南"]]) {
+    await page.getByLabel("模型", { exact: true }).selectOption(kind);
+    await expect(page.getByText(new RegExp(formula))).toBeVisible();
+    const impedance = Number((await page.getByTestId("impedance-value").textContent())?.split(" ")[0]);
+    expect(impedance).toBeGreaterThan(0);
+    await page.getByLabel("模式").selectOption("target");
+    await page.getByLabel("目標阻抗").fill(String(impedance));
+    await page.getByRole("button", { name: "求解寬度" }).click();
+    await expect(page.getByText(/^求解寬度:/)).toBeVisible();
+    await page.getByLabel("模式").selectOption("forward");
+  }
+  expect(unexpected).toEqual([]);
+});
+
+test("Transmission Line preserves SI geometry across units, query reload, keyboard, and locales", async ({ page }) => {
+  await page.goto("/tools/transmission-line/app");
+  const width = page.getByLabel("走線寬度");
+  await width.focus();
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.type("3");
+  const before = await page.getByTestId("impedance-value").textContent();
+  await page.getByLabel("顯示單位").selectOption("mil");
+  await expect(width).toHaveValue(/118\.110/);
+  await expect(page.getByTestId("impedance-value")).toHaveText(before!);
+  await expect.poll(() => new URL(page.url()).searchParams.get("widthM")).toBe("0.003");
+  await page.reload();
+  await expect(page.getByLabel("顯示單位")).toHaveValue("mil");
+  await expect(width).toHaveValue(/118\.110/);
+
+  if (preview) {
+    for (const [route, heading] of [["/zh-cn/tools/transmission-line/app", "PCB 传输线阻抗与线宽计算器"], ["/en/tools/transmission-line/app", "PCB Transmission Line Impedance and Width Calculator"]]) {
+      const response = await page.goto(route);
+      expect(response?.status()).toBe(200);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
+    }
+  }
+});
+
+for (const route of ["engineering-converter", "passive-circuit-calculator", "rf-calculator", "smith-chart", "transmission-line"]) {
   test(`${route} fits a mobile viewport`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 800 });
     await page.goto(`/tools/${route}/app`);

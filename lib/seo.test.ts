@@ -154,6 +154,15 @@ describe("localized sitemap", () => {
       inLanguage: "en",
     });
   });
+
+  it("publishes the localized Transmission Line application route in Preview", () => {
+    const tool = loadTools(undefined, { locale: "zh-CN", visibility: "preview" }).find((item) => item.slug === "transmission-line")!;
+    expect(toolJsonLd(tool, "zh-CN", config)).toMatchObject({
+      url: "https://lab.example.com/zh-cn/tools/transmission-line",
+      installUrl: "https://lab.example.com/zh-cn/tools/transmission-line/app",
+      inLanguage: "zh-Hans-CN",
+    });
+  });
 });
 
 describe("OG labels", () => {

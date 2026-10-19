@@ -104,7 +104,7 @@ for (const shortcut of ["Meta+k", "Control+k"]) {
       await page.keyboard.press(shortcut);
       const search = page.getByRole("textbox", { name: "搜尋專案、工具與筆記" });
       await expect(search).toBeFocused();
-      await search.fill("PCB");
+      await search.fill("PCB 測試點");
       await expect(page.getByRole("button", { name: `PCB 測試點自動比對工具 ${type}`, exact: true })).toBeVisible();
       // Search ordering is projects followed by tools; exercise down/up selection.
       await page.keyboard.press("ArrowDown");
