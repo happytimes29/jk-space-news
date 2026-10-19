@@ -34,7 +34,6 @@ export function buildRootMetadata(locale: Locale): Metadata {
       description: config.description,
       images: [{ url: `/api/og?${new URLSearchParams({ title: config.title })}`, width: 1200, height: 630, alt: config.title }],
     },
-    robots: { index: true, follow: true },
   };
 }
 

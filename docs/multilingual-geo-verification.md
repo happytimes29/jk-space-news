@@ -10,6 +10,7 @@
 | 命令／檢查 | 結果 |
 | --- | --- |
 | `npm run test:e2e -- e2e/site.spec.ts e2e/seo.spec.ts` | PASS，32/32 |
+| `npm run test:e2e -- e2e/site.spec.ts --grep "invalid locales and missing translated details" --repeat-each=5` | PASS，5/5；確認 404 的 `noindex` 不再與父層 metadata 衝突 |
 | `npm run verify` | PASS；ESLint、TypeScript、44 個 Vitest 檔／257 項測試、15 項舊新聞守門測試、production build 全部成功 |
 | `npm run test:e2e` | PASS，38/38 |
 | `CONTENT_PREVIEW=1 npm run build:local` | PASS，35 個靜態頁；包含簡中／英文 PCB Project 與 Tool 詳情 |
