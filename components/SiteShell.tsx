@@ -59,6 +59,7 @@ export async function SiteShell({ locale, children }: { locale: Locale; children
         <Footer locale={locale} dictionary={dictionary} config={config} />
         <LocaleSuggestion
           locale={locale}
+          availability={availability}
           copy={{
             title: dictionary.language.suggestionTitle,
             description: dictionary.language.suggestionDescription,

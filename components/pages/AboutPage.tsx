@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ContactLinks } from "@/app/contact/ContactLinks";
+import { contentVisibility, getTranslationAvailability } from "@/lib/content/translations";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { localePath, type Locale } from "@/lib/i18n/locales";
+import { DEFAULT_LOCALE, localePath, type Locale } from "@/lib/i18n/locales";
 import { getEnabledContactLinks, getSiteConfig } from "@/lib/site-config";
 
 const linkClass = "text-[var(--color-accent)] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4";
@@ -10,6 +11,16 @@ export function AboutPage({ locale }: { locale: Locale }) {
   const dictionary = getDictionary(locale);
   const config = getSiteConfig(locale);
   const copy = dictionary.about;
+  const featuredProjectPath = "/projects/pcb-test-point-comparison";
+  const featuredProjectAvailable = getTranslationAvailability(
+    "projects",
+    "pcb-test-point-comparison",
+    contentVisibility(),
+  ).includes(locale);
+  const featuredProjectLocale = featuredProjectAvailable ? locale : DEFAULT_LOCALE;
+  const featuredProjectLabel = featuredProjectAvailable
+    ? copy.introToolLink
+    : `${copy.introToolLink} (${dictionary.content.traditionalOriginal})`;
   const expertise = [
     [copy.expertiseHardwareTitle, copy.expertiseHardwareText],
     [copy.expertiseAutomationTitle, copy.expertiseAutomationText],
@@ -33,7 +44,7 @@ export function AboutPage({ locale }: { locale: Locale }) {
           <h2 id="about-intro" className="text-xl font-semibold">{copy.introTitle}</h2>
           <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">{copy.introOne}</p>
           <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-            {copy.introTwoBefore} <Link href={localePath(locale, "/projects/pcb-test-point-comparison")} className={linkClass}>{copy.introToolLink}</Link> {copy.introTwoAfter}
+            {copy.introTwoBefore} <Link href={localePath(featuredProjectLocale, featuredProjectPath)} className={linkClass}>{featuredProjectLabel}</Link> {copy.introTwoAfter}
           </p>
         </section>
         <section aria-labelledby="about-expertise">

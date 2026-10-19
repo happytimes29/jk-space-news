@@ -1,11 +1,13 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { HomePage } from "./HomePage";
 import { AboutPage } from "./AboutPage";
 import { ContactPage } from "./ContactPage";
 import { PrivacyPage } from "./PrivacyPage";
 import { NotFoundPage } from "./NotFoundPage";
 import type { Locale } from "@/lib/i18n/locales";
+
+afterEach(() => vi.unstubAllEnvs());
 
 describe.each([
   ["zh-TW", "把工程上的麻煩事，做成好用的工具。", "/projects"],
@@ -47,4 +49,25 @@ it("keeps English About and Privacy internal links under /en", () => {
   unmount();
   render(<PrivacyPage locale="en" />);
   expect(screen.getByRole("link", { name: "contact page" })).toHaveAttribute("href", "/en/contact");
+});
+
+it.each([
+  ["en", /PCB test-point comparison tool.*Traditional Chinese original/],
+  ["zh-CN", /PCB 测试点自动比对工具.*繁体中文原文/],
+] as const)("links %s About copy to the published original until its translation is published", (locale, linkName) => {
+  vi.stubEnv("CONTENT_PREVIEW", "0");
+  render(<AboutPage locale={locale} />);
+  expect(screen.getByRole("link", { name: linkName })).toHaveAttribute(
+    "href",
+    "/projects/pcb-test-point-comparison",
+  );
+});
+
+it.each([
+  ["en", "PCB test-point comparison tool", "/en/projects/pcb-test-point-comparison"],
+  ["zh-CN", "PCB 测试点自动比对工具", "/zh-cn/projects/pcb-test-point-comparison"],
+] as const)("links %s About copy to reviewed translations only in Preview", (locale, linkName, href) => {
+  vi.stubEnv("CONTENT_PREVIEW", "1");
+  render(<AboutPage locale={locale} />);
+  expect(screen.getByRole("link", { name: linkName })).toHaveAttribute("href", href);
 });

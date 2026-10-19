@@ -11,7 +11,7 @@
 | --- | --- |
 | `npm run test:e2e -- e2e/site.spec.ts e2e/seo.spec.ts` | PASS，32/32 |
 | `npm run test:e2e -- e2e/site.spec.ts --grep "invalid locales and missing translated details" --repeat-each=5` | PASS，5/5；確認 404 的 `noindex` 不再與父層 metadata 衝突 |
-| `npm run verify` | PASS；ESLint、TypeScript、44 個 Vitest 檔／257 項測試、15 項舊新聞守門測試、production build 全部成功 |
+| `npm run verify` | PASS；ESLint、TypeScript、44 個 Vitest 檔／265 項測試、15 項舊新聞守門測試、production build 全部成功 |
 | `npm run test:e2e` | PASS，38/38 |
 | `CONTENT_PREVIEW=1 npm run build:local` | PASS，35 個靜態頁；包含簡中／英文 PCB Project 與 Tool 詳情 |
 | production `npm run build:local`（由 `npm run verify` 執行） | PASS，31 個靜態頁；未包含仍為 `reviewed` 的 PCB 翻譯詳情 |
@@ -53,7 +53,17 @@ CONTENT_PREVIEW=1 npm run start -- --hostname 127.0.0.1 --port 3100
 - 設定中的 remote 維持 `origin = https://github.com/happytimes29/jk-space-news.git`；本次沒有修改 Git remote。
 - 工作只位於 `jk-space-news/.worktrees/multilingual-geo`；沒有修改同層的 `researchmfg-library`，也沒有把其文章、圖片或路由帶入網站。
 - 沒有操作 API key、外部排程、OpenClaw、Vercel、DNS 或正式網站。
-- 完成 commits：`1cf59185`、`60a8e893`、`4590dad9`、`57edcfb7`、`ea216edb`、`671bd507`、`b44d922b`、`edf03d76`；本驗證批次在提交後另記 commit。
+- 完成 commits：`1cf59185`、`60a8e893`、`4590dad9`、`57edcfb7`、`ea216edb`、`671bd507`、`b44d922b`、`edf03d76`、`f6c98f02`、`3577abaa`，以及包含本段紀錄的最終 review-fix commit。
+
+## 最終整體審查
+
+單一唯讀 reviewer 檢查完整計畫差異後沒有發現 Critical，並提出三項 Important；本分支已全部修正並重新驗證：
+
+- About 的英文／簡中連結在 production 改指向繁中原文並明確標示；只有 Preview 可連到 `reviewed` 翻譯。
+- 瀏覽器語言建議共用翻譯可用性資料，不再把未翻譯詳情或僅繁中的 PCB app 導向 404，且會在 client-side 路徑變更後重新判斷。
+- 翻譯可用性鍵統一使用 URL 編碼路徑；真實 builder 產生的非 ASCII slug 已測試不會解碼或重複編碼。
+
+Reviewer 另列兩項不阻擋交接的 Minor：全域 404 client chunk 仍可進一步縮小字典內容；Open Graph 圖片內的固定類型標籤仍可再做語系化。兩者不影響目前頁面語言、索引、翻譯發佈控制或導覽正確性，留待後續獨立改善。
 
 ## 站主核准點
 

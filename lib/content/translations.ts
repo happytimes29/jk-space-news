@@ -133,7 +133,7 @@ export function buildTranslationAvailability(
     );
     const originals = byLocale.get(DEFAULT_LOCALE) ?? [];
     for (const original of originals) {
-      result[`/${collection}/${original.slug}`] = LOCALES.filter((locale) =>
+      result[`/${collection}/${encodeURIComponent(original.slug)}`] = LOCALES.filter((locale) =>
         (byLocale.get(locale) ?? []).some((item) => item.slug === original.slug),
       );
     }

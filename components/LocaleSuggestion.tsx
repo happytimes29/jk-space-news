@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import type { TranslationAvailability } from "@/lib/content/translations";
 import { LOCALES, localeConfig, localePath, splitLocalePath, type Locale } from "@/lib/i18n/locales";
 import { setLocalePreference } from "@/components/LanguageSwitcher";
 
@@ -15,6 +16,7 @@ interface SuggestionCopy {
 interface LocaleSuggestionProps {
   locale: Locale;
   copy: SuggestionCopy;
+  availability: TranslationAvailability;
 }
 
 const DISMISSED_KEY = "jk-locale-suggestion-dismissed";
@@ -38,20 +40,29 @@ function browserLocale(languages: readonly string[]): Locale | null {
   return null;
 }
 
-export function LocaleSuggestion({ locale, copy }: LocaleSuggestionProps) {
+export function LocaleSuggestion({ locale, copy, availability }: LocaleSuggestionProps) {
   const [suggested, setSuggested] = useState<Locale | null>(null);
+  const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
+    setSuggested(null);
     if (window.localStorage.getItem(DISMISSED_KEY) === "1" || localeCookie()) return;
     const preferred = browserLocale(navigator.languages);
-    if (preferred && preferred !== locale) setSuggested(preferred);
-  }, [locale]);
+    const logicalPath = splitLocalePath(pathname).pathname;
+    const available = availability[logicalPath] ?? [locale];
+    if (preferred && preferred !== locale && available.includes(preferred)) setSuggested(preferred);
+  }, [availability, locale, pathname]);
 
   if (!suggested) return null;
 
   const accept = () => {
     const logicalPath = splitLocalePath(window.location.pathname).pathname;
+    const available = availability[logicalPath] ?? [locale];
+    if (!available.includes(suggested)) {
+      setSuggested(null);
+      return;
+    }
     setLocalePreference(suggested);
     router.push(`${localePath(suggested, logicalPath)}${window.location.search}${window.location.hash}`);
     setSuggested(null);

@@ -1,7 +1,10 @@
+import fs from "node:fs";
+import path from "node:path";
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import type { TranslationAvailability } from "@/lib/content/translations";
+import { buildTranslationAvailability, type TranslationAvailability } from "@/lib/content/translations";
+import { fixtureDirectory, projectData, writeContent, writeTranslation } from "@/lib/content/test-fixtures";
 
 const { push, currentPathname } = vi.hoisted(() => ({ push: vi.fn(), currentPathname: { value: "/about" } }));
 vi.mock("next/navigation", () => ({
@@ -10,6 +13,9 @@ vi.mock("next/navigation", () => ({
 }));
 
 const allCore: TranslationAvailability = { "/about": ["zh-TW", "zh-CN", "en"] };
+const directories: string[] = [];
+
+afterEach(() => directories.splice(0).forEach((directory) => fs.rmSync(directory, { recursive: true })));
 
 describe("LanguageSwitcher", () => {
   beforeEach(() => {
@@ -50,5 +56,33 @@ describe("LanguageSwitcher", () => {
     render(<LanguageSwitcher locale="en" availability={allCore} label="Choose a language" unavailableLabel="Unavailable" />);
     fireEvent.click(screen.getByRole("button", { name: "简体中文" }));
     expect(push).toHaveBeenCalledWith("/zh-cn/about");
+  });
+
+  it("uses availability built from a non-ASCII slug without decoding or double encoding", () => {
+    const root = fixtureDirectory();
+    directories.push(root);
+    const projects = path.join(root, "projects");
+    const tools = path.join(root, "tools");
+    const notes = path.join(root, "notes");
+    fs.mkdirSync(tools, { recursive: true });
+    fs.mkdirSync(notes, { recursive: true });
+    writeContent(projects, "測試.md", { ...projectData, slug: "測試" });
+    writeTranslation(projects, "en", "測試.md", {
+      ...projectData,
+      title: "Encoded project",
+      slug: "測試",
+      locale: "en",
+      translationOf: "測試",
+      translationStatus: "published",
+      translatedAt: "2026-10-19",
+    });
+    const availability = buildTranslationAvailability("production", { projects, tools, notes });
+    currentPathname.value = "/projects/%E6%B8%AC%E8%A9%A6";
+    window.history.replaceState({}, "", currentPathname.value);
+
+    render(<LanguageSwitcher locale="zh-TW" availability={availability} label="選擇語言" unavailableLabel="尚未翻譯" />);
+    fireEvent.click(screen.getByRole("button", { name: "English" }));
+
+    expect(push).toHaveBeenCalledWith("/en/projects/%E6%B8%AC%E8%A9%A6");
   });
 });
