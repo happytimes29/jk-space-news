@@ -26,7 +26,7 @@ function isMode(value: string | undefined): value is PassiveMode {
 export function PassiveCircuitCalculatorApp({ copy }: { copy: PassiveCircuitCopy }) {
   const [initial, setInitial] = useState<Record<string, string>>({});
   const [mode, setMode] = useState<PassiveMode>("divider");
-  const [activeState, setActiveState] = useState<Record<string, string | number | boolean>>({});
+  const [activeState, setActiveState] = useState<Record<string, string | number | boolean> | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const updateState = useCallback((state: Record<string, string | number | boolean>) => setActiveState(state), []);
 
@@ -38,13 +38,13 @@ export function PassiveCircuitCalculatorApp({ copy }: { copy: PassiveCircuitCopy
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || activeState === null) return;
     const query = encodeToolState({ mode, ...activeState });
     window.history.replaceState(window.history.state, "", `${window.location.pathname}?${query}${window.location.hash}`);
   }, [activeState, hydrated, mode]);
 
   function selectMode(next: PassiveMode) {
-    setActiveState({});
+    setActiveState(null);
     setMode(next);
   }
 
@@ -53,8 +53,8 @@ export function PassiveCircuitCalculatorApp({ copy }: { copy: PassiveCircuitCopy
     <div role="tablist" className="flex gap-2 overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-2">
       {MODES.map((item) => <button key={item.mode} type="button" role="tab" aria-selected={mode === item.mode} onClick={() => selectMode(item.mode)} className={`shrink-0 rounded-lg px-3 py-2 text-sm font-medium ${mode === item.mode ? "bg-[var(--color-accent)] text-white" : "text-[var(--color-muted)] hover:bg-[var(--color-card-hover)]"}`}>{copy[item.label]}</button>)}
     </div>
-    {mode === "divider" && <DividerMode copy={copy} initial={modeInitial} onStateChange={updateState} />}
-    {(mode === "rc" || mode === "lc" || mode === "rlc" || mode === "reactance") && <ReactiveMode key={mode} mode={mode} copy={copy} initial={modeInitial} onStateChange={updateState} />}
-    {mode === "attenuator" && <AttenuatorMode copy={copy} initial={modeInitial} onStateChange={updateState} />}
+    {hydrated && mode === "divider" && <DividerMode copy={copy} initial={modeInitial} onStateChange={updateState} />}
+    {hydrated && (mode === "rc" || mode === "lc" || mode === "rlc" || mode === "reactance") && <ReactiveMode key={mode} mode={mode} copy={copy} initial={modeInitial} onStateChange={updateState} />}
+    {hydrated && mode === "attenuator" && <AttenuatorMode copy={copy} initial={modeInitial} onStateChange={updateState} />}
   </div>;
 }

@@ -90,4 +90,18 @@ describe("SmithChartApp", () => {
     fireEvent.click(screen.getByRole("button", { name: "Export PNG" }));
     await waitFor(() => expect(track).toHaveBeenCalledWith("Engineering Tool Action", { slug: "smith-chart", action: "export_png" }));
   });
+
+  it("clears solved matches when the load or frequency changes", async () => {
+    render(<SmithChartApp copy={copy} />);
+    fireEvent.click(screen.getByRole("button", { name: "Solve L match" }));
+    expect(await screen.findByRole("region", { name: "Matching solutions" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Load resistance"), { target: { value: "30" } });
+    expect(screen.queryByRole("region", { name: "Matching solutions" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Solve L match" }));
+    expect(await screen.findByRole("region", { name: "Matching solutions" })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Frequency"), { target: { value: "2G" } });
+    expect(screen.queryByRole("region", { name: "Matching solutions" })).not.toBeInTheDocument();
+  });
 });

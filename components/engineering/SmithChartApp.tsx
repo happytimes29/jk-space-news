@@ -278,14 +278,19 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
     if (typeof navigator !== "undefined" && navigator.clipboard) await navigator.clipboard.writeText(window.location.href);
   }
 
+  function changeProblemInput(setter: (value: string) => void, value: string) {
+    setter(value);
+    setMatches([]);
+  }
+
   return <div className="space-y-6">
     <div className="grid gap-6 xl:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]">
       <section aria-label={copy.inputTitle} className="space-y-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
         <h2 className="text-lg font-semibold">{copy.inputTitle}</h2>
-        <CalculatorField id="smith-frequency" label={copy.frequencyLabel} value={frequency} onChange={(event) => setFrequency(event.target.value)} unit="Hz" />
-        <CalculatorField id="smith-reference" label={copy.referenceLabel} value={reference} onChange={(event) => setReference(event.target.value)} unit="Ω" />
-        <CalculatorField id="smith-resistance" label={copy.resistanceLabel} value={resistance} onChange={(event) => setResistance(event.target.value)} unit="Ω" error={error} />
-        <CalculatorField id="smith-reactance" label={copy.reactanceLabel} value={reactance} onChange={(event) => setReactance(event.target.value)} unit="Ω" />
+        <CalculatorField id="smith-frequency" label={copy.frequencyLabel} value={frequency} onChange={(event) => changeProblemInput(setFrequency, event.target.value)} unit="Hz" />
+        <CalculatorField id="smith-reference" label={copy.referenceLabel} value={reference} onChange={(event) => changeProblemInput(setReference, event.target.value)} unit="Ω" />
+        <CalculatorField id="smith-resistance" label={copy.resistanceLabel} value={resistance} onChange={(event) => changeProblemInput(setResistance, event.target.value)} unit="Ω" error={error} />
+        <CalculatorField id="smith-reactance" label={copy.reactanceLabel} value={reactance} onChange={(event) => changeProblemInput(setReactance, event.target.value)} unit="Ω" />
         <label className="block space-y-2 text-sm font-medium">{copy.chartModeLabel}<select aria-label={copy.chartModeLabel} value={mode} onChange={(event) => setMode(event.target.value as SmithChartMode)} className="block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-input-bg)] px-3 py-2">
           <option value="impedance">{copy.impedanceMode}</option><option value="admittance">{copy.admittanceMode}</option>
         </select></label>

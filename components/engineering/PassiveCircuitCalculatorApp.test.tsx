@@ -109,6 +109,17 @@ describe("PassiveCircuitCalculatorApp", () => {
     await waitFor(() => expect(within(result).getByText(/1\.65 V/)).toBeInTheDocument());
   });
 
+  it("hydrates direct divider share URLs before emitting default state", async () => {
+    window.history.replaceState({}, "", "/tools/passive-circuit-calculator/app?mode=divider&dividerMode=evaluate&vin=12&rTop=10k&rBottom=20k&tolerance=5");
+    render(<PassiveCircuitCalculatorApp copy={copy} />);
+
+    expect(await screen.findByLabelText("Divider workflow")).toHaveValue("evaluate");
+    expect(screen.getByLabelText("Input voltage")).toHaveValue("12");
+    expect(screen.getByLabelText("Top resistance R1")).toHaveValue("10k");
+    expect(screen.getByLabelText("Bottom resistance R2")).toHaveValue("20k");
+    await waitFor(() => expect(new URL(window.location.href).searchParams.get("dividerMode")).toBe("evaluate"));
+  });
+
   it("shows localized errors without replacing the last valid divider result", async () => {
     render(<PassiveCircuitCalculatorApp copy={copy} />);
     const result = screen.getByRole("region", { name: "Results" });

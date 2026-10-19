@@ -42,6 +42,8 @@ const copy: RfQuickCalculatorCopy = {
   gammaRealLabel: "Γ real",
   gammaImagLabel: "Γ imaginary",
   normalizedLabel: "Normalized z / y",
+  shortCircuitLabel: "Short circuit",
+  openCircuitLabel: "Open circuit",
 };
 
 beforeEach(() => window.history.replaceState({}, "", "/tools/rf-calculator/app"));
@@ -101,6 +103,23 @@ describe("RfQuickCalculatorApp", () => {
     expect(within(screen.getByRole("region", { name: "Results" })).getByText("Normalized z / y")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Reference impedance"), { target: { value: "50R" } });
     await waitFor(() => expect(screen.getByRole("region", { name: "Results" })).not.toHaveTextContent("NaN"));
+  });
+
+  it("renders ideal short and open limits instead of stale matched results", async () => {
+    render(<RfQuickCalculatorApp copy={copy} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Impedance and reflection" }));
+    const result = screen.getByRole("region", { name: "Results" });
+
+    fireEvent.change(screen.getByLabelText("Resistance"), { target: { value: "0" } });
+    expect(await within(result).findByText(/-1 \+ j0 · 1 ∠ 180°/)).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Convert from RF quantity"), { target: { value: "gamma" } });
+    fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "-1" } });
+    expect(await within(result).findByText(/-1 \+ j0 · 1 ∠ 180°/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "1" } });
+    expect(await within(result).findByText(/1 \+ j0 · 1 ∠ 0°/)).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("rejects conflicting medium inputs and preserves the last valid result", async () => {

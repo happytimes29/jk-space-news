@@ -48,13 +48,15 @@ export interface RfQuickCalculatorCopy {
   gammaRealLabel: string;
   gammaImagLabel: string;
   normalizedLabel: string;
+  shortCircuitLabel: string;
+  openCircuitLabel: string;
 }
 
 type Mode = "propagation" | "impedance";
 type PropagationInput = "length" | "angle" | "delay";
 type ImpedanceInput = "z" | "y" | "gamma";
 interface PropagationResult { velocity: number; wavelength: number; half: number; quarter: number; length: number; delay: number; angle: number }
-interface ImpedanceResult { z: Complex; y: Complex; gamma: Complex; reference: number; magnitude: number; phase: number; s11: number; vswr: number; returnLoss: number; mismatchLoss: number }
+interface ImpedanceResult { z: Complex | null; y: Complex | null; gamma: Complex; reference: number; limit: "finite" | "short" | "open"; magnitude: number; phase: number; s11: number; vswr: number; returnLoss: number; mismatchLoss: number }
 const STATE_KEYS = ["mode", "propagationInput", "frequency", "er", "velocityFactor", "length", "angle", "delay", "impedanceInput", "real", "imaginary", "z0"] as const;
 
 function parsed(text: string): number | undefined {
@@ -81,7 +83,7 @@ function defaultPropagation(): PropagationResult {
 }
 
 function defaultImpedance(): ImpedanceResult {
-  return { z: { re: 50, im: 0 }, y: { re: 0.02, im: 0 }, gamma: { re: 0, im: 0 }, reference: 50, magnitude: 0, phase: 0, s11: Number.NEGATIVE_INFINITY, vswr: 1, returnLoss: Number.POSITIVE_INFINITY, mismatchLoss: 0 };
+  return { z: { re: 50, im: 0 }, y: { re: 0.02, im: 0 }, gamma: { re: 0, im: 0 }, reference: 50, limit: "finite", magnitude: 0, phase: 0, s11: Number.NEGATIVE_INFINITY, vswr: 1, returnLoss: Number.POSITIVE_INFINITY, mismatchLoss: 0 };
 }
 
 export function RfQuickCalculatorApp({ copy }: { copy: RfQuickCalculatorCopy }) {
@@ -150,37 +152,64 @@ export function RfQuickCalculatorApp({ copy }: { copy: RfQuickCalculatorCopy }) 
   useEffect(() => {
     if (mode !== "impedance") return;
     const re = parsed(real), im = parsed(imaginary), reference = parsed(z0);
-    if (re === undefined || im === undefined || reference === undefined || (impedanceInput !== "gamma" && re < 0)) {
+    if (re === undefined || im === undefined || reference === undefined || reference <= 0 || (impedanceInput !== "gamma" && re < 0)) {
       setError(copy.invalidInput);
       return;
     }
-    let z: Complex;
+    let z: Complex | null = null;
+    let y: Complex | null = null;
+    let gamma: Complex;
+    let limit: ImpedanceResult["limit"] = "finite";
     if (impedanceInput === "z") {
       z = { re, im };
+      if (re === 0 && im === 0) {
+        limit = "short";
+        gamma = { re: -1, im: 0 };
+      } else {
+        const converted = impedanceToAdmittance(z);
+        const reflected = reflectionCoefficient(z, reference);
+        if (!converted.ok || !reflected.ok) { setError(copy.invalidInput); return; }
+        y = converted.value;
+        gamma = reflected.value;
+      }
     } else if (impedanceInput === "y") {
-      const converted = complexReciprocal({ re, im });
-      if (!converted.ok) { setError(copy.invalidInput); return; }
-      z = converted.value;
+      y = { re, im };
+      if (re === 0 && im === 0) {
+        limit = "open";
+        gamma = { re: 1, im: 0 };
+      } else {
+        const converted = complexReciprocal(y);
+        if (!converted.ok) { setError(copy.invalidInput); return; }
+        z = converted.value;
+        const reflected = reflectionCoefficient(z, reference);
+        if (!reflected.ok) { setError(copy.invalidInput); return; }
+        gamma = reflected.value;
+      }
     } else {
-      const gamma = { re, im };
+      gamma = { re, im };
       if (complexMagnitude(gamma) > 1) { setError(copy.invalidInput); return; }
-      const normalized = complexDivide(complexAdd({ re: 1, im: 0 }, gamma), { re: 1 - gamma.re, im: -gamma.im });
-      if (!normalized.ok) { setError(copy.invalidInput); return; }
-      z = { re: normalized.value.re * reference, im: normalized.value.im * reference };
+      if (gamma.im === 0 && gamma.re === 1) {
+        limit = "open";
+        y = { re: 0, im: 0 };
+      } else if (gamma.im === 0 && gamma.re === -1) {
+        limit = "short";
+        z = { re: 0, im: 0 };
+      } else {
+        const normalized = complexDivide(complexAdd({ re: 1, im: 0 }, gamma), { re: 1 - gamma.re, im: -gamma.im });
+        if (!normalized.ok) { setError(copy.invalidInput); return; }
+        z = { re: normalized.value.re * reference, im: normalized.value.im * reference };
+        const converted = impedanceToAdmittance(z);
+        if (!converted.ok) { setError(copy.invalidInput); return; }
+        y = converted.value;
+      }
     }
-    const y = impedanceToAdmittance(z);
-    const gamma = reflectionCoefficient(z, reference);
-    if (!y.ok || !gamma.ok) {
-      setError(copy.invalidInput);
-      return;
-    }
-    const metrics = reflectionMetrics(gamma.value);
+    const metrics = reflectionMetrics(gamma);
     if (!metrics.ok) {
       setError(copy.invalidInput);
       return;
     }
     setError(undefined);
-    setImpedance({ z, y: y.value, gamma: gamma.value, reference, magnitude: metrics.value.magnitude, phase: metrics.value.phaseDegrees, s11: metrics.value.s11Db, vswr: metrics.value.vswr, returnLoss: metrics.value.returnLossDb, mismatchLoss: metrics.value.mismatchLossDb });
+    setImpedance({ z, y, gamma, reference, limit, magnitude: metrics.value.magnitude, phase: metrics.value.phaseDegrees, s11: metrics.value.s11Db, vswr: metrics.value.vswr, returnLoss: metrics.value.returnLossDb, mismatchLoss: metrics.value.mismatchLossDb });
   }, [copy.invalidInput, imaginary, impedanceInput, mode, real, z0]);
 
   useEffect(() => {
@@ -225,10 +254,10 @@ export function RfQuickCalculatorApp({ copy }: { copy: RfQuickCalculatorCopy }) 
           <Result label={copy.delayLabel}>{formatEngineering(propagation.delay, { unit: "s" })}</Result>
           <Result label={copy.electricalAngleLabel}>{decimal(propagation.angle)}°</Result>
         </dl> : <dl className="space-y-4">
-          <Result label={copy.impedanceResultLabel}>{complexText(impedance.z, "Ω")}</Result>
-          <Result label={copy.admittanceLabel}>{complexText(impedance.y, "S")}</Result>
+          <Result label={copy.impedanceResultLabel}>{impedance.z ? <>{impedance.limit === "short" && `${copy.shortCircuitLabel} · `}{complexText(impedance.z, "Ω")}</> : `${copy.openCircuitLabel} · ${copy.infinityLabel} Ω`}</Result>
+          <Result label={copy.admittanceLabel}>{impedance.y ? <>{impedance.limit === "open" && `${copy.openCircuitLabel} · `}{complexText(impedance.y, "S")}</> : `${copy.shortCircuitLabel} · ${copy.infinityLabel} S`}</Result>
           <Result label={copy.gammaLabel}>{complexText(impedance.gamma)}</Result>
-          <Result label={copy.normalizedLabel}>z = {complexText({ re: impedance.z.re / impedance.reference, im: impedance.z.im / impedance.reference })} · y = {complexText({ re: impedance.y.re * impedance.reference, im: impedance.y.im * impedance.reference })}</Result>
+          <Result label={copy.normalizedLabel}>{impedance.limit === "open" ? `z = ${copy.infinityLabel} · y = 0` : impedance.limit === "short" ? `z = 0 · y = ${copy.infinityLabel}` : <>z = {complexText({ re: impedance.z!.re / impedance.reference, im: impedance.z!.im / impedance.reference })} · y = {complexText({ re: impedance.y!.re * impedance.reference, im: impedance.y!.im * impedance.reference })}</>}</Result>
           <Result label={copy.s11Label}>{finiteOrInfinity(impedance.s11, "dB")}</Result>
           <Result label={copy.vswrLabel}>{finiteOrInfinity(impedance.vswr)}</Result>
           <Result label={copy.returnLossLabel}>{finiteOrInfinity(impedance.returnLoss, "dB")}</Result>

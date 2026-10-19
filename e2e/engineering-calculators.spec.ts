@@ -36,11 +36,16 @@ test("shareable calculator URLs hydrate without errors and survive reloads", asy
 
   for (const [route, activeTab] of [
     ["/tools/engineering-converter/app?mode=rf&value=10&from=dBm&impedance=75", "RF 功率"],
+    ["/tools/passive-circuit-calculator/app?mode=divider&dividerMode=evaluate&vin=12&rTop=10k&rBottom=20k&tolerance=5", "分壓"],
     ["/tools/passive-circuit-calculator/app?mode=attenuator&attenuation=6&z0=50&topology=pi&inputPower=1", "衰減器"],
     ["/tools/rf-calculator/app?mode=impedance&impedanceInput=gamma&real=-0.3333333333&imaginary=0&z0=50", "阻抗與反射"],
   ]) {
     await page.goto(route);
     await expect(page.getByRole("tab", { selected: true })).toHaveText(activeTab);
+    if (route.includes("dividerMode=evaluate")) {
+      await expect(page.getByLabel("分壓工作模式")).toHaveValue("evaluate");
+      await expect(page.getByLabel("輸入電壓")).toHaveValue("12");
+    }
     await page.reload();
     await expect(page.getByRole("tab", { selected: true })).toHaveText(activeTab);
   }
@@ -65,6 +70,22 @@ test("passive and RF examples calculate locally without value network requests",
     await expect(page.getByRole("region", { name: "計算結果" })).toContainText(expected);
     expect(unexpected).toEqual([]);
   }
+});
+
+test("RF calculator represents ideal short and open limits", async ({ page }) => {
+  await page.goto("/tools/rf-calculator/app");
+  await page.getByRole("tab", { name: "阻抗與反射" }).click();
+  const result = page.getByRole("region", { name: "計算結果" });
+
+  await page.getByLabel("電阻 R").fill("0");
+  await expect(result).toContainText("短路");
+  await expect(result).toContainText("-1 + j0");
+
+  await page.getByLabel("RF 換算起始量").selectOption("gamma");
+  await page.getByLabel("Γ 實部").fill("1");
+  await expect(result).toContainText("開路");
+  await expect(result).toContainText("1 + j0");
+  await expect(page.getByText("請輸入有限且符合物理範圍的數值。")).toHaveCount(0);
 });
 
 test("Smith chart edits a network, restores its query, solves matches, and exports locally", async ({ page }) => {
@@ -108,6 +129,10 @@ test("Smith chart edits a network, restores its query, solves matches, and expor
   await expect(page.getByRole("heading", { name: "低通型" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "高通型" })).toBeVisible();
   await expect(page.getByText("標準值系列: E24").first()).toBeVisible();
+  await page.getByLabel("負載電阻 R").fill("30");
+  await expect(page.getByRole("region", { name: "匹配方案" })).toHaveCount(0);
+  await page.getByLabel("負載電阻 R").fill("25");
+  await page.getByRole("button", { name: "求解 L 型匹配" }).click();
   await page.getByRole("button", { name: "套用方案" }).first().click();
   await expect(page.getByText(/步驟 2/)).toBeVisible();
 

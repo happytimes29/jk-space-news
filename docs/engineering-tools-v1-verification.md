@@ -53,10 +53,10 @@ At the final integration checkpoint:
 - Numeric primitives: 8 tests passed.
 - Transmission-line forward models: 29 tests passed.
 - Transmission-line solver and application focused suite: 45 tests passed.
-- Engineering-focused Vitest suite after independent-review fixes: 28 files / 211 tests passed.
-- Full Vitest suite: 71 files / 479 tests passed.
-- Engineering Preview Playwright: 13/13 passed, including share-URL hydration, nonblank PNG export, forward/reverse transmission-line solving, and unit/query/locale scenarios.
-- Full Playwright suite: 51/51 passed.
+- Engineering-focused Vitest suite after independent-review fixes: 28 files / 214 tests passed.
+- Full Vitest suite: 71 files / 482 tests passed.
+- Engineering Preview Playwright: 14/14 passed, including share-URL hydration, ideal RF open/short limits, stale-match invalidation, nonblank PNG export, forward/reverse transmission-line solving, and unit/query/locale scenarios.
+- Full Playwright suite: 52/52 passed.
 - Production build succeeded and static generation completed 45/45 pages.
 
 ## Preview surface checks
