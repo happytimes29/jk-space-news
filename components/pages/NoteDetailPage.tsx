@@ -6,7 +6,7 @@ import { getTranslationAvailability, type ContentVisibility, type ContentCollect
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { localePath, type Locale } from "@/lib/i18n/locales";
 import { getSiteConfig } from "@/lib/site-config";
-import { articleJsonLd } from "@/lib/seo";
+import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { noteTypeLabels } from "@/app/notes/notes-view";
 import { MDXRenderer } from "@/components/MDXRenderer";
 import { SourceDisclosure } from "@/components/notes/SourceDisclosure";
@@ -26,7 +26,8 @@ export async function NoteDetailPage({ locale, slug, visibility }: { locale: Loc
   const commentary = note.type === "commentary" ? parseCommentaryContent(note.content, note.slug) : undefined;
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
-      <JsonLd data={articleJsonLd(note, config)} />
+      <JsonLd data={articleJsonLd(note, locale, config)} />
+      <JsonLd data={breadcrumbJsonLd(locale, [{ name: dictionary.collections.notesTitle, pathname: "/notes" }, { name: note.title, pathname: `/notes/${note.slug}` }], config)} />
       <nav aria-label={dictionary.content.breadcrumbsLabel} className="mb-8 text-sm"><Link href={localePath(locale, "/notes")} className="text-blue-700 underline underline-offset-4 dark:text-blue-300">{dictionary.content.backNotes}</Link></nav>
       <header className="mb-8 space-y-5 border-b border-[#d4d4d8] pb-8 dark:border-[#303036]"><p className="text-sm text-blue-700 dark:text-blue-300">{noteTypeLabels(locale)[note.type]}</p><h1 className="break-words text-3xl font-bold leading-tight sm:text-4xl">{note.title}</h1><p className="leading-8 text-[#55555b] dark:text-[#a1a1aa]">{note.summary}</p>
         <dl className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#55555b] dark:text-[#a1a1aa]"><div><dt>{dictionary.content.author}</dt><dd>{note.author}</dd></div><div><dt>{dictionary.content.publishedDate}</dt><dd><time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.common.lastUpdated}</dt><dd><time dateTime={note.updatedAt}>{note.updatedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.content.readingTime}</dt><dd>{note.readingTime} {dictionary.common.minutes}</dd></div></dl>

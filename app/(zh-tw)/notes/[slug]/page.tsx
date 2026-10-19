@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { NoteDetailPage } from "@/components/pages/NoteDetailPage";
-import { contentVisibility } from "@/lib/content/translations";
+import { contentVisibility, getTranslationAvailability } from "@/lib/content/translations";
 import { getAllNotes, getNoteBySlug } from "@/lib/notes";
-import { siteConfig } from "@/lib/site-config";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -11,19 +11,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const note = await getNoteBySlug((await params).slug, { locale: "zh-TW", visibility: contentVisibility() });
+  const visibility = contentVisibility();
+  const note = await getNoteBySlug((await params).slug, { locale: "zh-TW", visibility });
   if (!note) return { title: "找不到筆記", robots: { index: false, follow: false } };
-  const url = `/notes/${encodeURIComponent(note.slug)}`;
-  return {
-    title: note.title, description: note.summary,
-    alternates: { canonical: url },
-    openGraph: {
-      siteName: siteConfig.name, locale: "zh_TW",
-      title: note.title, description: note.summary, type: "article", url,
-      publishedTime: note.publishedAt, modifiedTime: note.updatedAt, authors: [note.author],
-      images: [{ url: `/api/og?${new URLSearchParams({ type: "note", title: note.title })}`, width: 1200, height: 630, alt: note.title }],
-    },
-  };
+  return buildLocalizedMetadata({ locale: "zh-TW", pathname: `/notes/${encodeURIComponent(note.slug)}`, title: note.title, description: note.summary, availableLocales: getTranslationAvailability("notes", note.slug, visibility), type: "note", publishedTime: note.publishedAt, modifiedTime: note.updatedAt, authors: [note.author] });
 }
 
 export default async function NotePage({ params }: Props) {

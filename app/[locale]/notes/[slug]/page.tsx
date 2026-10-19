@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NoteDetailPage } from "@/components/pages/NoteDetailPage";
-import { contentVisibility } from "@/lib/content/translations";
-import { localeConfig, localeFromSegment, localePath, type Locale } from "@/lib/i18n/locales";
+import { contentVisibility, getTranslationAvailability } from "@/lib/content/translations";
+import { localeFromSegment, type Locale } from "@/lib/i18n/locales";
 import { getAllNotes, getNoteBySlug } from "@/lib/notes";
-import { getSiteConfig } from "@/lib/site-config";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 interface Props { params: Promise<{ locale: string; slug: string }> }
 interface ParentParams { params: { locale: string } }
@@ -23,19 +23,10 @@ export async function generateStaticParams({ params }: ParentParams) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale: segment, slug } = await params;
   const locale = resolve(segment);
-  const note = await getNoteBySlug(slug, { locale, visibility: contentVisibility() });
+  const visibility = contentVisibility();
+  const note = await getNoteBySlug(slug, { locale, visibility });
   if (!note) return { title: locale === "en" ? "Note not found" : "找不到笔记", robots: { index: false, follow: false } };
-  const url = localePath(locale, `/notes/${encodeURIComponent(note.slug)}`);
-  return {
-    title: note.title, description: note.summary,
-    alternates: { canonical: url },
-    openGraph: {
-      siteName: getSiteConfig(locale).name, locale: localeConfig(locale).ogLocale,
-      title: note.title, description: note.summary, type: "article", url,
-      publishedTime: note.publishedAt, modifiedTime: note.updatedAt, authors: [note.author],
-      images: [{ url: `/api/og?${new URLSearchParams({ type: "note", title: note.title })}`, width: 1200, height: 630, alt: note.title }],
-    },
-  };
+  return buildLocalizedMetadata({ locale, pathname: `/notes/${encodeURIComponent(note.slug)}`, title: note.title, description: note.summary, availableLocales: getTranslationAvailability("notes", note.slug, visibility), type: "note", publishedTime: note.publishedAt, modifiedTime: note.updatedAt, authors: [note.author] });
 }
 
 export default async function LocalizedNotePage({ params }: Props) {

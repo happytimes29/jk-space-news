@@ -4,9 +4,12 @@ import { getAllTools } from "@/lib/tools";
 import { getAllNotes } from "@/lib/notes";
 import { siteConfig } from "@/lib/site-config";
 import { buildSitemapEntries } from "@/lib/seo";
+import { LOCALES } from "@/lib/i18n/locales";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [projects, tools, notes] = await Promise.all([getAllProjects(), getAllTools(), getAllNotes()]);
+  const projectsByLocale = Object.fromEntries(await Promise.all(LOCALES.map(async (locale) => [locale, await getAllProjects({ locale, visibility: "production" })])));
+  const toolsByLocale = Object.fromEntries(await Promise.all(LOCALES.map(async (locale) => [locale, await getAllTools({ locale, visibility: "production" })])));
+  const notesByLocale = Object.fromEntries(await Promise.all(LOCALES.map(async (locale) => [locale, await getAllNotes({ locale, visibility: "production" })])));
 
-  return buildSitemapEntries({ baseUrl: siteConfig.url, projects, tools, notes });
+  return buildSitemapEntries({ baseUrl: siteConfig.url, projectsByLocale, toolsByLocale, notesByLocale });
 }

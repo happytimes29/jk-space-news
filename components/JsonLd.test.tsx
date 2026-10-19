@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { JsonLd } from "./JsonLd";
+import { JsonLd, serializeJsonLd } from "./JsonLd";
 
 describe("JsonLd", () => {
   // Catches HTML parsing ending the JSON script early, rather than merely testing JSON.stringify.
@@ -14,5 +14,15 @@ describe("JsonLd", () => {
     expect(scripts[0].textContent).not.toContain("<");
     expect(scripts[0].textContent).toContain("\\u003c/script>");
     expect(JSON.parse(scripts[0].textContent!)).toEqual(data);
+  });
+
+  it("escapes script terminators and JavaScript line separators without changing parsed JSON", () => {
+    const data = { name: "GEO </script>\u2028next\u2029line" };
+    const serialized = serializeJsonLd(data);
+    expect(serialized).not.toContain("</script>");
+    expect(serialized).toContain("\\u003c/script>");
+    expect(serialized).toContain("\\u2028");
+    expect(serialized).toContain("\\u2029");
+    expect(JSON.parse(serialized)).toEqual(data);
   });
 });

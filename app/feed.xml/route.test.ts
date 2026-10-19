@@ -10,6 +10,8 @@ it("serves published Notes with RSS headers and no retired news", async () => {
   const document = new DOMParser().parseFromString(xml, "application/xml");
   expect(document.querySelector("parsererror")).toBeNull();
   expect(document.querySelector("channel > title")?.textContent).toBe("JK Space");
+  expect(document.querySelector("channel > language")?.textContent).toBe("zh-TW");
+  expect(document.querySelector('link[rel="self"]')?.getAttribute("href")).toBe("https://jk-space.com/feed.xml");
   expect(Array.from(document.querySelectorAll("item")).map((item) => ({
     title: item.querySelector("title")?.textContent,
     link: item.querySelector("link")?.textContent,

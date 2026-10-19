@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { ToolDetailPage } from "@/components/pages/ToolDetailPage";
-import { contentVisibility } from "@/lib/content/translations";
+import { contentVisibility, getTranslationAvailability } from "@/lib/content/translations";
 import { getAllTools, getToolBySlug } from "@/lib/tools";
-import { siteConfig } from "@/lib/site-config";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -11,18 +11,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const tool = await getToolBySlug((await params).slug, { locale: "zh-TW", visibility: contentVisibility() });
+  const visibility = contentVisibility();
+  const tool = await getToolBySlug((await params).slug, { locale: "zh-TW", visibility });
   if (!tool) return { title: "找不到工具" };
-  const url = `/tools/${encodeURIComponent(tool.slug)}`;
-  return {
-    title: tool.title, description: tool.summary,
-    alternates: { canonical: url },
-    openGraph: {
-      siteName: siteConfig.name, locale: "zh_TW",
-      title: tool.title, description: tool.summary, type: "website", url,
-      images: [{ url: `/api/og?${new URLSearchParams({ type: "tool", title: tool.title })}`, width: 1200, height: 630, alt: tool.title }],
-    },
-  };
+  return buildLocalizedMetadata({ locale: "zh-TW", pathname: `/tools/${encodeURIComponent(tool.slug)}`, title: tool.title, description: tool.summary, availableLocales: getTranslationAvailability("tools", tool.slug, visibility), type: "tool" });
 }
 
 export default async function ToolSlugPage({ params }: Props) {

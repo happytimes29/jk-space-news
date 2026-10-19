@@ -4,7 +4,7 @@ import { buildNotesRss } from "@/lib/rss";
 import { siteConfig } from "@/lib/site-config";
 
 export async function GET() {
-  return new NextResponse(buildNotesRss(await getAllNotes(), siteConfig), {
+  return new NextResponse(buildNotesRss(await getAllNotes({ locale: "zh-TW", visibility: "production" }), siteConfig, "zh-TW")!, {
     status: 200,
     headers: {
       "Content-Type": "application/rss+xml; charset=utf-8",

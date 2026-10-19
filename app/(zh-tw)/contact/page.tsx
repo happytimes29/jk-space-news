@@ -1,11 +1,10 @@
 import { ContactPage } from "@/components/pages/ContactPage";
-import { buildPageMetadata } from "@/lib/seo";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { LOCALES } from "@/lib/i18n/locales";
+import { buildLocalizedMetadata } from "@/lib/seo";
 
-export const metadata = buildPageMetadata({
-  route: "/contact",
-  title: "聯絡我",
-  description: "JK Space 的技術交流、工具回饋與合作討論管道。",
-});
+const dictionary = getDictionary("zh-TW");
+export const metadata = buildLocalizedMetadata({ locale: "zh-TW", pathname: "/contact", title: dictionary.contact.title, description: dictionary.contact.metadataDescription, availableLocales: LOCALES });
 
 export default function TraditionalContactPage() {
   return <ContactPage locale="zh-TW" />;

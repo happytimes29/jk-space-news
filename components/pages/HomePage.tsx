@@ -29,8 +29,8 @@ export async function HomePage({ locale }: { locale: Locale }) {
 
   return (
     <>
-      <JsonLd data={personJsonLd(config)} />
-      <JsonLd data={websiteJsonLd(config)} />
+      <JsonLd data={personJsonLd(locale, config)} />
+      <JsonLd data={websiteJsonLd(locale, config)} />
       <HomePageContent
         {...selectHomeContent(projects, tool ? [tool] : [], notes)}
         now={now}

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import HomePage, { metadata as homeMetadata } from "./(zh-tw)/page";
 import ProjectPage, { generateMetadata as projectMetadata } from "./(zh-tw)/projects/[slug]/page";
 import ToolPage, { generateMetadata as toolMetadata } from "./(zh-tw)/tools/[slug]/page";
+import { generateMetadata as localizedAboutMetadata } from "./[locale]/about/page";
 import sitemap from "./sitemap";
 import robots from "./robots";
 import { loadNotes } from "@/lib/notes";
@@ -18,8 +19,24 @@ describe("public SEO integration", () => {
   it("publishes home Person/WebSite and project/tool detail schemas", async () => {
     expect(homeMetadata).toMatchObject({ alternates: { canonical: "/" } });
     expect((await structuredData(await HomePage())).map((item) => item["@type"])).toEqual(["Person", "WebSite"]);
-    expect(await structuredData(await ProjectPage(props("pcb-test-point-comparison")))).toMatchObject([{ "@type": "CreativeWork", url: "https://jk-space.com/projects/pcb-test-point-comparison" }]);
-    expect(await structuredData(await ToolPage(props("pcb-test-point")))).toMatchObject([{ "@type": "SoftwareApplication", url: "https://jk-space.com/tools/pcb-test-point" }]);
+    expect((await structuredData(await ProjectPage(props("pcb-test-point-comparison")))).map((item) => item["@type"])).toEqual(["CreativeWork", "BreadcrumbList"]);
+    expect(await structuredData(await ProjectPage(props("pcb-test-point-comparison")))).toMatchObject([{ "@type": "CreativeWork", url: "https://jk-space.com/projects/pcb-test-point-comparison", inLanguage: "zh-Hant-TW" }, { "@type": "BreadcrumbList" }]);
+    expect((await structuredData(await ToolPage(props("pcb-test-point")))).map((item) => item["@type"])).toEqual(["SoftwareApplication", "BreadcrumbList"]);
+  });
+
+  it("publishes localized self-canonical and reciprocal core-page alternates", async () => {
+    expect(await localizedAboutMetadata({ params: Promise.resolve({ locale: "en" }) })).toMatchObject({
+      alternates: {
+        canonical: "/en/about",
+        languages: {
+          "zh-Hant-TW": "https://jk-space.com/about",
+          "zh-Hans-CN": "https://jk-space.com/zh-cn/about",
+          en: "https://jk-space.com/en/about",
+          "x-default": "https://jk-space.com/about",
+        },
+      },
+      openGraph: { locale: "en_US", url: "/en/about" },
+    });
   });
 
   // Catches sharing home canonical/image identity across detail routes or omitting URL-encoded titles.
@@ -34,11 +51,15 @@ describe("public SEO integration", () => {
 
   // Catches sitemap/robots wrappers retaining a stale URL source or suppressing public crawling.
   it("serves only current public URLs and exposes their sitemap to crawlers", async () => {
-    expect((await sitemap()).map((item) => item.url)).toEqual([
-      "https://jk-space.com/", "https://jk-space.com/projects", "https://jk-space.com/tools", "https://jk-space.com/notes", "https://jk-space.com/about", "https://jk-space.com/contact", "https://jk-space.com/privacy",
+    const entries = await sitemap();
+    expect(entries).toHaveLength(24 + loadNotes().length);
+    expect(entries.map((item) => item.url)).toEqual(expect.arrayContaining([
+      "https://jk-space.com/", "https://jk-space.com/zh-cn", "https://jk-space.com/en",
+      "https://jk-space.com/projects", "https://jk-space.com/zh-cn/projects", "https://jk-space.com/en/projects",
       "https://jk-space.com/projects/jk-space-news-automation", "https://jk-space.com/projects/pcb-test-point-comparison", "https://jk-space.com/tools/pcb-test-point",
       ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
-    ]);
+    ]));
+    expect(entries.map((item) => item.url)).not.toContain("https://jk-space.com/en/projects/pcb-test-point-comparison");
     expect(robots()).toEqual({ rules: { userAgent: "*", allow: "/" }, sitemap: "https://jk-space.com/sitemap.xml" });
   });
 });

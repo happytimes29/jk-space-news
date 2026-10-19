@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { NoteItem } from "./notes";
-import { siteConfig } from "./site-config";
+import { getSiteConfig, siteConfig } from "./site-config";
 import { buildNotesRss } from "./rss";
 
 afterEach(() => vi.unstubAllEnvs());
@@ -19,7 +19,7 @@ function parse(xml: string) {
 describe("buildNotesRss", () => {
   it("publishes a valid empty channel using site identity without fake contact details", () => {
     const xml = buildNotesRss([], siteConfig);
-    const document = parse(xml);
+    const document = parse(xml!);
     expect(document.documentElement?.getAttribute("version")).toBe("2.0");
     expect(document.getElementsByTagName("channel")).toHaveLength(1);
     expect(document.getElementsByTagName("title")[0].textContent).toBe("JK Space");
@@ -28,10 +28,26 @@ describe("buildNotesRss", () => {
     expect(xml).not.toMatch(/news@jk-space\.com|tech@jk-space\.com|\/news\//);
   });
 
+  it("keeps the default feed in zh-TW and disables an empty localized feed", () => {
+    const xml = buildNotesRss([], siteConfig, "zh-TW");
+    expect(xml).not.toBeNull();
+    expect(parse(xml!).querySelector("language")?.textContent).toBe("zh-TW");
+    expect(buildNotesRss([], getSiteConfig("en"), "en")).toBeNull();
+  });
+
+  it("can build a localized feed once that locale has a published note", () => {
+    const englishNote: NoteItem = { ...note, locale: "en", title: "PCB note", summary: "Verified result", translationStatus: "published" };
+    const xml = buildNotesRss([englishNote], getSiteConfig("en"), "en");
+    const document = parse(xml!);
+    expect(document.querySelector("language")?.textContent).toBe("en");
+    expect(document.querySelector("item > link")?.textContent).toBe("https://jk-space.com/en/notes/pcb-check");
+    expect(document.querySelector('atom\\:link, link[rel="self"]')?.getAttribute("href")).toBe("https://jk-space.com/en/feed.xml");
+  });
+
   it("escapes text and URL attributes while emitting only original note item links", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://lab.example.com/r&d/");
     const xml = buildNotesRss([note], { ...siteConfig, name: "JK & Space", description: "工程 < 觀點" });
-    const document = parse(xml);
+    const document = parse(xml!);
     const item = document.getElementsByTagName("item")[0];
     expect(item.getElementsByTagName("title")[0].textContent).toBe(`PCB & <工具> "筆記" '測試'`);
     expect(item.getElementsByTagName("description")[0].textContent).toBe("A < B & C > D");

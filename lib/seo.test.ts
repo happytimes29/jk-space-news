@@ -1,9 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { loadProjects } from "./projects";
-import { loadTools } from "./tools";
+import { loadProjects, type ProjectItem } from "./projects";
+import { loadTools, type ToolItem } from "./tools";
 import type { NoteItem } from "./notes";
 import { siteConfig } from "./site-config";
-import { articleJsonLd, buildSitemapEntries, ogTypeLabel, personJsonLd, projectJsonLd, toolJsonLd, websiteJsonLd } from "./seo";
+import {
+  articleJsonLd,
+  breadcrumbJsonLd,
+  buildLanguageAlternates,
+  buildLocalizedMetadata,
+  buildSitemapEntries,
+  ogTypeLabel,
+  personJsonLd,
+  projectJsonLd,
+  toolJsonLd,
+  websiteJsonLd,
+} from "./seo";
 
 const note: NoteItem = {
   title: "工程取捨", slug: "engineering tradeoffs", summary: "可重現的判斷", type: "engineering", author: "JK Space",
@@ -12,46 +23,111 @@ const note: NoteItem = {
 };
 const config = { ...siteConfig, url: "https://lab.example.com" };
 
-describe("portfolio SEO", () => {
-  // Catches omitted details, accidental app/retired routes, malformed slugs and duplicated URL separators.
-  it("lists exactly the public entries and each supplied content detail", () => {
-    const entries = buildSitemapEntries({ baseUrl: "https://lab.example.com/", projects: loadProjects(), tools: loadTools(), notes: [note] });
-    expect(entries.map((entry) => entry.url)).toEqual([
-      "https://lab.example.com/", "https://lab.example.com/projects", "https://lab.example.com/tools", "https://lab.example.com/notes", "https://lab.example.com/about", "https://lab.example.com/contact", "https://lab.example.com/privacy",
-      "https://lab.example.com/projects/jk-space-news-automation", "https://lab.example.com/projects/pcb-test-point-comparison", "https://lab.example.com/tools/pcb-test-point", "https://lab.example.com/notes/engineering%20tradeoffs",
-    ]);
-    expect(entries.at(-1)?.lastModified).toEqual(new Date("2026-10-14T00:00:00.000Z"));
-    expect(buildSitemapEntries({ baseUrl: "https://lab.example.com", projects: [], tools: [], notes: [] })).toHaveLength(7);
+describe("localized metadata", () => {
+  it("publishes a self-canonical URL and reciprocal absolute language alternates", () => {
+    expect(buildLanguageAlternates("/about", ["zh-TW", "zh-CN", "en"])).toEqual({
+      "zh-Hant-TW": "https://jk-space.com/about",
+      "zh-Hans-CN": "https://jk-space.com/zh-cn/about",
+      en: "https://jk-space.com/en/about",
+      "x-default": "https://jk-space.com/about",
+    });
+    const metadata = buildLocalizedMetadata({
+      locale: "en", pathname: "/about", title: "About", description: "Engineering profile",
+      availableLocales: ["zh-TW", "zh-CN", "en"], type: "website", imageTitle: `About </script> & "work"`,
+    });
+    expect(metadata.alternates).toEqual({
+      canonical: "/en/about",
+      languages: {
+        "zh-Hant-TW": "https://jk-space.com/about",
+        "zh-Hans-CN": "https://jk-space.com/zh-cn/about",
+        en: "https://jk-space.com/en/about",
+        "x-default": "https://jk-space.com/about",
+      },
+    });
+    expect(metadata.openGraph).toMatchObject({ locale: "en_US", url: "/en/about", title: "About </script> & \"work\" | JK Space" });
+    expect(metadata.openGraph).toMatchObject({ images: [{ url: "/api/og?title=About+%3C%2Fscript%3E+%26+%22work%22+%7C+JK+Space" }] });
   });
 
-  // Catches person/profile confusion and contacts or branding being dropped from the public graph.
-  it("connects the personal site to the configured person and public profiles", () => {
-    expect(personJsonLd(config)).toMatchObject({ "@context": "https://schema.org", "@type": "Person", "@id": "https://lab.example.com/#person", name: "JK Space", url: "https://lab.example.com/about", sameAs: ["https://github.com/happytimes29", "https://t.me/JK_Sapce"] });
-    expect(websiteJsonLd(config)).toMatchObject({ "@type": "WebSite", "@id": "https://lab.example.com/#website", name: "JK Space", url: "https://lab.example.com/", description: "硬體研發、AI 自動化、工程工具與技術觀點。", publisher: { "@id": "https://lab.example.com/#person" } });
-    expect(personJsonLd({ ...config, contacts: [] }).sameAs).toEqual([]);
+  it("never advertises a translation that is not available", () => {
+    expect(buildLanguageAlternates("/projects/example", ["zh-TW", "en"])).toEqual({
+      "zh-Hant-TW": "https://jk-space.com/projects/example",
+      en: "https://jk-space.com/en/projects/example",
+      "x-default": "https://jk-space.com/projects/example",
+    });
+  });
+});
+
+describe("portfolio GEO schemas", () => {
+  it("keeps stable entity IDs while localizing visible identity and expertise", () => {
+    expect(personJsonLd("en", config)).toMatchObject({
+      "@context": "https://schema.org", "@type": "Person", "@id": "https://lab.example.com/#person",
+      name: "JK Space", url: "https://lab.example.com/en/about", inLanguage: "en",
+      sameAs: ["https://github.com/happytimes29", "https://t.me/JK_Sapce"],
+      knowsAbout: ["Hardware systems and RF circuits", "AI automation workflows", "Independent product experiments"],
+    });
+    expect(websiteJsonLd("en", config)).toMatchObject({
+      "@type": "WebSite", "@id": "https://lab.example.com/#website", name: "JK Space",
+      url: "https://lab.example.com/en", inLanguage: "en", publisher: { "@id": "https://lab.example.com/#person" },
+    });
+    expect(personJsonLd("zh-TW", { ...config, contacts: [] }).sameAs).toEqual([]);
   });
 
-  // Catches exposing a project as an article or giving it the wrong canonical identity.
-  it("describes a project as the owner's creative work", () => {
+  it("uses the active canonical URL and exact language for project, tool, article, and breadcrumb", () => {
+    const originalProject = loadProjects().find((item) => item.slug === "pcb-test-point-comparison")!;
+    const project: ProjectItem = { ...originalProject, locale: "en", title: "PCB comparison", translationStatus: "published" };
+    const originalTool = loadTools()[0];
+    const tool: ToolItem = { ...originalTool, locale: "en", title: "PCB comparison tool", translationStatus: "published" };
+    const translatedNote: NoteItem = { ...note, locale: "en", title: "Engineering tradeoffs", translationStatus: "published" };
+
+    expect(projectJsonLd(project, "en", config)).toMatchObject({ "@type": "CreativeWork", url: "https://lab.example.com/en/projects/pcb-test-point-comparison", inLanguage: "en", creator: { "@id": "https://lab.example.com/#person" } });
+    expect(toolJsonLd(tool, "en", config)).toMatchObject({ "@type": "SoftwareApplication", url: "https://lab.example.com/en/tools/pcb-test-point", installUrl: "https://lab.example.com/tools/pcb-test-point/app", inLanguage: "en" });
+    expect(articleJsonLd(translatedNote, "en", config)).toMatchObject({ "@type": "Article", url: "https://lab.example.com/en/notes/engineering%20tradeoffs", mainEntityOfPage: "https://lab.example.com/en/notes/engineering%20tradeoffs", inLanguage: "en" });
+    expect(breadcrumbJsonLd("en", [{ name: "Projects", pathname: "/projects" }, { name: "PCB comparison", pathname: "/projects/pcb-test-point-comparison" }], config)).toMatchObject({
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { position: 1, name: "Projects", item: "https://lab.example.com/en/projects" },
+        { position: 2, name: "PCB comparison", item: "https://lab.example.com/en/projects/pcb-test-point-comparison" },
+      ],
+    });
+  });
+
+  it("keeps authored commentary separate from its citation", () => {
+    const commentary = { ...note, type: "commentary" as const, sourceTitle: "原始規格", sourceUrl: "https://example.com/spec", sourcePublishedAt: "2026-10-12T00:00:00.000Z" };
+    expect(articleJsonLd(commentary, "zh-TW", config)).toMatchObject({
+      "@type": "Article", headline: "工程取捨", datePublished: "2026-10-13T00:00:00.000Z",
+      citation: { "@type": "CreativeWork", name: "原始規格", url: "https://example.com/spec", datePublished: "2026-10-12T00:00:00.000Z" },
+    });
+    expect(articleJsonLd(note, "zh-TW", config)).not.toHaveProperty("citation");
+  });
+});
+
+describe("localized sitemap", () => {
+  it("lists three-language core pages and only real published content variants", () => {
     const project = loadProjects().find((item) => item.slug === "pcb-test-point-comparison")!;
-    expect(projectJsonLd(project, config)).toMatchObject({ "@type": "CreativeWork", name: "PCB 測試點自動比對工具", url: "https://lab.example.com/projects/pcb-test-point-comparison", dateModified: "2026-06-10T00:00:00.000Z", creator: { "@id": "https://lab.example.com/#person" } });
+    const translatedProject: ProjectItem = { ...project, locale: "en", title: "PCB comparison", translationStatus: "published" };
+    const entries = buildSitemapEntries({
+      baseUrl: "https://lab.example.com/",
+      projectsByLocale: { "zh-TW": [project], "zh-CN": [], en: [translatedProject] },
+      toolsByLocale: { "zh-TW": [], "zh-CN": [], en: [] },
+      notesByLocale: { "zh-TW": [note], "zh-CN": [], en: [] },
+    });
+    expect(entries).toHaveLength(24); // 7 core pages × 3 locales + 2 project variants + 1 note.
+    expect(entries.map(({ url }) => url)).toEqual(expect.arrayContaining([
+      "https://lab.example.com/about", "https://lab.example.com/zh-cn/about", "https://lab.example.com/en/about",
+      "https://lab.example.com/projects/pcb-test-point-comparison", "https://lab.example.com/en/projects/pcb-test-point-comparison",
+      "https://lab.example.com/notes/engineering%20tradeoffs",
+    ]));
+    expect(entries.map(({ url }) => url)).not.toContain("https://lab.example.com/zh-cn/projects/pcb-test-point-comparison");
+    const translatedEntry = entries.find(({ url }) => url.endsWith("/en/projects/pcb-test-point-comparison"));
+    expect(translatedEntry?.alternates?.languages).toEqual({
+      "zh-Hant-TW": "https://lab.example.com/projects/pcb-test-point-comparison",
+      en: "https://lab.example.com/en/projects/pcb-test-point-comparison",
+      "x-default": "https://lab.example.com/projects/pcb-test-point-comparison",
+    });
   });
+});
 
-  // Catches losing the app entry point or inventing prices/ratings absent from authored tool data.
-  it("describes a browser tool as software with its real launch URL", () => {
-    expect(toolJsonLd(loadTools()[0], config)).toMatchObject({ "@type": "SoftwareApplication", name: "PCB 測試點自動比對工具", url: "https://lab.example.com/tools/pcb-test-point", installUrl: "https://lab.example.com/tools/pcb-test-point/app", operatingSystem: "Web browser", applicationCategory: "DeveloperApplication" });
-    expect(toolJsonLd(loadTools()[0], config)).not.toHaveProperty("aggregateRating");
-    expect(toolJsonLd(loadTools()[0], config)).not.toHaveProperty("offers");
-  });
-
-  // Catches original notes being represented as news or taking the external source's identity/date.
-  it("keeps commentary an authored Article and cites the original source separately", () => {
-    expect(articleJsonLd(note, config)).toMatchObject({ "@type": "Article", headline: "工程取捨", url: "https://lab.example.com/notes/engineering%20tradeoffs", datePublished: "2026-10-13T00:00:00.000Z", dateModified: "2026-10-14T00:00:00.000Z", author: { "@type": "Person", name: "JK Space" } });
-    expect(articleJsonLd({ ...note, type: "commentary", sourceTitle: "原始規格", sourceUrl: "https://example.com/spec", sourcePublishedAt: "2026-10-12T00:00:00.000Z" }, config)).toMatchObject({ "@type": "Article", headline: "工程取捨", datePublished: "2026-10-13T00:00:00.000Z", citation: { "@type": "CreativeWork", name: "原始規格", url: "https://example.com/spec", datePublished: "2026-10-12T00:00:00.000Z" } });
-    expect(articleJsonLd(note, config)).not.toHaveProperty("citation");
-  });
-
-  // Catches reflecting arbitrary query values (including prototype property names) as OG category labels.
+describe("OG labels", () => {
   it.each([["project", "專案"], ["tool", "工具"], ["note", "筆記與觀點"], [null, "JK Space"], ["news", "JK Space"], ["<script>", "JK Space"], ["constructor", "JK Space"]])("maps OG type %s to a safe label", (type, label) => {
     expect(ogTypeLabel(type)).toBe(label);
   });

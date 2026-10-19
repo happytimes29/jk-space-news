@@ -6,7 +6,7 @@ import type { ContentVisibility } from "@/lib/content/translations";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { localePath, type Locale } from "@/lib/i18n/locales";
 import { getSiteConfig } from "@/lib/site-config";
-import { projectJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, projectJsonLd } from "@/lib/seo";
 import { projectAreaLabels } from "@/app/projects/projects-view";
 import { MDXRenderer } from "@/components/MDXRenderer";
 import { ContentMeta } from "@/components/content/ContentMeta";
@@ -21,7 +21,8 @@ export async function ProjectDetailPage({ locale, slug, visibility }: { locale: 
   const config = getSiteConfig(locale);
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
-      <JsonLd data={projectJsonLd(project, config)} />
+      <JsonLd data={projectJsonLd(project, locale, config)} />
+      <JsonLd data={breadcrumbJsonLd(locale, [{ name: dictionary.collections.projectsTitle, pathname: "/projects" }, { name: project.title, pathname: `/projects/${project.slug}` }], config)} />
       <nav aria-label={dictionary.content.breadcrumbsLabel} className="mb-8 text-sm"><Link href={localePath(locale, "/projects")} className="text-blue-700 underline underline-offset-4 dark:text-blue-300">{dictionary.content.backProjects}</Link></nav>
       <header className="mb-10 space-y-6 border-b border-[#d4d4d8] pb-8 dark:border-[#303036]">
         <div className="flex flex-wrap items-center gap-3"><StatusBadge status={project.status} locale={locale} />{project.areas.map((area) => <span key={area} className="text-sm text-[#55555b] dark:text-[#a1a1aa]">{areas[area]}</span>)}</div>
