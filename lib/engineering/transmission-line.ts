@@ -71,3 +71,27 @@ export function microstripHammerstadJensen(input: {
   const warnings: EngineeringWarning[] = u < 0.01 || u > 100 ? [{ code: "model_range", field: "widthM", details: { ratio: u } }] : [];
   return propagation({ effectivePermittivity, impedanceOhms, frequencyHz: input.frequencyHz, lengthM: input.lengthM, warnings });
 }
+
+export function symmetricStriplineWheeler(input: {
+  widthM: number;
+  planeSeparationM: number;
+  conductorThicknessM: number;
+  relativePermittivity: number;
+  frequencyHz: number;
+  lengthM: number;
+}): EngineeringResult<TransmissionLineResult> {
+  if (!Object.values(input).every(Number.isFinite)) return failure("non_finite");
+  if (input.widthM <= 0 || input.planeSeparationM <= 0 || input.conductorThicknessM <= 0 || input.frequencyHz <= 0 || input.lengthM < 0) return failure("non_positive");
+  if (input.relativePermittivity < 1) return failure("out_of_range", "relativePermittivity");
+  if (input.conductorThicknessM >= input.planeSeparationM) return failure("unsupported_geometry", "conductorThicknessM");
+  const ratio = input.widthM / input.planeSeparationM;
+  const thicknessCorrection = input.conductorThicknessM / Math.PI
+    * (1 + Math.log(4 * Math.PI * input.widthM / input.conductorThicknessM));
+  const effectiveWidth = input.widthM + thicknessCorrection;
+  const impedanceOhms = 30 * Math.PI / Math.sqrt(input.relativePermittivity)
+    / (effectiveWidth / input.planeSeparationM + 0.441);
+  const warnings: EngineeringWarning[] = ratio < 0.1 || ratio > 2
+    ? [{ code: "model_range", field: "widthM", details: { ratio } }]
+    : [];
+  return propagation({ effectivePermittivity: input.relativePermittivity, impedanceOhms, frequencyHz: input.frequencyHz, lengthM: input.lengthM, warnings });
+}
