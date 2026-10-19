@@ -242,6 +242,18 @@
     "navigationLabel": "Continue exploring",
     "home": "Back to home"
   },
+  "engineeringTools": {
+    "shell": { "backLabel": "Back to tool overview", "privacy": "All calculations run in this browser. Input values are not uploaded. Results are ideal-model engineering estimates." },
+    "converter": {
+      "generalTab": "General units", "rfTab": "RF power", "valueLabel": "Value", "fromUnitLabel": "From unit", "toUnitLabel": "To unit", "impedanceLabel": "System impedance", "resultTitle": "Results", "canonicalValueLabel": "Canonical SI", "convertedValueLabel": "Converted value", "powerLabel": "Power", "voltageLabel": "Voltage", "currentLabel": "Current", "resetLabel": "Reset example", "invalidNumber": "Enter a valid engineering number.", "invalidImpedance": "Impedance must be positive.", "incompatibleUnits": "Choose units for the same quantity."
+    },
+    "passive": {
+      "dividerTab": "Divider", "rcTab": "RC", "lcTab": "LC", "rlcTab": "RLC", "reactanceTab": "Reactance", "attenuatorTab": "Attenuator", "inputTitle": "Inputs", "resultTitle": "Results", "vinLabel": "Input voltage", "targetVoutLabel": "Target output", "seriesLabel": "Preferred series", "enableLoadLabel": "Include load", "loadLabel": "Load resistance", "resistanceLabel": "Resistance", "capacitanceLabel": "Capacitance", "inductanceLabel": "Inductance", "frequencyLabel": "Frequency", "circuitTypeLabel": "Circuit type", "seriesCircuitLabel": "Series", "parallelCircuitLabel": "Parallel", "attenuationLabel": "Attenuation", "impedanceLabel": "System impedance", "topologyLabel": "Topology", "teeLabel": "T network", "piLabel": "Pi network", "cutoffLabel": "Cutoff frequency", "timeConstantLabel": "Time constant", "resonanceLabel": "Resonance", "qualityLabel": "Q factor", "bandwidthLabel": "Bandwidth", "capacitiveReactanceLabel": "Capacitive reactance", "inductiveReactanceLabel": "Inductive reactance", "bestCandidateLabel": "Best candidate", "actualOutputLabel": "Actual output", "errorLabel": "Check the highlighted input values.", "noSolutionLabel": "No practical solution for these inputs."
+    },
+    "rf": {
+      "propagationTab": "Propagation", "impedanceTab": "Impedance and reflection", "inputTitle": "Inputs", "resultTitle": "Results", "frequencyLabel": "Frequency", "permittivityLabel": "Relative permittivity", "velocityFactorLabel": "Velocity factor", "lengthLabel": "Physical length", "resistanceLabel": "Resistance R", "reactanceLabel": "Reactance X", "referenceLabel": "Reference impedance", "velocityLabel": "Propagation velocity", "wavelengthLabel": "Wavelength", "halfWavelengthLabel": "Half wavelength", "quarterWavelengthLabel": "Quarter wavelength", "delayLabel": "Propagation delay", "electricalAngleLabel": "Electrical angle", "impedanceResultLabel": "Impedance Z", "admittanceLabel": "Admittance Y", "gammaLabel": "Reflection coefficient Γ", "s11Label": "S11", "vswrLabel": "VSWR", "returnLossLabel": "Return loss", "mismatchLossLabel": "Mismatch loss", "invalidInput": "Enter finite values within the physical range.", "conflictingMedium": "Use permittivity or velocity factor, not both.", "infinityLabel": "∞"
+    }
+  },
   "metadata": {
     "homeTitle": "JK Space — Personal Engineering Lab",
     "homeDescription": "Hardware R&D, AI automation, engineering tools, and technical perspectives.",

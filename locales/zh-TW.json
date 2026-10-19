@@ -242,6 +242,18 @@
     "navigationLabel": "繼續探索",
     "home": "回到首頁"
   },
+  "engineeringTools": {
+    "shell": { "backLabel": "返回工具介紹", "privacy": "所有計算只在此瀏覽器執行，不會上傳輸入值。結果為理想模型的工程估算。" },
+    "converter": {
+      "generalTab": "一般單位", "rfTab": "RF 功率", "valueLabel": "數值", "fromUnitLabel": "輸入單位", "toUnitLabel": "輸出單位", "impedanceLabel": "系統阻抗", "resultTitle": "計算結果", "canonicalValueLabel": "SI 基準值", "convertedValueLabel": "換算值", "powerLabel": "功率", "voltageLabel": "電壓", "currentLabel": "電流", "resetLabel": "重設範例", "invalidNumber": "請輸入有效的工程數值。", "invalidImpedance": "阻抗必須是正數。", "incompatibleUnits": "請選擇相同物理量的單位。"
+    },
+    "passive": {
+      "dividerTab": "分壓", "rcTab": "RC", "lcTab": "LC", "rlcTab": "RLC", "reactanceTab": "電抗", "attenuatorTab": "衰減器", "inputTitle": "輸入", "resultTitle": "計算結果", "vinLabel": "輸入電壓", "targetVoutLabel": "目標輸出", "seriesLabel": "標準值系列", "enableLoadLabel": "加入負載", "loadLabel": "負載阻抗", "resistanceLabel": "電阻", "capacitanceLabel": "電容", "inductanceLabel": "電感", "frequencyLabel": "頻率", "circuitTypeLabel": "電路類型", "seriesCircuitLabel": "串聯", "parallelCircuitLabel": "並聯", "attenuationLabel": "衰減量", "impedanceLabel": "系統阻抗", "topologyLabel": "拓撲", "teeLabel": "T 型網路", "piLabel": "π 型網路", "cutoffLabel": "截止頻率", "timeConstantLabel": "時間常數", "resonanceLabel": "諧振頻率", "qualityLabel": "Q 值", "bandwidthLabel": "頻寬", "capacitiveReactanceLabel": "容抗", "inductiveReactanceLabel": "感抗", "bestCandidateLabel": "最佳標準值組合", "actualOutputLabel": "實際輸出", "errorLabel": "請檢查標示的輸入值。", "noSolutionLabel": "這組輸入沒有可用的實際解。"
+    },
+    "rf": {
+      "propagationTab": "傳播與波長", "impedanceTab": "阻抗與反射", "inputTitle": "輸入", "resultTitle": "計算結果", "frequencyLabel": "頻率", "permittivityLabel": "相對介電常數", "velocityFactorLabel": "速度因子", "lengthLabel": "物理長度", "resistanceLabel": "電阻 R", "reactanceLabel": "電抗 X", "referenceLabel": "參考阻抗", "velocityLabel": "傳播速度", "wavelengthLabel": "波長", "halfWavelengthLabel": "半波長", "quarterWavelengthLabel": "四分之一波長", "delayLabel": "傳播延遲", "electricalAngleLabel": "電氣角度", "impedanceResultLabel": "阻抗 Z", "admittanceLabel": "導納 Y", "gammaLabel": "反射係數 Γ", "s11Label": "S11", "vswrLabel": "VSWR", "returnLossLabel": "回波損耗", "mismatchLossLabel": "失配損耗", "invalidInput": "請輸入有限且符合物理範圍的數值。", "conflictingMedium": "介電常數與速度因子只能擇一輸入。", "infinityLabel": "∞"
+    }
+  },
   "metadata": {
     "homeTitle": "JK Space — 個人工程實驗室",
     "homeDescription": "硬體研發、AI 自動化、工程工具與技術觀點。",

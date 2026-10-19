@@ -68,9 +68,19 @@ describe("tools", () => {
   });
 
   it("loads the real browser-only PCB tool and selects the available tool", async () => {
-    expect(await getAllTools()).toHaveLength(1);
+    expect(await getAllTools()).toHaveLength(4);
     expect(await getFeaturedTool()).toMatchObject({ slug: "pcb-test-point", status: "available", privacy: "所有使用者檔案只在瀏覽器內解析，不上傳伺服器。", inputTypes: ["OrCAD HTML", "DXF", "Target List"], outputTypes: ["差異表", "2D 座標圖", "CSV"] });
     expect(await getToolBySlug("pcb-test-point")).toMatchObject({ appUrl: "/tools/pcb-test-point/app" });
     expect(await getToolBySlug("missing")).toBeNull();
+  });
+
+  it("loads reviewed engineering translations only in preview", () => {
+    for (const locale of ["zh-CN", "en"] as const) {
+      expect(loadTools(undefined, { locale, visibility: "production" }).map(({ slug }) => slug)).toEqual(["pcb-test-point"]);
+      expect(loadTools(undefined, { locale, visibility: "preview" }).map(({ slug }) => slug).sort()).toEqual([
+        "engineering-converter", "passive-circuit-calculator", "pcb-test-point", "rf-calculator",
+      ]);
+    }
+    expect(loadTools(undefined, { locale: "zh-TW", visibility: "production" }).filter(({ localizedApp }) => localizedApp)).toHaveLength(3);
   });
 });

@@ -11,6 +11,11 @@ describe("localized dictionaries", () => {
 
     expect(() => validateDictionary(traditional, getDictionary("zh-CN"), "zh-CN")).not.toThrow();
     expect(() => validateDictionary(traditional, getDictionary("en"), "en")).not.toThrow();
+    for (const locale of ["zh-TW", "zh-CN", "en"] as const) {
+      const tools = getDictionary(locale).engineeringTools;
+      expect(Object.keys(tools)).toEqual(Object.keys(traditional.engineeringTools));
+      expect(JSON.stringify(tools)).not.toContain('""');
+    }
   });
 
   it.each([

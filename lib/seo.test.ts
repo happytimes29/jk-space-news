@@ -75,7 +75,7 @@ describe("portfolio GEO schemas", () => {
   it("uses the active canonical URL and exact language for project, tool, article, and breadcrumb", () => {
     const originalProject = loadProjects().find((item) => item.slug === "pcb-test-point-comparison")!;
     const project: ProjectItem = { ...originalProject, locale: "en", title: "PCB comparison", translationStatus: "published" };
-    const originalTool = loadTools()[0];
+    const originalTool = loadTools().find((item) => item.slug === "pcb-test-point")!;
     const tool: ToolItem = { ...originalTool, locale: "en", title: "PCB comparison tool", translationStatus: "published" };
     const localizedTool: ToolItem = { ...tool, slug: "engineering-converter", appUrl: "/tools/engineering-converter/app", localizedApp: true };
     const translatedNote: NoteItem = { ...note, locale: "en", title: "Engineering tradeoffs", translationStatus: "published" };
@@ -125,6 +125,24 @@ describe("localized sitemap", () => {
       "zh-Hant-TW": "https://lab.example.com/projects/pcb-test-point-comparison",
       en: "https://lab.example.com/en/projects/pcb-test-point-comparison",
       "x-default": "https://lab.example.com/projects/pcb-test-point-comparison",
+    });
+  });
+
+  it("adds app URLs only for visible localized applications", () => {
+    const original = loadTools()[0];
+    const localized: ToolItem = { ...original, slug: "engineering-converter", localizedApp: true, appUrl: "/tools/engineering-converter/app" };
+    const entries = buildSitemapEntries({
+      baseUrl: "https://lab.example.com",
+      projectsByLocale: {}, notesByLocale: {},
+      toolsByLocale: { "zh-TW": [localized], en: [{ ...localized, locale: "en" }] },
+    });
+    expect(entries.map(({ url }) => url)).toEqual(expect.arrayContaining([
+      "https://lab.example.com/tools/engineering-converter/app",
+      "https://lab.example.com/en/tools/engineering-converter/app",
+    ]));
+    expect(entries.find(({ url }) => url.endsWith("/en/tools/engineering-converter/app"))?.alternates?.languages).toMatchObject({
+      "zh-Hant-TW": "https://lab.example.com/tools/engineering-converter/app",
+      en: "https://lab.example.com/en/tools/engineering-converter/app",
     });
   });
 });

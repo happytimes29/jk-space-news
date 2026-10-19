@@ -98,13 +98,15 @@ test("crawl endpoints contain only public portfolio content", async ({ request }
     getAllTools({ locale, visibility: "production" }),
     getAllNotes({ locale, visibility: "production" }),
   ]));
-  expect(locations).toHaveLength(LOCALES.length * 7 + publishedContent.reduce((count, items) => count + items.length, 0));
+  const localizedApps = (await Promise.all(LOCALES.map((locale) => getAllTools({ locale, visibility: "production" })))).flat().filter((tool) => tool.localizedApp).length;
+  expect(locations).toHaveLength(LOCALES.length * 7 + publishedContent.reduce((count, items) => count + items.length, 0) + localizedApps);
   expect(locations).toEqual(expect.arrayContaining([
     "https://jk-space.com/", "https://jk-space.com/zh-cn", "https://jk-space.com/en",
     "https://jk-space.com/about", "https://jk-space.com/zh-cn/about", "https://jk-space.com/en/about",
     "https://jk-space.com/projects/jk-space-news-automation", "https://jk-space.com/projects/pcb-test-point-comparison", "https://jk-space.com/tools/pcb-test-point",
     "https://jk-space.com/zh-cn/projects/pcb-test-point-comparison", "https://jk-space.com/en/projects/pcb-test-point-comparison",
     "https://jk-space.com/zh-cn/tools/pcb-test-point", "https://jk-space.com/en/tools/pcb-test-point",
+    "https://jk-space.com/tools/engineering-converter/app", "https://jk-space.com/tools/passive-circuit-calculator/app", "https://jk-space.com/tools/rf-calculator/app",
     ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
   ]));
   expect(source).toContain('<xhtml:link rel="alternate" hreflang="en" href="https://jk-space.com/en/projects/pcb-test-point-comparison" />');

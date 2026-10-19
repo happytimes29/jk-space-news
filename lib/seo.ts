@@ -117,6 +117,22 @@ export function buildSitemapEntries({ baseUrl, projectsByLocale, toolsByLocale, 
   appendContent("projects", projectsByLocale);
   appendContent("tools", toolsByLocale);
   appendContent("notes", notesByLocale);
+
+  const localizedAppSlugs = new Set(LOCALES.flatMap((locale) => (toolsByLocale[locale] ?? []).filter((tool) => tool.localizedApp && tool.appUrl).map(({ slug }) => slug)));
+  for (const slug of localizedAppSlugs) {
+    const availableLocales = LOCALES.filter((locale) => (toolsByLocale[locale] ?? []).some((tool) => tool.slug === slug && tool.localizedApp && tool.appUrl));
+    const logicalAppPath = (toolsByLocale[availableLocales[0]] ?? []).find((tool) => tool.slug === slug)?.appUrl;
+    if (!logicalAppPath) continue;
+    const languages = buildLanguageAlternates(logicalAppPath, availableLocales, baseUrl);
+    for (const locale of availableLocales) {
+      const item = (toolsByLocale[locale] ?? []).find((tool) => tool.slug === slug)!;
+      entries.push({
+        url: absoluteUrl(baseUrl, localePath(locale, logicalAppPath)),
+        lastModified: new Date(item.updatedAt),
+        alternates: { languages },
+      });
+    }
+  }
   return entries;
 }
 

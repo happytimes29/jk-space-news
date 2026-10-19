@@ -22,6 +22,9 @@ describe("buildSearchItems", () => {
     expect(items.map(({ href, type }) => ({ href, type }))).toEqual([
       { href: "/projects/pcb-test-point-comparison", type: "project" },
       { href: "/projects/jk-space-news-automation", type: "project" },
+      { href: "/tools/engineering-converter", type: "tool" },
+      { href: "/tools/passive-circuit-calculator", type: "tool" },
+      { href: "/tools/rf-calculator", type: "tool" },
       { href: "/tools/pcb-test-point", type: "tool" },
       { href: "/notes/test-method", type: "note" },
     ]);

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import HomePage, { metadata as homeMetadata } from "./(zh-tw)/page";
 import ProjectPage, { generateMetadata as projectMetadata } from "./(zh-tw)/projects/[slug]/page";
 import ToolPage, { generateMetadata as toolMetadata } from "./(zh-tw)/tools/[slug]/page";
+import { generateMetadata as engineeringAppMetadata } from "./(zh-tw)/tools/[slug]/app/page";
 import { generateMetadata as localizedAboutMetadata } from "./[locale]/about/page";
 import sitemap from "./sitemap";
 import robots from "./robots";
@@ -42,6 +43,16 @@ describe("public SEO integration", () => {
     });
   });
 
+  it("publishes self-canonical localized application metadata from content availability", async () => {
+    expect(await engineeringAppMetadata(props("engineering-converter"))).toMatchObject({
+      alternates: {
+        canonical: "/tools/engineering-converter/app",
+        languages: { "zh-Hant-TW": "https://jk-space.com/tools/engineering-converter/app", "x-default": "https://jk-space.com/tools/engineering-converter/app" },
+      },
+      openGraph: { url: "/tools/engineering-converter/app" },
+    });
+  });
+
   // Catches sharing home canonical/image identity across detail routes or omitting URL-encoded titles.
   it.each([
     ["project", "pcb-test-point-comparison", "/projects/pcb-test-point-comparison", projectMetadata],
@@ -60,13 +71,15 @@ describe("public SEO integration", () => {
       getAllTools({ locale, visibility: "production" }),
       getAllNotes({ locale, visibility: "production" }),
     ]));
-    expect(entries).toHaveLength(LOCALES.length * 7 + publishedContent.reduce((count, items) => count + items.length, 0));
+    const localizedApps = (await Promise.all(LOCALES.map((locale) => getAllTools({ locale, visibility: "production" })))).flat().filter((tool) => tool.localizedApp).length;
+    expect(entries).toHaveLength(LOCALES.length * 7 + publishedContent.reduce((count, items) => count + items.length, 0) + localizedApps);
     expect(entries.map((item) => item.url)).toEqual(expect.arrayContaining([
       "https://jk-space.com/", "https://jk-space.com/zh-cn", "https://jk-space.com/en",
       "https://jk-space.com/projects", "https://jk-space.com/zh-cn/projects", "https://jk-space.com/en/projects",
       "https://jk-space.com/projects/jk-space-news-automation", "https://jk-space.com/projects/pcb-test-point-comparison", "https://jk-space.com/tools/pcb-test-point",
       "https://jk-space.com/zh-cn/projects/pcb-test-point-comparison", "https://jk-space.com/en/projects/pcb-test-point-comparison",
       "https://jk-space.com/zh-cn/tools/pcb-test-point", "https://jk-space.com/en/tools/pcb-test-point",
+      "https://jk-space.com/tools/engineering-converter/app", "https://jk-space.com/tools/passive-circuit-calculator/app", "https://jk-space.com/tools/rf-calculator/app",
       ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
     ]));
     expect(entries.find((item) => item.url === "https://jk-space.com/en/projects/pcb-test-point-comparison")?.alternates?.languages).toEqual({
