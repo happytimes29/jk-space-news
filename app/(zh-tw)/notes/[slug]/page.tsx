@@ -5,7 +5,7 @@ import { getAllNotes, getNoteBySlug } from "@/lib/notes";
 import { parseCommentaryContent } from "@/lib/notes-content";
 import { MDXRenderer } from "@/components/MDXRenderer";
 import { SourceDisclosure } from "@/components/notes/SourceDisclosure";
-import { noteTypeLabels } from "../notes-view";
+import { noteTypeLabels } from "@/app/notes/notes-view";
 import { JsonLd } from "@/components/JsonLd";
 import { articleJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";

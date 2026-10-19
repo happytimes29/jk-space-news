@@ -4,9 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { siteConfig } from "@/lib/site-config";
+import type { SiteDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/locales";
+import type { SiteConfig } from "@/lib/site-config";
+import type { TranslationAvailability } from "@/lib/content/translations";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
-export function Header() {
+interface HeaderProps {
+  locale: Locale;
+  dictionary: SiteDictionary;
+  config: SiteConfig;
+  availability: TranslationAvailability;
+}
+
+export function Header({ locale, dictionary, config, availability }: HeaderProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -16,15 +27,15 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link
-            href="/"
+            href={config.navigation[0].href}
             className="group text-sm font-semibold tracking-tight text-[var(--color-text)]"
           >
-            {siteConfig.name}
+            {config.name}
           </Link>
 
           {/* Desktop nav */}
-          <nav aria-label="主導覽" className="hidden md:flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)]/70 p-1">
-            {siteConfig.navigation.map((item) => (
+          <nav aria-label={dictionary.header.mainNavigation} className="hidden md:flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)]/70 p-1">
+            {config.navigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -41,6 +52,7 @@ export function Header() {
 
           {/* Kbd hint */}
           <div className="hidden md:flex items-center gap-2">
+            <LanguageSwitcher locale={locale} availability={availability} label={dictionary.language.select} unavailableLabel={dictionary.language.unavailable} />
             <kbd className="hidden lg:flex items-center gap-1 px-2.5 py-1 text-xs text-[var(--color-muted)] border border-[var(--color-border)] rounded-full bg-[var(--color-card)] cursor-default select-none">
               <span>⌘</span>K
             </kbd>
@@ -50,7 +62,7 @@ export function Header() {
           <button
             className="md:hidden p-2 text-[var(--color-muted)] hover:text-[var(--color-text)] transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label={mobileOpen ? "關閉選單" : "開啟選單"}
+            aria-label={mobileOpen ? dictionary.header.closeMenu : dictionary.header.openMenu}
             aria-expanded={mobileOpen}
             aria-controls="mobile-navigation"
           >
@@ -60,8 +72,8 @@ export function Header() {
       </div>
 
       {/* Mobile menu */}
-      <nav id="mobile-navigation" aria-label="行動版主導覽" hidden={!mobileOpen} className="md:hidden border-t border-[var(--color-border)] bg-[var(--color-bg)]/95 px-4 pb-4 pt-2 backdrop-blur-xl">
-        {siteConfig.navigation.map((item) => (
+      <nav id="mobile-navigation" aria-label={dictionary.header.mobileNavigation} hidden={!mobileOpen} className="md:hidden border-t border-[var(--color-border)] bg-[var(--color-bg)]/95 px-4 pb-4 pt-2 backdrop-blur-xl">
+        {config.navigation.map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -71,6 +83,9 @@ export function Header() {
             {item.label}
           </Link>
         ))}
+        <div className="mt-3 border-t border-[var(--color-border)] pt-3">
+          <LanguageSwitcher locale={locale} availability={availability} label={dictionary.language.select} unavailableLabel={dictionary.language.unavailable} />
+        </div>
       </nav>
     </header>
   );

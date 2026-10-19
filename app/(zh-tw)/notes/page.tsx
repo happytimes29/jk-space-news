@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getAllNotes, type NoteType } from "@/lib/notes";
 import { ContentCard } from "@/components/content/ContentCard";
 import { NoteFilter } from "@/components/notes/NoteFilter";
-import { filterNotes, noteTypeLabels } from "./notes-view";
+import { filterNotes, noteTypeLabels } from "@/app/notes/notes-view";
 
 export const metadata = buildPageMetadata({
   route: "/notes",

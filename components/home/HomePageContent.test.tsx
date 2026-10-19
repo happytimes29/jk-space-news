@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import HomePage from "@/app/page";
+import HomePage from "@/app/(zh-tw)/page";
 import { HomePageContent } from "./HomePageContent";
 import { loadNotes, type NoteItem } from "@/lib/notes";
 

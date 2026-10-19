@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import ProjectsPage from "./page";
+import ProjectsPage from "@/app/(zh-tw)/projects/page";
 
 describe("ProjectsPage", () => {
   it("shows real case studies with the context needed to assess the work", async () => {

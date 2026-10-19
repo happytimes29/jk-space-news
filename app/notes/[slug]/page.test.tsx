@@ -3,7 +3,7 @@ import path from "node:path";
 import { renderToReadableStream } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fixtureDirectory, noteData, writeContent } from "@/lib/content/test-fixtures";
-import NotePage, { generateMetadata, generateStaticParams } from "./page";
+import NotePage, { generateMetadata, generateStaticParams } from "@/app/(zh-tw)/notes/[slug]/page";
 
 const directories: string[] = [];
 afterEach(() => {

@@ -1,15 +1,27 @@
 // @vitest-environment node
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import RootLayout, { metadata } from "./layout";
+import TraditionalLayout, { metadata } from "./(zh-tw)/layout";
+import LocalizedLayout from "./[locale]/layout";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/", useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/", useRouter: () => ({ push: vi.fn() }), notFound: vi.fn(() => { throw new Error("NEXT_NOT_FOUND"); }) }));
 
 describe("RootLayout", () => {
   it("renders the shell with the Taiwan Traditional Chinese language", async () => {
-    const html = renderToStaticMarkup(await RootLayout({ children: <h1>工程實驗室</h1> }));
+    const html = renderToStaticMarkup(await TraditionalLayout({ children: <h1>工程實驗室</h1> }));
     expect(html).toContain('<html lang="zh-Hant-TW"');
     expect(html).toMatch(/<main\b[^>]*><h1>工程實驗室<\/h1><\/main>/);
+  });
+
+  it("renders exact Simplified Chinese and English root language tags", async () => {
+    const simplified = renderToStaticMarkup(await LocalizedLayout({ children: <h1>实验室</h1>, params: Promise.resolve({ locale: "zh-cn" }) }));
+    const english = renderToStaticMarkup(await LocalizedLayout({ children: <h1>Lab</h1>, params: Promise.resolve({ locale: "en" }) }));
+    expect(simplified).toContain('<html lang="zh-Hans-CN"');
+    expect(english).toContain('<html lang="en"');
+  });
+
+  it("rejects every unsupported locale segment", async () => {
+    await expect(LocalizedLayout({ children: <span />, params: Promise.resolve({ locale: "fr" }) })).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
   it("uses JK Space identity throughout the default metadata", () => {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { metadata as projects } from "./projects/page";
-import { metadata as tools } from "./tools/page";
-import { metadata as notes } from "./notes/page";
-import { metadata as about } from "./about/page";
-import { metadata as contact } from "./contact/page";
-import { metadata as privacy } from "./privacy/page";
+import { metadata as projects } from "./(zh-tw)/projects/page";
+import { metadata as tools } from "./(zh-tw)/tools/page";
+import { metadata as notes } from "./(zh-tw)/notes/page";
+import { metadata as about } from "./(zh-tw)/about/page";
+import { metadata as contact } from "./(zh-tw)/contact/page";
+import { metadata as privacy } from "./(zh-tw)/privacy/page";
 
 describe("public entry page metadata", () => {
   // Catches list/trust routes advertising the homepage or sharing the wrong title/description.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import * as route from "./page";
+import * as route from "@/app/(zh-tw)/news/[slug]/page";
 
 describe("retired news article", () => {
   // Break caught: an existing or unknown slug returns public article/archive content.

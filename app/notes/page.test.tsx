@@ -3,7 +3,7 @@ import path from "node:path";
 import { render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fixtureDirectory, noteData, writeContent } from "@/lib/content/test-fixtures";
-import NotesPage from "./page";
+import NotesPage from "@/app/(zh-tw)/notes/page";
 
 const directories: string[] = [];
 let noteDirectory: string;

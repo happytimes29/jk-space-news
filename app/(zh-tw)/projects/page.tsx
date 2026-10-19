@@ -4,7 +4,7 @@ import { getAllProjects } from "@/lib/projects";
 import { ContentCard } from "@/components/content/ContentCard";
 import { ContentMeta } from "@/components/content/ContentMeta";
 import { StatusBadge } from "@/components/content/StatusBadge";
-import { filterProjects, projectAreaLabels } from "./projects-view";
+import { filterProjects, projectAreaLabels } from "@/app/projects/projects-view";
 
 export const metadata = buildPageMetadata({
   route: "/projects",

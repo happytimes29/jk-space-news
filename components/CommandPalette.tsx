@@ -5,18 +5,25 @@ import { useRouter } from "next/navigation";
 import { Search, FileText, TrendingUp, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { filterSearchItems, type SearchItem } from "@/lib/search";
-
-const typeLabels: Record<SearchItem["type"], string> = { project: "專案", tool: "工具", note: "筆記" };
+import type { SiteDictionary } from "@/lib/i18n/dictionaries";
+import { localePath, type Locale } from "@/lib/i18n/locales";
 
 interface CommandPaletteProps {
   items: SearchItem[];
+  locale: Locale;
+  dictionary: SiteDictionary;
 }
 
-export function CommandPalette({ items }: CommandPaletteProps) {
+export function CommandPalette({ items, locale, dictionary }: CommandPaletteProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
   const router = useRouter();
+  const typeLabels: Record<SearchItem["type"], string> = {
+    project: dictionary.search.projectType,
+    tool: dictionary.search.toolType,
+    note: dictionary.search.noteType,
+  };
 
   // Toggle on Cmd+K / Ctrl+K
   useEffect(() => {
@@ -87,8 +94,8 @@ export function CommandPalette({ items }: CommandPaletteProps) {
                 setQuery(e.target.value);
                 setSelected(0);
               }}
-              aria-label="搜尋專案、工具與筆記"
-              placeholder="搜尋專案、工具與筆記..."
+              aria-label={dictionary.search.ariaLabel}
+              placeholder={dictionary.search.placeholder}
               className="min-w-0 flex-1 py-4 bg-transparent text-sm text-[#EDEDED] placeholder-[#888888]"
             />
             <kbd className="text-[10px] text-[#888888] border border-[#1a1a1a] rounded px-1.5 py-0.5 bg-black">
@@ -100,17 +107,17 @@ export function CommandPalette({ items }: CommandPaletteProps) {
           <div className="py-2 max-h-80 overflow-y-auto">
             {filtered.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-[#888888]">
-                <p>找不到相關內容</p>
+                <p>{dictionary.search.noResults}</p>
                 <div className="mt-4 flex flex-wrap justify-center gap-4 text-[#7ea0ff]">
-                  <Link href="/projects" onClick={() => setOpen(false)}>專案</Link>
-                  <Link href="/tools" onClick={() => setOpen(false)}>工具</Link>
-                  <Link href="/notes" onClick={() => setOpen(false)}>筆記與觀點</Link>
+                  <Link href={localePath(locale, "/projects")} onClick={() => setOpen(false)}>{dictionary.navigation.projects}</Link>
+                  <Link href={localePath(locale, "/tools")} onClick={() => setOpen(false)}>{dictionary.navigation.tools}</Link>
+                  <Link href={localePath(locale, "/notes")} onClick={() => setOpen(false)}>{dictionary.navigation.notes}</Link>
                 </div>
               </div>
             ) : (
               <>
                 <p className="px-4 py-1.5 text-[10px] text-[#888888] uppercase tracking-wider font-medium">
-                  {query.trim() ? `搜尋結果 (${filtered.length})` : "探索內容"}
+                  {query.trim() ? `${dictionary.search.results} (${filtered.length})` : dictionary.search.explore}
                 </p>
                 {filtered.map((item, i) => (
                   <button
@@ -148,15 +155,15 @@ export function CommandPalette({ items }: CommandPaletteProps) {
           <div className="px-4 py-2.5 border-t border-[#1a1a1a] flex items-center gap-4 text-[10px] text-[#888888]">
             <span className="flex items-center gap-1">
               <kbd className="border border-[#1a1a1a] rounded px-1 py-0.5 bg-black">↑↓</kbd>
-              導覽
+              {dictionary.search.navigate}
             </span>
             <span className="flex items-center gap-1">
               <kbd className="border border-[#1a1a1a] rounded px-1 py-0.5 bg-black">↵</kbd>
-              跳轉
+              {dictionary.search.jump}
             </span>
             <span className="flex items-center gap-1">
               <TrendingUp size={11} />
-              全站搜尋
+              {dictionary.search.siteSearch}
             </span>
           </div>
         </div>

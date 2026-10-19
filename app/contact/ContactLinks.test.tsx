@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import ContactPage from "./page";
+import ContactPage from "@/app/(zh-tw)/contact/page";
 import { ContactLinks } from "./ContactLinks";
 
 describe("contact page", () => {

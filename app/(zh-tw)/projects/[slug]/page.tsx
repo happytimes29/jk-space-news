@@ -6,7 +6,7 @@ import { getAllProjects, getProjectBySlug } from "@/lib/projects";
 import { MDXRenderer } from "@/components/MDXRenderer";
 import { ContentMeta } from "@/components/content/ContentMeta";
 import { StatusBadge } from "@/components/content/StatusBadge";
-import { projectAreaLabels } from "../projects-view";
+import { projectAreaLabels } from "@/app/projects/projects-view";
 import { JsonLd } from "@/components/JsonLd";
 import { projectJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site-config";

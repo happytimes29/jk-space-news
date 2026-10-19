@@ -1,6 +1,6 @@
 import { buildPageMetadata } from "@/lib/seo";
 import { getEnabledContactLinks, siteConfig } from "@/lib/site-config";
-import { ContactLinks } from "./ContactLinks";
+import { ContactLinks } from "@/app/contact/ContactLinks";
 
 export const metadata = buildPageMetadata({
   route: "/contact",

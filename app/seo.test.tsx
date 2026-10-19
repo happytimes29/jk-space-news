@@ -1,8 +1,8 @@
 import { renderToReadableStream } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import HomePage, { metadata as homeMetadata } from "./page";
-import ProjectPage, { generateMetadata as projectMetadata } from "./projects/[slug]/page";
-import ToolPage, { generateMetadata as toolMetadata } from "./tools/[slug]/page";
+import HomePage, { metadata as homeMetadata } from "./(zh-tw)/page";
+import ProjectPage, { generateMetadata as projectMetadata } from "./(zh-tw)/projects/[slug]/page";
+import ToolPage, { generateMetadata as toolMetadata } from "./(zh-tw)/tools/[slug]/page";
 import sitemap from "./sitemap";
 import robots from "./robots";
 import { loadNotes } from "@/lib/notes";

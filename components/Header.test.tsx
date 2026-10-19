@@ -1,38 +1,42 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { Header } from "./Header";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { getSiteConfig } from "@/lib/site-config";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/projects" }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/en/projects", useRouter: () => ({ push: vi.fn() }) }));
 
 const expectedNavigation = [
-  ["首頁", "/"], ["專案", "/projects"], ["工具", "/tools"],
-  ["筆記與觀點", "/notes"], ["關於我", "/about"], ["聯絡", "/contact"],
+  ["Home", "/en"], ["Projects", "/en/projects"], ["Tools", "/en/tools"],
+  ["Notes & Perspectives", "/en/notes"], ["About", "/en/about"], ["Contact", "/en/contact"],
 ];
+const props = { locale: "en" as const, dictionary: getDictionary("en"), config: getSiteConfig("en"), availability: { "/projects": ["zh-TW", "zh-CN", "en"] as const } };
 
 describe("Header", () => {
   it("renders the new brand and all six centralized destinations in order", () => {
-    render(<Header />);
-    expect(screen.getByRole("link", { name: "JK Space" })).toHaveAttribute("href", "/");
+    render(<Header {...props} />);
+    expect(screen.getByRole("link", { name: "JK Space" })).toHaveAttribute("href", "/en");
     expect(screen.queryByText(/JK Space News/)).not.toBeInTheDocument();
-    const links = within(screen.getByRole("navigation", { name: "主導覽" })).getAllByRole("link");
+    const links = within(screen.getByRole("navigation", { name: "Primary navigation" })).getAllByRole("link");
     expect(links.map((link) => [link.textContent, link.getAttribute("href")])).toEqual(expectedNavigation);
+    expect(screen.getAllByRole("group", { name: "Choose a language" })).toHaveLength(1);
   });
 
   it("announces and controls the mobile menu state and closes after choosing a destination", () => {
-    render(<Header />);
-    const toggle = screen.getByRole("button", { name: "開啟選單" });
+    render(<Header {...props} />);
+    const toggle = screen.getByRole("button", { name: "Open menu" });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     const menuId = toggle.getAttribute("aria-controls");
     expect(menuId).toBeTruthy();
     expect(document.getElementById(menuId!)).not.toBeVisible();
 
     fireEvent.click(toggle);
-    expect(toggle).toHaveAccessibleName("關閉選單");
+    expect(toggle).toHaveAccessibleName("Close menu");
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    const menu = screen.getByRole("navigation", { name: "行動版主導覽" });
+    const menu = screen.getByRole("navigation", { name: "Mobile primary navigation" });
     expect(menu).toHaveAttribute("id", menuId);
     expect(within(menu).getAllByRole("link").map((link) => [link.textContent, link.getAttribute("href")])).toEqual(expectedNavigation);
-    const destination = within(menu).getByRole("link", { name: "專案" });
+    const destination = within(menu).getByRole("link", { name: "Projects" });
     destination.addEventListener("click", (event) => event.preventDefault(), { once: true });
     fireEvent.click(destination);
     expect(toggle).toHaveAttribute("aria-expanded", "false");
