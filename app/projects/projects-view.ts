@@ -1,8 +1,16 @@
-import type { ProjectArea, ProjectItem } from "@/lib/projects";
+import type { ProjectArea, ProjectItem, ProjectStatus } from "@/lib/projects";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/locales";
 
-export const projectAreaLabels: Record<ProjectArea, string> = {
-  hardware: "硬體", automation: "AI 自動化", product: "工具產品",
-};
+export function projectAreaLabels(locale: Locale): Record<ProjectArea, string> {
+  const copy = getDictionary(locale).collections;
+  return { hardware: copy.areaHardware, automation: copy.areaAutomation, product: copy.areaProduct };
+}
+
+export function projectStatusLabels(locale: Locale): Record<ProjectStatus, string> {
+  const copy = getDictionary(locale).status;
+  return { active: copy.active, completed: copy.completed, maintained: copy.maintained, archived: copy.archived };
+}
 
 export function filterProjects(items: ProjectItem[], { area, status }: { area?: string; status?: string }): ProjectItem[] {
   return items

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ProjectItem } from "@/lib/projects";
-import { filterProjects } from "./projects-view";
+import { filterProjects, projectAreaLabels, projectStatusLabels } from "./projects-view";
 
 const project = (slug: string, overrides: Partial<Omit<ProjectItem, "locale" | "translationOf" | "translationStatus">>): ProjectItem => ({
   slug, title: slug, summary: "工程案例", year: 2026, status: "completed",
@@ -16,6 +16,11 @@ const items = [
 ];
 
 describe("filterProjects", () => {
+  it("returns native labels for the active locale", () => {
+    expect(projectAreaLabels("en")).toEqual({ hardware: "Hardware", automation: "AI automation", product: "Tool product" });
+    expect(projectStatusLabels("zh-CN").maintained).toBe("维护中");
+  });
+
   it("puts featured projects first and orders each group by latest update without mutating input", () => {
     expect(filterProjects(items, {}).map((item) => item.slug)).toEqual(["featured-new", "featured-old", "newest", "older"]);
     expect(items.map((item) => item.slug)).toEqual(["newest", "featured-old", "older", "featured-new"]);

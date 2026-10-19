@@ -41,7 +41,7 @@ export default async function NotePage({ params }: Props) {
       <JsonLd data={articleJsonLd(note, siteConfig)} />
       <nav aria-label="麵包屑" className="mb-8 text-sm"><Link href="/notes" className="text-blue-700 underline underline-offset-4 dark:text-blue-300">返回筆記列表</Link></nav>
       <header className="mb-8 space-y-5 border-b border-[#d4d4d8] pb-8 dark:border-[#303036]">
-        <p className="text-sm text-blue-700 dark:text-blue-300">{noteTypeLabels[note.type]}</p>
+        <p className="text-sm text-blue-700 dark:text-blue-300">{noteTypeLabels("zh-TW")[note.type]}</p>
         <h1 className="break-words text-3xl font-bold leading-tight sm:text-4xl">{note.title}</h1>
         <p className="leading-8 text-[#55555b] dark:text-[#a1a1aa]">{note.summary}</p>
         <dl className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#55555b] dark:text-[#a1a1aa]">

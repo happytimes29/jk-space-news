@@ -47,7 +47,7 @@ export async function SiteShell({ locale, children }: { locale: Locale; children
     getAllTools({ locale, visibility }),
     getAllNotes({ locale, visibility }),
   ]);
-  const searchItems = buildSearchItems(projects, tools, notes);
+  const searchItems = buildSearchItems(projects, tools, notes, locale);
   const availability = buildTranslationAvailability(visibility);
 
   return (

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NoteItem, NoteType } from "@/lib/notes";
-import { filterNotes } from "./notes-view";
+import { filterNotes, noteTypeLabels } from "./notes-view";
 
 const base = { summary: "原創筆記", publishedAt: "2026-10-14", updatedAt: "2026-10-15", tags: [], author: "JK Space", featured: false, readingTime: 1, content: "正文", locale: "zh-TW" as const, translationOf: "fixture", translationStatus: "published" as const };
 const items: NoteItem[] = [
@@ -11,6 +11,10 @@ const items: NoteItem[] = [
 ];
 
 describe("filterNotes", () => {
+  it("returns native note type labels for the active locale", () => {
+    expect(noteTypeLabels("en")).toEqual({ engineering: "Engineering note", automation: "AI & automation", "project-log": "Project log", commentary: "Perspective" });
+  });
+
   // Catches returning unrelated types or dropping one supported category.
   it.each<NoteType>(["engineering", "automation", "project-log", "commentary"])("selects only %s notes", (type) => {
     expect(filterNotes(items, type).map((note) => note.slug)).toEqual([type]);

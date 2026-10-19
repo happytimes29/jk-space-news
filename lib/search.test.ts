@@ -17,7 +17,7 @@ describe("buildSearchItems", () => {
     const items = buildSearchItems([
       projects.find((project) => project.slug === "pcb-test-point-comparison")!,
       projects.find((project) => project.slug === "jk-space-news-automation")!,
-    ], loadTools(), [note]);
+    ], loadTools(), [note], "zh-TW");
 
     expect(items.map(({ href, type }) => ({ href, type }))).toEqual([
       { href: "/projects/pcb-test-point-comparison", type: "project" },
@@ -29,7 +29,17 @@ describe("buildSearchItems", () => {
   });
 
   it("accepts genuinely empty collections", () => {
-    expect(buildSearchItems([], [], [])).toEqual([]);
+    expect(buildSearchItems([], [], [], "en")).toEqual([]);
+  });
+
+  it("prefixes every English result and never invents fallback items", () => {
+    const project = loadProjects()[0];
+    expect(buildSearchItems([project], [], [], "en")).toEqual([{
+      title: project.title,
+      href: `/en/projects/${project.slug}`,
+      type: "project",
+      label: project.tags.join(" · "),
+    }]);
   });
 });
 

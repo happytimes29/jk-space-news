@@ -46,12 +46,12 @@ export default async function ProjectSlugPage({ params }: Props) {
       </nav>
       <header className="mb-10 space-y-6 border-b border-[#d4d4d8] pb-8 dark:border-[#303036]">
         <div className="flex flex-wrap items-center gap-3">
-          <StatusBadge status={project.status} />
-          {project.areas.map((area) => <span key={area} className="text-sm text-[#55555b] dark:text-[#a1a1aa]">{projectAreaLabels[area]}</span>)}
+          <StatusBadge status={project.status} locale="zh-TW" />
+          {project.areas.map((area) => <span key={area} className="text-sm text-[#55555b] dark:text-[#a1a1aa]">{projectAreaLabels("zh-TW")[area]}</span>)}
         </div>
         <h1 className="break-words text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{project.title}</h1>
         <p className="leading-8 text-[#55555b] dark:text-[#a1a1aa]">{project.summary}</p>
-        <ContentMeta role={project.role} year={project.year} updatedAt={project.updatedAt} />
+        <ContentMeta locale="zh-TW" role={project.role} year={project.year} updatedAt={project.updatedAt} />
         {project.tags.length > 0 && <ul aria-label="技術標籤" className="flex flex-wrap gap-2 text-xs text-[#55555b] dark:text-[#a1a1aa]">{project.tags.map((tag) => <li key={tag} className="rounded border border-[#d4d4d8] px-2 py-1 dark:border-[#303036]">{tag}</li>)}</ul>}
         {project.outcome && <p className="rounded-lg bg-blue-50 p-4 text-sm leading-7 text-blue-900 dark:bg-blue-950 dark:text-blue-200">成果：{project.outcome}</p>}
       </header>

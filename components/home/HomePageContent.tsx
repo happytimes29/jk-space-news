@@ -16,6 +16,7 @@ type Props = ReturnType<typeof selectHomeContent> & { now: NowItem; locale: Loca
 
 export function HomePageContent({ featuredProjects, featuredTool, recentNotes, now, locale, dictionary }: Props) {
   const config = getSiteConfig(locale);
+  const localizedNoteTypes = noteTypeLabels(locale);
   return (
     <div className="bg-zinc-50 text-zinc-900 dark:bg-[#0c0e12] dark:text-zinc-100">
       <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
@@ -41,10 +42,10 @@ export function HomePageContent({ featuredProjects, featuredTool, recentNotes, n
             <div className="grid gap-5 md:grid-cols-2">
               {featuredProjects.map((project) => (
                 <article key={project.slug} aria-label={project.title} className="min-w-0 space-y-5 rounded-2xl border border-zinc-300 bg-white p-5 sm:p-7 dark:border-zinc-700 dark:bg-[#11151b]">
-                  <StatusBadge status={project.status} />
+                  <StatusBadge status={project.status} locale={locale} />
                   <h3 className="text-xl font-semibold leading-snug"><Link href={localePath(locale, `/projects/${project.slug}`)} className="hover:text-blue-600 dark:hover:text-blue-300">{project.title}</Link></h3>
                   <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">{project.summary}</p>
-                  <ContentMeta role={project.role} updatedAt={project.updatedAt} />
+                  <ContentMeta locale={locale} role={project.role} updatedAt={project.updatedAt} />
                   {project.outcome && <p className="border-t border-zinc-300 pt-4 text-sm leading-7 dark:border-zinc-700">{dictionary.common.outcome}：{project.outcome}</p>}
                 </article>
               ))}
@@ -61,7 +62,7 @@ export function HomePageContent({ featuredProjects, featuredTool, recentNotes, n
                 {recentNotes.map((note) => (
                   <article key={note.slug} aria-label={note.title} className="space-y-3 py-5 first:pt-0">
                     <div className="flex flex-wrap gap-4 text-xs text-zinc-600 dark:text-zinc-400">
-                      <span>{noteTypeLabels[note.type]}</span>
+                      <span>{localizedNoteTypes[note.type]}</span>
                       <time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time>
                       <span>{note.readingTime} {dictionary.common.minutes}</span>
                     </div>

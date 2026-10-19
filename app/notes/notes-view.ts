@@ -1,8 +1,16 @@
 import type { NoteItem, NoteType } from "@/lib/notes";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/locales";
 
-export const noteTypeLabels: Record<NoteType, string> = {
-  engineering: "工程筆記", automation: "AI 與自動化", "project-log": "專案紀錄", commentary: "新聞觀點",
-};
+export function noteTypeLabels(locale: Locale): Record<NoteType, string> {
+  const copy = getDictionary(locale).collections;
+  return {
+    engineering: copy.noteTypeEngineering,
+    automation: copy.noteTypeAutomation,
+    "project-log": copy.noteTypeProjectLog,
+    commentary: copy.noteTypeCommentary,
+  };
+}
 
 export function filterNotes(items: NoteItem[], type?: NoteType): NoteItem[] {
   return items.filter((note) => !type || note.type === type)

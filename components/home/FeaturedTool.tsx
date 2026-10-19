@@ -14,7 +14,7 @@ export function FeaturedTool({ tool, locale, dictionary }: { tool: ToolItem | nu
         <article aria-label={tool.title} className="overflow-hidden rounded-2xl border border-zinc-300 bg-white dark:border-zinc-700 dark:bg-[#11151b]">
           <div className="grid items-center lg:grid-cols-[1fr_1.15fr]">
             <div className="min-w-0 space-y-5 p-5 sm:p-8">
-              <StatusBadge status={tool.status} />
+              <StatusBadge status={tool.status} locale={locale} />
               <h3 className="text-2xl font-semibold leading-snug">{tool.title}</h3>
               <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">{tool.summary}</p>
               <p className="text-sm leading-7"><span className="font-medium">{dictionary.home.toolAudienceLabel}：</span>{dictionary.home.toolAudience}</p>

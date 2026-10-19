@@ -38,7 +38,7 @@ export default async function ToolSlugPage({ params }: Props) {
       <JsonLd data={toolJsonLd(tool, siteConfig)} />
       <Link href="/tools" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">返回工具列表</Link>
       <header className="mb-8 mt-8">
-        <StatusBadge status={tool.status} />
+        <StatusBadge status={tool.status} locale="zh-TW" />
         <h1 className="mt-4 text-3xl font-bold leading-tight">{tool.title}</h1>
         <p className="mt-4 leading-relaxed text-[var(--color-muted)]">{tool.summary}</p>
         <p className="mt-4 text-sm">最後更新：<time dateTime={tool.updatedAt}>{tool.updatedAt.slice(0, 10)}</time></p>
