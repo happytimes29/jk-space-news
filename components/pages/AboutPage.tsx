@@ -7,18 +7,18 @@ import { getEnabledContactLinks, getSiteConfig } from "@/lib/site-config";
 
 const linkClass = "text-[var(--color-accent)] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4";
 
-export function AboutPage({ locale }: { locale: Locale }) {
+export function AboutPage({ locale, featuredProjectAvailable }: { locale: Locale; featuredProjectAvailable?: boolean }) {
   const dictionary = getDictionary(locale);
   const config = getSiteConfig(locale);
   const copy = dictionary.about;
   const featuredProjectPath = "/projects/pcb-test-point-comparison";
-  const featuredProjectAvailable = getTranslationAvailability(
+  const hasFeaturedProjectTranslation = featuredProjectAvailable ?? getTranslationAvailability(
     "projects",
     "pcb-test-point-comparison",
     contentVisibility(),
   ).includes(locale);
-  const featuredProjectLocale = featuredProjectAvailable ? locale : DEFAULT_LOCALE;
-  const featuredProjectLabel = featuredProjectAvailable
+  const featuredProjectLocale = hasFeaturedProjectTranslation ? locale : DEFAULT_LOCALE;
+  const featuredProjectLabel = hasFeaturedProjectTranslation
     ? copy.introToolLink
     : `${copy.introToolLink} (${dictionary.content.traditionalOriginal})`;
   const expertise = [

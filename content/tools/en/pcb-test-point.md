@@ -13,7 +13,7 @@ sampleUrl: /samples/pcb-test-point-old.html
 relatedProject: pcb-test-point-comparison
 locale: en
 translationOf: pcb-test-point
-translationStatus: reviewed
+translationStatus: published
 translatedAt: 2026-10-19
 ---
 

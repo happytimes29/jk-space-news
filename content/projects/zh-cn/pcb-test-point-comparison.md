@@ -16,7 +16,7 @@ relatedTools: [pcb-test-point]
 outcome: 将新旧测试点差异、目标清单筛选与板框叠图整合在同一个浏览器工具中。
 locale: zh-CN
 translationOf: pcb-test-point-comparison
-translationStatus: reviewed
+translationStatus: published
 translatedAt: 2026-10-19
 ---
 

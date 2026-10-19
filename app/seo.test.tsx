@@ -6,7 +6,10 @@ import ToolPage, { generateMetadata as toolMetadata } from "./(zh-tw)/tools/[slu
 import { generateMetadata as localizedAboutMetadata } from "./[locale]/about/page";
 import sitemap from "./sitemap";
 import robots from "./robots";
-import { loadNotes } from "@/lib/notes";
+import { getAllNotes, loadNotes } from "@/lib/notes";
+import { getAllProjects } from "@/lib/projects";
+import { getAllTools } from "@/lib/tools";
+import { LOCALES } from "@/lib/i18n/locales";
 
 const props = (slug: string) => ({ params: Promise.resolve({ slug }) });
 async function structuredData(page: React.ReactNode) {
@@ -52,14 +55,26 @@ describe("public SEO integration", () => {
   // Catches sitemap/robots wrappers retaining a stale URL source or suppressing public crawling.
   it("serves only current public URLs and exposes their sitemap to crawlers", async () => {
     const entries = await sitemap();
-    expect(entries).toHaveLength(24 + loadNotes().length);
+    const publishedContent = await Promise.all(LOCALES.flatMap((locale) => [
+      getAllProjects({ locale, visibility: "production" }),
+      getAllTools({ locale, visibility: "production" }),
+      getAllNotes({ locale, visibility: "production" }),
+    ]));
+    expect(entries).toHaveLength(LOCALES.length * 7 + publishedContent.reduce((count, items) => count + items.length, 0));
     expect(entries.map((item) => item.url)).toEqual(expect.arrayContaining([
       "https://jk-space.com/", "https://jk-space.com/zh-cn", "https://jk-space.com/en",
       "https://jk-space.com/projects", "https://jk-space.com/zh-cn/projects", "https://jk-space.com/en/projects",
       "https://jk-space.com/projects/jk-space-news-automation", "https://jk-space.com/projects/pcb-test-point-comparison", "https://jk-space.com/tools/pcb-test-point",
+      "https://jk-space.com/zh-cn/projects/pcb-test-point-comparison", "https://jk-space.com/en/projects/pcb-test-point-comparison",
+      "https://jk-space.com/zh-cn/tools/pcb-test-point", "https://jk-space.com/en/tools/pcb-test-point",
       ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
     ]));
-    expect(entries.map((item) => item.url)).not.toContain("https://jk-space.com/en/projects/pcb-test-point-comparison");
+    expect(entries.find((item) => item.url === "https://jk-space.com/en/projects/pcb-test-point-comparison")?.alternates?.languages).toEqual({
+      "zh-Hant-TW": "https://jk-space.com/projects/pcb-test-point-comparison",
+      "zh-Hans-CN": "https://jk-space.com/zh-cn/projects/pcb-test-point-comparison",
+      en: "https://jk-space.com/en/projects/pcb-test-point-comparison",
+      "x-default": "https://jk-space.com/projects/pcb-test-point-comparison",
+    });
     const policy = robots();
     expect(policy).toEqual({
       rules: [

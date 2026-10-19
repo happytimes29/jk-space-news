@@ -16,7 +16,7 @@ relatedTools: [pcb-test-point]
 outcome: Combined old-versus-new test-point differences, target-list filtering, and a board-outline overlay in one browser tool.
 locale: en
 translationOf: pcb-test-point-comparison
-translationStatus: reviewed
+translationStatus: published
 translatedAt: 2026-10-19
 ---
 

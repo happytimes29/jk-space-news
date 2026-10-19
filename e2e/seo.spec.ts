@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { loadNotes } from "../lib/notes";
+import { getAllNotes, loadNotes } from "../lib/notes";
+import { getAllProjects } from "../lib/projects";
+import { getAllTools } from "../lib/tools";
+import { LOCALES } from "../lib/i18n/locales";
 
 test("every public entry and filtered list advertises its canonical page identity", async ({ page, request }) => {
   for (const [route, canonical, title, description] of [
@@ -90,14 +93,21 @@ test("crawl endpoints contain only public portfolio content", async ({ request }
   expect(sitemap.status()).toBe(200);
   const source = await sitemap.text();
   const locations = [...source.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]);
-  expect(locations).toHaveLength(24 + loadNotes().length);
+  const publishedContent = await Promise.all(LOCALES.flatMap((locale) => [
+    getAllProjects({ locale, visibility: "production" }),
+    getAllTools({ locale, visibility: "production" }),
+    getAllNotes({ locale, visibility: "production" }),
+  ]));
+  expect(locations).toHaveLength(LOCALES.length * 7 + publishedContent.reduce((count, items) => count + items.length, 0));
   expect(locations).toEqual(expect.arrayContaining([
     "https://jk-space.com/", "https://jk-space.com/zh-cn", "https://jk-space.com/en",
     "https://jk-space.com/about", "https://jk-space.com/zh-cn/about", "https://jk-space.com/en/about",
     "https://jk-space.com/projects/jk-space-news-automation", "https://jk-space.com/projects/pcb-test-point-comparison", "https://jk-space.com/tools/pcb-test-point",
+    "https://jk-space.com/zh-cn/projects/pcb-test-point-comparison", "https://jk-space.com/en/projects/pcb-test-point-comparison",
+    "https://jk-space.com/zh-cn/tools/pcb-test-point", "https://jk-space.com/en/tools/pcb-test-point",
     ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
   ]));
-  expect(locations).not.toContain("https://jk-space.com/en/projects/pcb-test-point-comparison");
+  expect(source).toContain('<xhtml:link rel="alternate" hreflang="en" href="https://jk-space.com/en/projects/pcb-test-point-comparison" />');
   expect(source).toContain('hreflang="zh-Hant-TW"');
   expect(source).toContain('hreflang="zh-Hans-CN"');
   expect(source).toContain('hreflang="en"');
