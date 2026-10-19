@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import HomePage from "@/app/(zh-tw)/page";
 import { HomePageContent } from "./HomePageContent";
 import { loadNotes, type NoteItem } from "@/lib/notes";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 
 describe("personal engineering lab homepage", () => {
   // Catches retaining the news landing page or losing the visitor's next steps.
@@ -59,7 +60,7 @@ describe("personal engineering lab homepage", () => {
       sourceTitle: "原始規格", sourceUrl: "https://example.com/spec", sourcePublishedAt: "2026-10-14",
       locale: "zh-TW", translationOf: "spec-tradeoffs", translationStatus: "published",
     };
-    render(<HomePageContent featuredProjects={[]} featuredTool={null} recentNotes={[note]} now={{ content: "整理工程實驗", updatedAt: "2026-10-14" }} />);
+    render(<HomePageContent featuredProjects={[]} featuredTool={null} recentNotes={[note]} now={{ content: "整理工程實驗", updatedAt: "2026-10-14" }} locale="zh-TW" dictionary={getDictionary("zh-TW")} />);
     const notes = screen.getByRole("region", { name: "最新筆記與觀點" });
     expect(within(notes).getByRole("link", { name: "公開規格的工程取捨" })).toHaveAttribute("href", "/notes/spec-tradeoffs");
     expect(notes).toHaveTextContent("新聞觀點");
