@@ -3,6 +3,7 @@ export const ENGINEERING_TOOL_SLUGS = [
   "passive-circuit-calculator",
   "rf-calculator",
   "smith-chart",
+  "transmission-line",
 ] as const;
 
 export type EngineeringToolSlug = (typeof ENGINEERING_TOOL_SLUGS)[number];
@@ -33,6 +34,11 @@ const DEFINITIONS: Record<EngineeringToolSlug, EngineeringToolDefinition> = {
     slug: "smith-chart",
     logicalAppPath: "/tools/smith-chart/app",
     stateKeys: ["frequency", "mode", "r", "reference", ...Array.from({ length: 20 }, (_, index) => `step${index}`), "x"],
+  },
+  "transmission-line": {
+    slug: "transmission-line",
+    logicalAppPath: "/tools/transmission-line/app",
+    stateKeys: ["er", "frequency", "gapM", "heightM", "kind", "lengthM", "mode", "target", "thicknessM", "unit", "widthM"],
   },
 };
 

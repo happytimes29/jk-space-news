@@ -12,6 +12,7 @@ describe("engineering tool registry", () => {
       "passive-circuit-calculator",
       "rf-calculator",
       "smith-chart",
+      "transmission-line",
     ]);
     for (const slug of ENGINEERING_TOOL_SLUGS) {
       expect(isEngineeringToolSlug(slug)).toBe(true);
