@@ -1,3 +1,6 @@
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { DEFAULT_LOCALE, localePath, type Locale } from "@/lib/i18n/locales";
+
 export interface ContactLink {
   label: string;
   href: string;
@@ -14,25 +17,34 @@ export interface SiteConfig {
   contacts: ContactLink[];
 }
 
-export const siteConfig: SiteConfig = {
-  name: "JK Space",
-  url: (process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com").replace(/\/+$/, ""),
-  title: "JK Space — 個人工程實驗室",
-  tagline: "把工程上的麻煩事，做成好用的工具。",
-  description: "硬體研發、AI 自動化、工程工具與技術觀點。",
-  navigation: [
-    { label: "首頁", href: "/" },
-    { label: "專案", href: "/projects" },
-    { label: "工具", href: "/tools" },
-    { label: "筆記與觀點", href: "/notes" },
-    { label: "關於我", href: "/about" },
-    { label: "聯絡", href: "/contact" },
-  ],
-  contacts: [
-    { label: "GitHub", href: "https://github.com/happytimes29", kind: "github" },
-    { label: "Telegram", href: "https://t.me/JK_Sapce", kind: "telegram" },
-  ],
-};
+const contacts: ContactLink[] = [
+  { label: "GitHub", href: "https://github.com/happytimes29", kind: "github" },
+  { label: "Telegram", href: "https://t.me/JK_Sapce", kind: "telegram" },
+];
+
+export function getSiteConfig(locale: Locale): SiteConfig {
+  const dictionary = getDictionary(locale);
+  const navigation = [
+    [dictionary.navigation.home, "/"],
+    [dictionary.navigation.projects, "/projects"],
+    [dictionary.navigation.tools, "/tools"],
+    [dictionary.navigation.notes, "/notes"],
+    [dictionary.navigation.about, "/about"],
+    [dictionary.navigation.contact, "/contact"],
+  ] as const;
+
+  return {
+    name: "JK Space",
+    url: (process.env.NEXT_PUBLIC_SITE_URL || "https://jk-space.com").replace(/\/+$/, ""),
+    title: dictionary.site.title,
+    tagline: dictionary.site.tagline,
+    description: dictionary.site.description,
+    navigation: navigation.map(([label, href]) => ({ label, href: localePath(locale, href) })),
+    contacts: contacts.map((contact) => ({ ...contact })),
+  };
+}
+
+export const siteConfig: SiteConfig = getSiteConfig(DEFAULT_LOCALE);
 
 export function getEnabledContactLinks(config: SiteConfig): ContactLink[] {
   return config.contacts;

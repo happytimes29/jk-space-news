@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getEnabledContactLinks, siteConfig } from "@/lib/site-config";
+import { getEnabledContactLinks, getSiteConfig, siteConfig } from "@/lib/site-config";
 
 describe("shared JK Space identity", () => {
   it("provides the identity contract used across pages", () => {
@@ -31,5 +31,16 @@ describe("shared JK Space identity", () => {
 
   it("has no contact links when no contacts are configured", () => {
     expect(getEnabledContactLinks({ ...siteConfig, contacts: [] })).toEqual([]);
+  });
+
+  it("localizes identity and navigation while preserving public destinations", () => {
+    const english = getSiteConfig("en");
+    const simplified = getSiteConfig("zh-CN");
+
+    expect(english.title).toBe("JK Space — Personal Engineering Lab");
+    expect(english.navigation).toContainEqual({ label: "Projects", href: "/en/projects" });
+    expect(simplified.navigation).toContainEqual({ label: "项目", href: "/zh-cn/projects" });
+    expect(english.url).toBe(siteConfig.url);
+    expect(simplified.contacts).toEqual(siteConfig.contacts);
   });
 });
