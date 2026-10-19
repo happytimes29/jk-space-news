@@ -25,6 +25,63 @@ test("homepage provides the primary site landmarks", async ({ page }) => {
   await expect(page.getByRole("region", { name: "把工程上的麻煩事，做成好用的工具。" }).getByText(/這裡是我的個人工程實驗室/)).toBeVisible();
 });
 
+test("three locale roots and About pages keep stable URLs and document languages", async ({ page }) => {
+  for (const [route, lang] of [["/", "zh-Hant-TW"], ["/zh-cn", "zh-Hans-CN"], ["/en", "en"]]) {
+    const response = await page.goto(route);
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("lang", lang);
+    await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toBeVisible();
+  }
+  for (const [route, lang, heading] of [["/about", "zh-Hant-TW", "關於我"], ["/zh-cn/about", "zh-Hans-CN", "关于我"], ["/en/about", "en", "About"]]) {
+    const response = await page.goto(route);
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("lang", lang);
+    await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toHaveText(heading);
+  }
+});
+
+test("desktop and mobile language controls persist an explicit choice", async ({ page, context }) => {
+  await context.addCookies([{ name: "jk-locale", value: "zh-TW", url: "http://127.0.0.1:3000" }]);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/about?source=language#about-focus");
+  await page.getByRole("group", { name: "選擇語言" }).getByRole("button", { name: "English" }).click();
+  await expect(page).toHaveURL("/en/about?source=language#about-focus");
+  await expect.poll(async () => (await context.cookies()).find(({ name }) => name === "jk-locale")?.value).toBe("en");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.getByRole("button", { name: "Open menu" }).click();
+  await page.getByRole("navigation", { name: "Mobile primary navigation" }).getByRole("group", { name: "Choose a language" }).getByRole("button", { name: "简体中文" }).click();
+  await expect(page).toHaveURL("/zh-cn/about?source=language#about-focus");
+  await expect.poll(async () => (await context.cookies()).find(({ name }) => name === "jk-locale")?.value).toBe("zh-CN");
+});
+
+test("browser language offers a non-blocking suggestion without forced navigation", async ({ page, context }) => {
+  await context.clearCookies();
+  await page.addInitScript(() => {
+    window.localStorage.removeItem("jk-locale-suggestion-dismissed");
+    Object.defineProperty(window.navigator, "languages", { configurable: true, get: () => ["en-US", "en"] });
+  });
+  await page.goto("/about");
+  await expect(page).toHaveURL("/about");
+  const suggestion = page.getByRole("status");
+  await expect(suggestion).toContainText("要切換顯示語言嗎？");
+  await expect(suggestion.getByRole("button", { name: "切換語言: English" })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toHaveText("關於我");
+  await suggestion.getByRole("button", { name: "維持繁體中文" }).click();
+  await expect(suggestion).toHaveCount(0);
+  await expect(page).toHaveURL("/about");
+});
+
+test("invalid locales and missing translated details are true 404 responses", async ({ page }) => {
+  for (const route of ["/fr/about", "/en/projects/jk-space-news-automation", "/zh-cn/tools/not-translated"]) {
+    const response = await page.goto(route);
+    expect(response?.status(), route).toBe(404);
+    await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
+  }
+});
+
 // These journeys catch broken mobile-menu links as well as desktop navigation.
 for (const width of [320, 1440]) {
   test(`all six primary navigation destinations are reachable at ${width}px`, async ({ page }) => {
@@ -145,6 +202,51 @@ test("PCB tool article leads to the browser application", async ({ page }) => {
 
   await expect(page).toHaveURL("/tools/pcb-test-point/app");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("PCB");
+});
+
+test("PCB browser tool parses the public example without uploading user data", async ({ page }) => {
+  const requests: Array<{ method: string; pathname: string }> = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.origin === "http://127.0.0.1:3000") requests.push({ method: request.method(), pathname: url.pathname });
+  });
+  await page.goto("/tools/pcb-test-point/app");
+  requests.splice(0);
+  await page.getByRole("button", { name: "載入範例" }).click();
+  await expect(page.getByRole("button", { name: "All 4", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Moved 1", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Added 1", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Removed 1", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Unchanged 1", exact: true })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "TP1", exact: true })).toBeVisible();
+  expect(requests).toEqual(expect.arrayContaining([
+    { method: "GET", pathname: "/samples/pcb-test-point-old.html" },
+    { method: "GET", pathname: "/samples/pcb-test-point-new.html" },
+  ]));
+  expect(requests.filter(({ method }) => method !== "GET")).toEqual([]);
+});
+
+test("analytics removes query and hash data before a pageview can be sent", async ({ page }) => {
+  await page.goto("/tools/pcb-test-point/app?board=private-customer#upload");
+  await expect.poll(() => page.evaluate(() => Boolean(window.vaq?.some(([event]) => event === "beforeSend")))).toBe(true);
+  const sanitized = await page.evaluate(() => {
+    const registration = window.vaq?.find(([event]) => event === "beforeSend");
+    if (!registration) throw new Error("beforeSend was not registered");
+    const beforeSend = registration[1] as (event: { type: "pageview"; url: string }) => unknown;
+    return beforeSend({ type: "pageview", url: window.location.href });
+  });
+  expect(sanitized).toEqual({ type: "pageview", url: "http://127.0.0.1:3000/tools/pcb-test-point/app" });
+});
+
+test("ResearchMFG local archive is not exposed by the public site", async ({ page, request }) => {
+  for (const route of ["/researchmfg-library", "/researchmfg", "/archive/researchmfg"]) {
+    const response = await page.goto(route);
+    expect(response?.status(), route).toBe(404);
+  }
+  for (const route of ["/", "/sitemap.xml", "/feed.xml"]) {
+    const response = await request.get(route);
+    expect((await response.text()).toLowerCase()).not.toContain("researchmfg");
+  }
 });
 
 test("project case studies lead from the list to contextual detail pages", async ({ page }) => {

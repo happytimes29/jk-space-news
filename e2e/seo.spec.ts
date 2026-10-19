@@ -16,8 +16,9 @@ test("every public entry and filtered list advertises its canonical page identit
     const response = await request.get(route);
     expect(response.status()).toBe(200);
     const source = await response.text();
+    const openGraphTitle = route === "/" ? `${title} | JK Space` : title;
     expect(source).toContain(`<title>${title}</title>`);
-    expect(source).toContain(`property="og:title" content="${title}"`);
+    expect(source).toContain(`property="og:title" content="${openGraphTitle}"`);
     expect(source).toContain(`property="og:description" content="${description}"`);
     await page.goto(route);
     const canonicalUrl = new URL((await page.locator('link[rel="canonical"]').getAttribute("href"))!);
@@ -35,9 +36,9 @@ test("every public entry and filtered list advertises its canonical page identit
 test("published page source carries its own canonical, social image and structured data", async ({ page, request }) => {
   for (const [route, types, imageType] of [
     ["/", ["Person", "WebSite"], null],
-    ["/projects/pcb-test-point-comparison", ["CreativeWork"], "project"],
-    ["/projects/jk-space-news-automation", ["CreativeWork"], "project"],
-    ["/tools/pcb-test-point", ["SoftwareApplication"], "tool"],
+    ["/projects/pcb-test-point-comparison", ["CreativeWork", "BreadcrumbList"], "project"],
+    ["/projects/jk-space-news-automation", ["CreativeWork", "BreadcrumbList"], "project"],
+    ["/tools/pcb-test-point", ["SoftwareApplication", "BreadcrumbList"], "tool"],
   ] as const) {
     const response = await request.get(route);
     expect(response.status()).toBe(200);
@@ -58,19 +59,57 @@ test("published page source carries its own canonical, social image and structur
   }
 });
 
+test("localized pages agree on lang, canonical, hreflang, Open Graph, and JSON-LD", async ({ page }) => {
+  const languages = {
+    "zh-Hant-TW": "https://jk-space.com/about",
+    "zh-Hans-CN": "https://jk-space.com/zh-cn/about",
+    en: "https://jk-space.com/en/about",
+    "x-default": "https://jk-space.com/about",
+  };
+  for (const [route, lang, ogLocale] of [["/about", "zh-Hant-TW", "zh_TW"], ["/zh-cn/about", "zh-Hans-CN", "zh_CN"], ["/en/about", "en", "en_US"]]) {
+    await page.goto(route);
+    await expect(page.locator("html")).toHaveAttribute("lang", lang);
+    expect(new URL((await page.locator('link[rel="canonical"]').getAttribute("href"))!).pathname).toBe(route);
+    for (const [hreflang, href] of Object.entries(languages)) {
+      await expect(page.locator(`link[rel="alternate"][hreflang="${hreflang}"]`)).toHaveAttribute("href", href);
+    }
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", ogLocale);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", `https://jk-space.com${route}`);
+  }
+
+  await page.goto("/en");
+  const graphs = await page.locator('script[type="application/ld+json"]').evaluateAll((scripts) => scripts.map((script) => JSON.parse(script.textContent!)));
+  expect(graphs).toMatchObject([
+    { "@type": "Person", "@id": "https://jk-space.com/#person", url: "https://jk-space.com/en/about", inLanguage: "en" },
+    { "@type": "WebSite", "@id": "https://jk-space.com/#website", url: "https://jk-space.com/en", inLanguage: "en" },
+  ]);
+});
+
 test("crawl endpoints contain only public portfolio content", async ({ request }) => {
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.status()).toBe(200);
   const source = await sitemap.text();
-  expect([...source.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1])).toEqual([
-    "https://jk-space.com/", "https://jk-space.com/projects", "https://jk-space.com/tools", "https://jk-space.com/notes", "https://jk-space.com/about", "https://jk-space.com/contact", "https://jk-space.com/privacy",
+  const locations = [...source.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]);
+  expect(locations).toHaveLength(24 + loadNotes().length);
+  expect(locations).toEqual(expect.arrayContaining([
+    "https://jk-space.com/", "https://jk-space.com/zh-cn", "https://jk-space.com/en",
+    "https://jk-space.com/about", "https://jk-space.com/zh-cn/about", "https://jk-space.com/en/about",
     "https://jk-space.com/projects/jk-space-news-automation", "https://jk-space.com/projects/pcb-test-point-comparison", "https://jk-space.com/tools/pcb-test-point",
     ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
-  ]);
+  ]));
+  expect(locations).not.toContain("https://jk-space.com/en/projects/pcb-test-point-comparison");
+  expect(source).toContain('hreflang="zh-Hant-TW"');
+  expect(source).toContain('hreflang="zh-Hans-CN"');
+  expect(source).toContain('hreflang="en"');
+  expect(source).toContain('hreflang="x-default"');
   expect(source).not.toContain("https://jk-space.com/news/");
   const robots = await request.get("/robots.txt");
   expect(robots.status()).toBe(200);
-  expect(await robots.text()).toBe("User-Agent: *\nAllow: /\n\nSitemap: https://jk-space.com/sitemap.xml\n");
+  expect(await robots.text()).toBe("User-Agent: *\nAllow: /\n\nUser-Agent: Googlebot\nAllow: /\n\nUser-Agent: Bingbot\nAllow: /\n\nUser-Agent: OAI-SearchBot\nAllow: /\n\nUser-Agent: GPTBot\nDisallow: /\n\nSitemap: https://jk-space.com/sitemap.xml\n");
+
+  const feed = await request.get("/feed.xml");
+  expect(feed.status()).toBe(200);
+  expect(await feed.text()).toContain("<language>zh-TW</language>");
 });
 
 test("social image endpoint renders known and unrecognized types as PNG", async ({ request }) => {

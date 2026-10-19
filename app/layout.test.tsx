@@ -20,8 +20,9 @@ describe("RootLayout", () => {
     expect(english).toContain('<html lang="en"');
   });
 
-  it("rejects every unsupported locale segment", async () => {
-    await expect(LocalizedLayout({ children: <span />, params: Promise.resolve({ locale: "fr" }) })).rejects.toThrow("NEXT_NOT_FOUND");
+  it("uses the Traditional Chinese shell around an unsupported leaf route's 404 boundary", async () => {
+    const html = renderToStaticMarkup(await LocalizedLayout({ children: <span />, params: Promise.resolve({ locale: "fr" }) }));
+    expect(html).toContain('<html lang="zh-Hant-TW"');
   });
 
   it("uses JK Space identity throughout the default metadata", () => {
