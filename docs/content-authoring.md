@@ -27,9 +27,17 @@ translatedAt: 2026-10-19
 - `reviewed`：文字已可供站主檢查；只在 `CONTENT_PREVIEW=1` 或 Vercel Preview 顯示，不進入正式建置。
 - `published`：站主確認後才可改為此狀態，正式建置會產生該語言的詳頁、索引與搜尋項目。
 
-本機審稿先執行 `CONTENT_PREVIEW=1 npm run build:local`，正式可見性則以 `npm run build:local` 驗證。不要為了讓正式建置出現路由而跳過文字審核。目前 PCB Project 與 Tool 已有 `reviewed` 的简体中文、英文版本；Note 的三語路由與 fixture 測試已完成，但因為站內沒有真實 Note 原文，所以沒有建立虛構的 Note 翻譯。
+本機審稿先執行 `CONTENT_PREVIEW=1 npm run build:local`，正式可見性則以 `npm run build:local` 驗證。不要為了讓正式建置出現路由而跳過文字審核。目前 PCB Project 與 Tool 已有 `reviewed` 的簡體中文、英文版本；Note 的三語路由與 fixture 測試已完成，但因為站內沒有真實 Note 原文，所以沒有建立虛構的 Note 翻譯。
 
 翻譯需保留技術名詞、數值、日期、限制、程式碼、圖片和 URL；圖片的 Markdown 替代文字應一併翻譯。互動 PCB 工具仍使用既有未加語言前綴的 `/tools/pcb-test-point/app`，翻譯頁會明示工具介面目前使用原始語言。相關 Project／Tool／Note 若沒有目前語言的可見翻譯，連結必須回到未加前綴的繁體中文原文，並顯示「繁體中文原文」標籤，不能導向不存在的翻譯頁。
+
+## GEO 可引用內容守則
+
+GEO 與 SEO 共用同一份真實內容，不建立給爬蟲看的隱藏文字。標題後的摘要應先直接回答頁面解決什麼問題、適用對象與主要限制；正文再補充情境、方法、結果與驗證。技術結論需附實測方式、原始資料、程式碼或可追溯來源，並清楚區分事實、個人經驗、估算與推論。
+
+每次發布或翻譯都要確認：作者、發布／更新日期、版本資訊、數值與單位、前提、失敗案例、已知限制、來源連結，以及圖片的檔名、替代文字與圖說。不可杜撰節省工時、錯誤率、排名、AI 引用或其他未量測成果。新聞觀點仍須使用 `commentary` 的事件摘要／我的觀點分區與原始來源欄位。
+
+翻譯先以 `translationStatus: reviewed` 配合 `CONTENT_PREVIEW=1 npm run build:local` 校對；站主逐項確認文意、技術名詞、連結、圖片與限制後，才改為 `translationStatus: published` 並執行 `npm run build:local`。完整的發布、搜尋引擎檢查、`OAI-SearchBot`／`GPTBot` 政策、每月量測與回滾流程見 [多語 SEO／GEO 操作手冊](multilingual-geo-operations.md)。
 
 以下是填滿必要欄位、可通過現有模型的編寫範例。Project／Tool 取自現有 PCB 內容；Note／commentary 是供編輯的未發布範本，需站主確認、完成原創正文後才放進 `content/notes/`，不可視為已發布文章或個人立場。
 

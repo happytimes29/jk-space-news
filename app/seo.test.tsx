@@ -60,6 +60,17 @@ describe("public SEO integration", () => {
       ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
     ]));
     expect(entries.map((item) => item.url)).not.toContain("https://jk-space.com/en/projects/pcb-test-point-comparison");
-    expect(robots()).toEqual({ rules: { userAgent: "*", allow: "/" }, sitemap: "https://jk-space.com/sitemap.xml" });
+    const policy = robots();
+    expect(policy).toEqual({
+      rules: [
+        { userAgent: "*", allow: "/" },
+        { userAgent: "Googlebot", allow: "/" },
+        { userAgent: "Bingbot", allow: "/" },
+        { userAgent: "OAI-SearchBot", allow: "/" },
+        { userAgent: "GPTBot", disallow: "/" },
+      ],
+      sitemap: "https://jk-space.com/sitemap.xml",
+    });
+    expect(JSON.stringify(policy)).not.toMatch(/llms\.txt/i);
   });
 });

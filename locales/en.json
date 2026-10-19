@@ -159,7 +159,7 @@
     "hostingTitle": "Hosting and analytics",
     "hostingTextOne": "The site is hosted on Vercel. To provide connections and maintain security, the hosting platform may process necessary connection data such as IP address, browser, device, and request information; logs are handled under its service terms.",
     "hostingTextTwo": "The site uses Vercel Analytics for anonymous page-view statistics. Query parameters and fragments are removed before a page-view event is sent. The site currently sends no custom events and does not include tool-file contents or contact details in analytics events.",
-    "preferenceText": "The site does not use advertising pixels or cross-site tracking. Theme preferences and a language preference you explicitly select may be stored in your browser or in a cookie for later visits.",
+    "preferenceText": "The site does not use advertising pixels or cross-site tracking. Theme preferences may be stored in your browser. When you explicitly switch language, the site writes a jk-locale cookie for one year with SameSite=Lax so later visits retain your choice.",
     "pcbTitle": "Files used by the PCB tool",
     "pcbTextOne": "OrCAD reports, DXF outlines, and test-point data opened by the PCB comparison tool are parsed, compared, and drawn only in your browser. They are not uploaded to the site server or analytics service. Exported results are generated and downloaded by your browser.",
     "pcbTextTwo": "You can try the workflow with the included sample data. Before reporting an issue, remove company, product, and other confidential information from any file you share.",
