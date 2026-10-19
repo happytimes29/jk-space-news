@@ -21,7 +21,7 @@ const DEFINITIONS: Record<EngineeringToolSlug, EngineeringToolDefinition> = {
   "passive-circuit-calculator": {
     slug: "passive-circuit-calculator",
     logicalAppPath: "/tools/passive-circuit-calculator/app",
-    stateKeys: ["attenuation", "capacitance", "inductance", "load", "mode", "resistance", "series", "target", "topology", "vin", "z0"],
+    stateKeys: ["attenuation", "c", "circuit", "f", "l", "load", "mode", "r", "series", "target", "topology", "vin", "z0"],
   },
   "rf-calculator": {
     slug: "rf-calculator",
