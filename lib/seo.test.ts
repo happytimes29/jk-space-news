@@ -145,6 +145,15 @@ describe("localized sitemap", () => {
       en: "https://lab.example.com/en/tools/engineering-converter/app",
     });
   });
+
+  it("publishes the localized Smith application route as its install URL", () => {
+    const smith = loadTools(undefined, { locale: "en", visibility: "preview" }).find((tool) => tool.slug === "smith-chart")!;
+    expect(toolJsonLd(smith, "en", config)).toMatchObject({
+      url: "https://lab.example.com/en/tools/smith-chart",
+      installUrl: "https://lab.example.com/en/tools/smith-chart/app",
+      inLanguage: "en",
+    });
+  });
 });
 
 describe("OG labels", () => {

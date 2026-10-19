@@ -80,6 +80,7 @@ describe("public SEO integration", () => {
       "https://jk-space.com/zh-cn/projects/pcb-test-point-comparison", "https://jk-space.com/en/projects/pcb-test-point-comparison",
       "https://jk-space.com/zh-cn/tools/pcb-test-point", "https://jk-space.com/en/tools/pcb-test-point",
       "https://jk-space.com/tools/engineering-converter/app", "https://jk-space.com/tools/passive-circuit-calculator/app", "https://jk-space.com/tools/rf-calculator/app",
+      "https://jk-space.com/tools/smith-chart/app",
       ...loadNotes().map((note) => `https://jk-space.com/notes/${encodeURIComponent(note.slug)}`),
     ]));
     expect(entries.find((item) => item.url === "https://jk-space.com/en/projects/pcb-test-point-comparison")?.alternates?.languages).toEqual({

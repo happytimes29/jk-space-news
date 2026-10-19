@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
 import { CalculatorField } from "./CalculatorField";
 import { SmithChart, type SmithChartLabels, type SmithPath } from "./smith/SmithChart";
@@ -96,7 +96,7 @@ function encodeStep(step: NetworkStep): string {
   return `${step.connection},${step.component},${step.value}`;
 }
 
-function buildVisual(load: Complex, reference: number, frequency: number, steps: readonly NetworkStep[]): VisualState | undefined {
+function buildVisual(load: Complex, reference: number, frequency: number, steps: readonly NetworkStep[], labels = { series: "Series", shunt: "Shunt" }): VisualState | undefined {
   const loadPoint = smithPoint(load, reference);
   const targetPoint = smithPoint({ re: reference, im: 0 }, reference);
   if (!loadPoint.ok || !targetPoint.ok) return undefined;
@@ -106,7 +106,7 @@ function buildVisual(load: Complex, reference: number, frequency: number, steps:
     const sampled = sampleNetworkStep(impedance, step, frequency, reference);
     const applied = applyNetworkStep(impedance, step, frequency);
     if (!sampled.ok || !applied.ok) return undefined;
-    paths.push({ id: step.id, label: `${index + 1}. ${step.connection === "series" ? "Series" : "Shunt"} ${step.component}`, points: sampled.value });
+    paths.push({ id: step.id, label: `${index + 1}. ${step.connection === "series" ? labels.series : labels.shunt} ${step.component}`, points: sampled.value });
     impedance = applied.value;
   }
   const activePoint = smithPoint(impedance, reference);
@@ -121,8 +121,8 @@ function componentUnit(component: Component): string {
   return component === "L" ? "H" : "F";
 }
 
-function stepText(step: NetworkStep): string {
-  return `${step.connection === "series" ? "Series" : "Shunt"} ${step.component} ${formatEngineering(step.value, { unit: componentUnit(step.component), significantDigits: 4 })}`;
+function stepText(step: NetworkStep, labels: { seriesLabel: string; shuntLabel: string }): string {
+  return `${step.connection === "series" ? labels.seriesLabel : labels.shuntLabel} ${step.component} ${formatEngineering(step.value, { unit: componentUnit(step.component), significantDigits: 4 })}`;
 }
 
 function initialVisual(): VisualState {
@@ -132,20 +132,31 @@ function initialVisual(): VisualState {
 }
 
 export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
-  const saved = useMemo(savedState, []);
-  const [frequency, setFrequency] = useState(saved.values.frequency ?? "1G");
-  const [reference, setReference] = useState(saved.values.reference ?? "50");
-  const [resistance, setResistance] = useState(saved.values.r ?? "25");
-  const [reactance, setReactance] = useState(saved.values.x ?? "0");
-  const [mode, setMode] = useState<SmithChartMode>(saved.values.mode === "admittance" ? "admittance" : "impedance");
+  const [frequency, setFrequency] = useState("1G");
+  const [reference, setReference] = useState("50");
+  const [resistance, setResistance] = useState("25");
+  const [reactance, setReactance] = useState("0");
+  const [mode, setMode] = useState<SmithChartMode>("impedance");
   const [connection, setConnection] = useState<Connection>("series");
   const [component, setComponent] = useState<Component>("L");
   const [componentValue, setComponentValue] = useState("4n");
-  const [history, setHistory] = useState(() => createHistory(saved.steps));
+  const [history, setHistory] = useState(() => createHistory<NetworkStep[]>([]));
+  const [hydrated, setHydrated] = useState(false);
   const [visual, setVisual] = useState(initialVisual);
   const [error, setError] = useState<string>();
   const [matches, setMatches] = useState<MatchView[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const saved = savedState();
+    setFrequency(saved.values.frequency ?? "1G");
+    setReference(saved.values.reference ?? "50");
+    setResistance(saved.values.r ?? "25");
+    setReactance(saved.values.x ?? "0");
+    setMode(saved.values.mode === "admittance" ? "admittance" : "impedance");
+    setHistory(createHistory(saved.steps));
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     const frequencyHz = parse(frequency);
@@ -156,22 +167,22 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
       setError(copy.invalidInput);
       return;
     }
-    const next = buildVisual({ re, im }, referenceOhms, frequencyHz, history.present);
+    const next = buildVisual({ re, im }, referenceOhms, frequencyHz, history.present, { series: copy.seriesLabel, shunt: copy.shuntLabel });
     if (!next) {
       setError(copy.invalidInput);
       return;
     }
     setError(undefined);
     setVisual(next);
-  }, [copy.invalidInput, frequency, history.present, reactance, reference, resistance]);
+  }, [copy.invalidInput, copy.seriesLabel, copy.shuntLabel, frequency, history.present, reactance, reference, resistance]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !hydrated) return;
     const state: Record<string, string> = { mode, frequency, reference, r: resistance, x: reactance };
     history.present.slice(0, 20).forEach((step, index) => { state[`step${index}`] = encodeStep(step); });
     const query = encodeToolState(state);
     window.history.replaceState(window.history.state, "", `${window.location.pathname}?${query}${window.location.hash}`);
-  }, [frequency, history.present, mode, reactance, reference, resistance]);
+  }, [frequency, history.present, hydrated, mode, reactance, reference, resistance]);
 
   function addStep() {
     const value = parse(componentValue);
@@ -262,7 +273,7 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
           <button type="button" disabled={!history.future.length} onClick={() => setHistory(redoHistory)} className="rounded-lg border border-[var(--color-border)] px-3 py-2 disabled:opacity-40">{copy.redoLabel}</button>
           <button type="button" onClick={reset} className="rounded-lg border border-[var(--color-border)] px-3 py-2">{copy.resetLabel}</button>
         </div>
-        {history.present.length > 0 && <ol className="space-y-2 text-sm">{history.present.map((step, index) => <li key={step.id} className="rounded-lg bg-[var(--color-input-bg)] px-3 py-2">{copy.stepLabel} {index + 1} · {stepText(step)}</li>)}</ol>}
+        {history.present.length > 0 && <ol className="space-y-2 text-sm">{history.present.map((step, index) => <li key={step.id} className="rounded-lg bg-[var(--color-input-bg)] px-3 py-2">{copy.stepLabel} {index + 1} · {stepText(step, copy)}</li>)}</ol>}
         <button type="button" onClick={solve} className="w-full rounded-lg border border-[var(--color-accent)] px-4 py-2 font-medium text-[var(--color-accent)]">{copy.solveLabel}</button>
         <p className="text-xs text-[var(--color-muted)]">{copy.idealLimitNote}</p>
       </section>
@@ -283,8 +294,8 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
       <h2 className="text-lg font-semibold">{copy.solutionsLabel}</h2>
       <div className="grid gap-4 md:grid-cols-2">{matches.map(({ ideal, rounded }) => <article key={ideal.id} className="space-y-3 rounded-xl border border-[var(--color-border)] p-4">
         <h3 className="font-semibold">{ideal.character === "low-pass" ? copy.lowPassLabel : copy.highPassLabel}</h3>
-        <div><strong>{copy.idealLabel}</strong><ol className="mt-1 text-sm">{ideal.steps.map((step) => <li key={step.id}>{stepText(step)}</li>)}</ol></div>
-        <div><strong>{copy.roundedLabel}</strong><span className="ml-2 text-xs text-[var(--color-muted)]">{copy.preferredSeriesLabel}: E24</span><ol className="mt-1 text-sm">{rounded.steps.map((step) => <li key={step.id}>{stepText(step)}</li>)}</ol></div>
+        <div><strong>{copy.idealLabel}</strong><ol className="mt-1 text-sm">{ideal.steps.map((step) => <li key={step.id}>{stepText(step, copy)}</li>)}</ol></div>
+        <div><strong>{copy.roundedLabel}</strong><span className="ml-2 text-xs text-[var(--color-muted)]">{copy.preferredSeriesLabel}: E24</span><ol className="mt-1 text-sm">{rounded.steps.map((step) => <li key={step.id}>{stepText(step, copy)}</li>)}</ol></div>
         <button type="button" onClick={() => applySolution(rounded)} className="rounded-lg bg-[var(--color-accent)] px-4 py-2 font-medium text-white">{copy.selectSolutionLabel}</button>
       </article>)}</div>
     </section>}

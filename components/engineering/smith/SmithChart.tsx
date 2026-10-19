@@ -18,7 +18,8 @@ export interface SmithChartLabels {
 }
 
 function pathData(points: Array<{ x: number; y: number }>): string {
-  return points.map(({ x, y }, index) => `${index === 0 ? "M" : "L"} ${x} ${y}`).join(" ");
+  const stable = (value: number) => Math.round(value * 1e12) / 1e12;
+  return points.map(({ x, y }, index) => `${index === 0 ? "M" : "L"} ${stable(x)} ${stable(y)}`).join(" ");
 }
 
 function coordinate(point: SmithPoint | undefined): string {

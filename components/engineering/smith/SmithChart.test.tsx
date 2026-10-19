@@ -40,6 +40,13 @@ describe("SmithChart", () => {
     expect(table).toHaveTextContent("0.2");
   });
 
+  it("serializes grid coordinates at stable cross-runtime precision", () => {
+    render(<SmithChart mode="impedance" activePoint={point(25, 0)} targetPoint={point(50, 0)} paths={[]} labels={labels} />);
+    for (const path of screen.getByRole("img", { name: "Smith chart" }).querySelectorAll("path")) {
+      expect(path.getAttribute("d")).not.toMatch(/\.\d{13}/);
+    }
+  });
+
   it("renders the full numeric readout outside the chart", () => {
     const active = point(25, 25);
     const readout = smithReadout(active);

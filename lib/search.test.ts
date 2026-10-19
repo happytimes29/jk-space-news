@@ -25,6 +25,7 @@ describe("buildSearchItems", () => {
       { href: "/tools/engineering-converter", type: "tool" },
       { href: "/tools/passive-circuit-calculator", type: "tool" },
       { href: "/tools/rf-calculator", type: "tool" },
+      { href: "/tools/smith-chart", type: "tool" },
       { href: "/tools/pcb-test-point", type: "tool" },
       { href: "/notes/test-method", type: "note" },
     ]);

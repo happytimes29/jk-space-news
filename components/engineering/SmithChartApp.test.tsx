@@ -44,6 +44,12 @@ describe("SmithChartApp", () => {
     expect(await screen.findByText(/Step 2 · Shunt C/)).toBeInTheDocument();
   });
 
+  it("localizes connection names in the visible network steps", async () => {
+    render(<SmithChartApp copy={{ ...copy, stepLabel: "步驟", seriesLabel: "串聯", shuntLabel: "並聯" }} />);
+    fireEvent.click(screen.getByRole("button", { name: "Add component" }));
+    expect(await screen.findByText(/步驟 1 · 串聯 L/)).toBeInTheDocument();
+  });
+
   it("preserves the last valid chart for invalid input and changes normalization at 75 ohms", async () => {
     render(<SmithChartApp copy={copy} />);
     const table = screen.getByRole("table", { name: "Path values" });
