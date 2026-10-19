@@ -16,6 +16,8 @@ function fixture(type: "engineering" | "commentary", content?: string) {
   directories.push(root);
   const dir = path.join(root, "content/notes");
   fs.mkdirSync(dir, { recursive: true });
+  fs.mkdirSync(path.join(root, "content/projects"), { recursive: true });
+  fs.mkdirSync(path.join(root, "content/tools"), { recursive: true });
   writeContent(dir, "note.md", {
     ...noteData, type, relatedProjects: ["pcb-test-point-comparison"], relatedTools: ["pcb-test-point"],
     ...(type === "commentary" ? { sourceTitle: "原始工程報導", sourceUrl: "https://example.com/report", sourcePublishedAt: "2026-10-12" } : {}),

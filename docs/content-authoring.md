@@ -2,6 +2,35 @@
 
 內容放在 Git 管理的 `content/`，支援 `.md` 與 `.mdx`；檔名建議與 `slug` 相同。slug 使用穩定的小寫英數與連字號，集合內必須唯一。只發布站主原創內容；Notes 目前保持真實空集合，不要為了填滿畫面發布示例。
 
+## 三語翻譯與審核狀態
+
+繁體中文是原始內容，直接放在 `content/projects/`、`content/tools/`、`content/notes/`。簡體中文與英文使用相同檔名及 slug，分別放在集合下的 `zh-cn/` 與 `en/` 子目錄，例如：
+
+```text
+content/projects/pcb-test-point-comparison.md
+content/projects/zh-cn/pcb-test-point-comparison.md
+content/projects/en/pcb-test-point-comparison.md
+```
+
+翻譯檔必須保留原內容模型的所有必要欄位，並額外加入以下欄位：
+
+```yaml
+locale: en # 简体中文使用 zh-CN
+translationOf: pcb-test-point-comparison
+translationStatus: draft # draft | reviewed | published
+translatedAt: 2026-10-19
+```
+
+`translationOf`、檔名與 `slug` 必須一致，且繁體中文原文必須存在。三種狀態的規則如下：
+
+- `draft`：尚在翻譯，不在 Preview 或正式網站產生路由。
+- `reviewed`：文字已可供站主檢查；只在 `CONTENT_PREVIEW=1` 或 Vercel Preview 顯示，不進入正式建置。
+- `published`：站主確認後才可改為此狀態，正式建置會產生該語言的詳頁、索引與搜尋項目。
+
+本機審稿先執行 `CONTENT_PREVIEW=1 npm run build:local`，正式可見性則以 `npm run build:local` 驗證。不要為了讓正式建置出現路由而跳過文字審核。目前 PCB Project 與 Tool 已有 `reviewed` 的简体中文、英文版本；Note 的三語路由與 fixture 測試已完成，但因為站內沒有真實 Note 原文，所以沒有建立虛構的 Note 翻譯。
+
+翻譯需保留技術名詞、數值、日期、限制、程式碼、圖片和 URL；圖片的 Markdown 替代文字應一併翻譯。互動 PCB 工具仍使用既有未加語言前綴的 `/tools/pcb-test-point/app`，翻譯頁會明示工具介面目前使用原始語言。相關 Project／Tool／Note 若沒有目前語言的可見翻譯，連結必須回到未加前綴的繁體中文原文，並顯示「繁體中文原文」標籤，不能導向不存在的翻譯頁。
+
 以下是填滿必要欄位、可通過現有模型的編寫範例。Project／Tool 取自現有 PCB 內容；Note／commentary 是供編輯的未發布範本，需站主確認、完成原創正文後才放進 `content/notes/`，不可視為已發布文章或個人立場。
 
 ## Project：`content/projects/pcb-test-point-comparison.md`
