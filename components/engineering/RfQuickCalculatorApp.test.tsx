@@ -30,6 +30,18 @@ const copy: RfQuickCalculatorCopy = {
   invalidInput: "Enter finite positive values.",
   conflictingMedium: "Use permittivity or velocity factor, not both.",
   infinityLabel: "∞",
+  propagationInputLabel: "Convert from",
+  angleInputLabel: "Electrical angle input",
+  delayInputLabel: "Propagation delay input",
+  impedanceInputLabel: "Convert from RF quantity",
+  zInputLabel: "Impedance Z",
+  yInputLabel: "Admittance Y",
+  gammaInputLabel: "Reflection coefficient Γ",
+  conductanceLabel: "Conductance G",
+  susceptanceLabel: "Susceptance B",
+  gammaRealLabel: "Γ real",
+  gammaImagLabel: "Γ imaginary",
+  normalizedLabel: "Normalized z / y",
 };
 
 beforeEach(() => window.history.replaceState({}, "", "/tools/rf-calculator/app"));
@@ -51,6 +63,16 @@ describe("RfQuickCalculatorApp", () => {
     expect(within(result).getByText(/149\.896 Mm\/s/)).toBeInTheDocument();
   });
 
+  it("converts electrical angle and delay back to physical length", async () => {
+    render(<RfQuickCalculatorApp copy={copy} />);
+    fireEvent.change(screen.getByLabelText("Convert from"), { target: { value: "angle" } });
+    fireEvent.change(screen.getByLabelText("Electrical angle input"), { target: { value: "180" } });
+    expect((await within(screen.getByRole("region", { name: "Results" })).findAllByText(/149\.896 mm/)).length).toBeGreaterThan(0);
+    fireEvent.change(screen.getByLabelText("Convert from"), { target: { value: "delay" } });
+    fireEvent.change(screen.getByLabelText("Propagation delay input"), { target: { value: "1n" } });
+    expect((await within(screen.getByRole("region", { name: "Results" })).findAllByText(/299\.792 mm/)).length).toBeGreaterThan(0);
+  });
+
   it("shows the matched ideal limits and finite mismatch metrics", async () => {
     render(<RfQuickCalculatorApp copy={copy} />);
     fireEvent.click(screen.getByRole("tab", { name: "Impedance and reflection" }));
@@ -66,6 +88,19 @@ describe("RfQuickCalculatorApp", () => {
       expect(within(result).getByText(label)).toBeInTheDocument();
     }
     expect(result).not.toHaveTextContent("NaN");
+  });
+
+  it("accepts admittance and reflection coefficient as reverse inputs", async () => {
+    render(<RfQuickCalculatorApp copy={copy} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Impedance and reflection" }));
+    fireEvent.change(screen.getByLabelText("Convert from RF quantity"), { target: { value: "y" } });
+    expect(await within(screen.getByRole("region", { name: "Results" })).findByText(/50 \+ j0 Ω/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Convert from RF quantity"), { target: { value: "gamma" } });
+    fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "-0.3333333333" } });
+    expect(await within(screen.getByRole("region", { name: "Results" })).findByText(/25 \+ j0 Ω/)).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "Results" })).getByText("Normalized z / y")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Reference impedance"), { target: { value: "50R" } });
+    await waitFor(() => expect(screen.getByRole("region", { name: "Results" })).not.toHaveTextContent("NaN"));
   });
 
   it("rejects conflicting medium inputs and preserves the last valid result", async () => {

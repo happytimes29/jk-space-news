@@ -58,13 +58,6 @@ export function applyNetwork(load: Complex, steps: readonly NetworkStep[], frequ
   return success(current);
 }
 
-function zeroValueLimit(load: Complex, step: NetworkStep): Complex {
-  if (step.component === "C") {
-    return step.connection === "series" ? { re: Number.POSITIVE_INFINITY, im: 0 } : load;
-  }
-  return step.connection === "series" ? load : { re: 0, im: 0 };
-}
-
 export function sampleNetworkStep(
   load: Complex,
   step: NetworkStep,
@@ -81,13 +74,28 @@ export function sampleNetworkStep(
   const points: SmithPoint[] = [];
   for (let index = 0; index < sampleCount; index += 1) {
     const fraction = index / (sampleCount - 1);
-    const impedance = fraction === 0
-      ? zeroValueLimit(load, step)
-      : applyNetworkStep(load, { ...step, value: step.value * fraction }, frequencyHz);
-    if (!("re" in impedance)) {
+    let value: Complex;
+    if (fraction === 0) {
+      value = load;
+    } else if (step.connection === "series") {
+      value = complexAdd(load, {
+        re: validComponent.value.re * fraction,
+        im: validComponent.value.im * fraction,
+      });
+    } else if (load.re === 0 && load.im === 0) {
+      value = load;
+    } else {
+      const loadAdmittance = complexReciprocal(load);
+      const componentAdmittance = complexReciprocal(validComponent.value);
+      if (!loadAdmittance.ok) return loadAdmittance;
+      if (!componentAdmittance.ok) return componentAdmittance;
+      const impedance = complexReciprocal(complexAdd(loadAdmittance.value, {
+        re: componentAdmittance.value.re * fraction,
+        im: componentAdmittance.value.im * fraction,
+      }));
       if (!impedance.ok) return impedance;
+      value = impedance.value;
     }
-    const value = "re" in impedance ? impedance : impedance.value;
     const point = smithPoint(value, referenceOhms);
     if (!point.ok) return point;
     points.push(point.value);

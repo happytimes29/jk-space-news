@@ -14,6 +14,7 @@ import { decodeToolState, encodeToolState } from "@/lib/engineering/query-state"
 import { smithPoint, smithReadout, type SmithPoint, type SmithReadout } from "@/lib/engineering/smith";
 import type { Complex } from "@/lib/engineering/complex";
 import type { SmithChartMode } from "./smith/smith-grid";
+import type { ESeries } from "@/lib/engineering/standard-values";
 
 export interface SmithChartCopy {
   inputTitle: string;
@@ -46,6 +47,10 @@ export interface SmithChartCopy {
   invalidInput: string;
   idealLimitNote: string;
   stepLabel: string;
+  deleteStepLabel: string;
+  matchedImpedanceLabel: string;
+  residualLabel: string;
+  schematicLabel: string;
   chart: SmithChartLabels;
   readout: SmithReadoutLabels;
 }
@@ -145,6 +150,7 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
   const [visual, setVisual] = useState(initialVisual);
   const [error, setError] = useState<string>();
   const [matches, setMatches] = useState<MatchView[]>([]);
+  const [preferredSeries, setPreferredSeries] = useState<ESeries>(24);
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -223,11 +229,32 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
       return;
     }
     const views = result.value.flatMap((ideal) => {
-      const rounded = roundMatchSolution(ideal, 24, { re, im }, referenceOhms, frequencyHz);
+      const rounded = roundMatchSolution(ideal, preferredSeries, { re, im }, referenceOhms, frequencyHz);
       return rounded.ok ? [{ ideal, rounded: rounded.value }] : [];
     });
     setMatches(views);
     setError(undefined);
+  }
+
+  function changePreferredSeries(series: ESeries) {
+    setPreferredSeries(series);
+    const frequencyHz = parse(frequency), referenceOhms = parse(reference), re = parse(resistance), im = parse(reactance);
+    if (frequencyHz === undefined || referenceOhms === undefined || re === undefined || im === undefined) return;
+    setMatches((current) => current.flatMap(({ ideal }) => {
+      const rounded = roundMatchSolution(ideal, series, { re, im }, referenceOhms, frequencyHz);
+      return rounded.ok ? [{ ideal, rounded: rounded.value }] : [];
+    }));
+  }
+
+  function removeStep(index: number) {
+    setHistory((current) => pushHistory(current, current.present.filter((_step, stepIndex) => stepIndex !== index)));
+    setMatches([]);
+  }
+
+  function solutionVisual(solution: MatchSolution): VisualState | undefined {
+    const frequencyHz = parse(frequency), referenceOhms = parse(reference), re = parse(resistance), im = parse(reactance);
+    if (frequencyHz === undefined || referenceOhms === undefined || re === undefined || im === undefined) return undefined;
+    return buildVisual({ re, im }, referenceOhms, frequencyHz, solution.steps, { series: copy.seriesLabel, shunt: copy.shuntLabel });
   }
 
   function applySolution(solution: MatchSolution) {
@@ -273,7 +300,7 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
           <button type="button" disabled={!history.future.length} onClick={() => setHistory(redoHistory)} className="rounded-lg border border-[var(--color-border)] px-3 py-2 disabled:opacity-40">{copy.redoLabel}</button>
           <button type="button" onClick={reset} className="rounded-lg border border-[var(--color-border)] px-3 py-2">{copy.resetLabel}</button>
         </div>
-        {history.present.length > 0 && <ol className="space-y-2 text-sm">{history.present.map((step, index) => <li key={step.id} className="rounded-lg bg-[var(--color-input-bg)] px-3 py-2">{copy.stepLabel} {index + 1} · {stepText(step, copy)}</li>)}</ol>}
+        {history.present.length > 0 && <ol className="space-y-2 text-sm">{history.present.map((step, index) => <li key={step.id} className="flex items-center justify-between gap-3 rounded-lg bg-[var(--color-input-bg)] px-3 py-2"><span>{copy.stepLabel} {index + 1} · {stepText(step, copy)}</span><button type="button" aria-label={`${copy.deleteStepLabel} ${index + 1}`} onClick={() => removeStep(index)} className="rounded border border-[var(--color-border)] px-2 py-1">{copy.deleteStepLabel}</button></li>)}</ol>}
         <button type="button" onClick={solve} className="w-full rounded-lg border border-[var(--color-accent)] px-4 py-2 font-medium text-[var(--color-accent)]">{copy.solveLabel}</button>
         <p className="text-xs text-[var(--color-muted)]">{copy.idealLimitNote}</p>
       </section>
@@ -292,12 +319,21 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
 
     {matches.length > 0 && <section aria-label={copy.solutionsLabel} className="space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
       <h2 className="text-lg font-semibold">{copy.solutionsLabel}</h2>
-      <div className="grid gap-4 md:grid-cols-2">{matches.map(({ ideal, rounded }) => <article key={ideal.id} className="space-y-3 rounded-xl border border-[var(--color-border)] p-4">
+      <label className="block max-w-xs space-y-2 text-sm font-medium">{copy.preferredSeriesLabel}<select aria-label={copy.preferredSeriesLabel} value={preferredSeries} onChange={(event) => changePreferredSeries(Number(event.target.value) as ESeries)} className="block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-input-bg)] px-3 py-2">{[12, 24, 48, 96].map((series) => <option key={series} value={series}>E{series}</option>)}</select></label>
+      <div className="grid gap-4 md:grid-cols-2">{matches.map(({ ideal, rounded }) => { const preview = solutionVisual(rounded); return <article key={ideal.id} className="space-y-3 rounded-xl border border-[var(--color-border)] p-4">
         <h3 className="font-semibold">{ideal.character === "low-pass" ? copy.lowPassLabel : copy.highPassLabel}</h3>
         <div><strong>{copy.idealLabel}</strong><ol className="mt-1 text-sm">{ideal.steps.map((step) => <li key={step.id}>{stepText(step, copy)}</li>)}</ol></div>
-        <div><strong>{copy.roundedLabel}</strong><span className="ml-2 text-xs text-[var(--color-muted)]">{copy.preferredSeriesLabel}: E24</span><ol className="mt-1 text-sm">{rounded.steps.map((step) => <li key={step.id}>{stepText(step, copy)}</li>)}</ol></div>
+        <div><strong>{copy.roundedLabel}</strong><span className="ml-2 text-xs text-[var(--color-muted)]">{copy.preferredSeriesLabel}: E{preferredSeries}</span><ol className="mt-1 text-sm">{rounded.steps.map((step) => <li key={step.id}>{stepText(step, copy)}</li>)}</ol></div>
+        <p className="text-sm"><strong>{copy.schematicLabel}:</strong> {rounded.steps.map((step) => `${step.connection === "series" ? copy.seriesLabel : copy.shuntLabel} ${step.component}`).join(" → ")}</p>
+        <p className="text-sm"><strong>{copy.matchedImpedanceLabel}:</strong> {complexTextForMatch(rounded.matchedImpedance)} Ω</p>
+        <p className="text-sm"><strong>{copy.residualLabel}:</strong> |Γ| = {Number(rounded.residualGammaMagnitude.toPrecision(6))}</p>
+        {preview && <SmithChart mode={mode} paths={preview.paths} activePoint={preview.activePoint} targetPoint={preview.targetPoint} labels={copy.chart} size={240} showTable={false} />}
         <button type="button" onClick={() => applySolution(rounded)} className="rounded-lg bg-[var(--color-accent)] px-4 py-2 font-medium text-white">{copy.selectSolutionLabel}</button>
-      </article>)}</div>
+      </article>; })}</div>
     </section>}
   </div>;
+}
+
+function complexTextForMatch(value: Complex): string {
+  return `${Number(value.re.toPrecision(6))} ${value.im < 0 ? "−" : "+"} j${Number(Math.abs(value.im).toPrecision(6))}`;
 }

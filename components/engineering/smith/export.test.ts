@@ -22,10 +22,17 @@ describe("Smith chart PNG export", () => {
     let downloaded = "";
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) { downloaded = this.download; });
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("stroke", "var(--color-accent)");
+    path.setAttribute("fill", "var(--color-card)");
+    svg.append(path);
 
     await exportSmithChartPng(svg, { title: "Smith chart", frequency: "1 GHz", reference: "50 Ω", result: "25 + j0 Ω" }, "network.png");
 
     expect(downloaded).toBe("network.png");
+    const serializedSvg = await (URL.createObjectURL as ReturnType<typeof vi.fn>).mock.calls[0][0].text();
+    expect(serializedSvg).not.toContain("var(--");
+    expect(serializedSvg).toContain("#");
     expect(fillText.mock.calls.map(([text]) => text)).toEqual(["Smith chart", "1 GHz · 50 Ω", "25 + j0 Ω"]);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:chart");
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:png");

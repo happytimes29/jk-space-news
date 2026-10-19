@@ -127,6 +127,7 @@ describe("symmetric attenuator calculations", () => {
     if (!result.ok) throw new Error("expected attenuator");
     expect(Object.values(result.value.resistorsOhms).every((value) => Number.isFinite(value) && value > 0)).toBe(true);
     expect(result.value.estimatedTotalDissipationW).toBeCloseTo(1 - 10 ** (-6 / 10), 12);
+    expect(Object.values(result.value.resistorDissipationW ?? {}).reduce((sum, value) => sum + value, 0)).toBeCloseTo(result.value.estimatedTotalDissipationW!, 12);
   });
 
   it("omits power dissipation when input power is omitted", () => {

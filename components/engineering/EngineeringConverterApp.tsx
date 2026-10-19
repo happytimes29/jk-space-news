@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { CalculatorField } from "./CalculatorField";
 import { ResultPanel } from "./ResultPanel";
-import { parseEngineeringNumber } from "@/lib/engineering/quantity";
+import { formatEngineering, parseEngineeringNumber } from "@/lib/engineering/quantity";
 import { powerWattsFromDbm, rfVoltageFromPower } from "@/lib/engineering/rf";
 import { decodeToolState, encodeToolState } from "@/lib/engineering/query-state";
 
@@ -24,9 +24,15 @@ export interface EngineeringConverterCopy {
   invalidNumber: string;
   invalidImpedance: string;
   incompatibleUnits: string;
+  formatLabel: string;
+  decimalFormat: string;
+  scientificFormat: string;
+  engineeringFormat: string;
+  spiceFormat: string;
 }
 
 type Mode = "general" | "rf";
+type OutputFormat = "decimal" | "scientific" | "engineering" | "spice";
 type Dimension = "voltage" | "current" | "resistance" | "capacitance" | "inductance" | "frequency" | "time" | "power" | "length";
 
 interface UnitDefinition {
@@ -95,7 +101,7 @@ interface RfResult {
 
 const DEFAULT_GENERAL = { value: "4k7", from: "ohm", to: "kohm" };
 const DEFAULT_RF = { value: "0", from: "dBm" as RfUnit, impedance: "50" };
-const STATE_KEYS = ["mode", "value", "from", "to", "impedance"] as const;
+const STATE_KEYS = ["mode", "value", "from", "to", "impedance", "format"] as const;
 
 function unit(value: string): UnitDefinition | undefined {
   return GENERAL_UNITS.find((candidate) => candidate.value === value);
@@ -107,9 +113,11 @@ function decimal(value: number, significantDigits = 9): string {
   return Number(value.toPrecision(significantDigits)).toString();
 }
 
-function initialState() {
-  if (typeof window === "undefined") return {};
-  return decodeToolState(window.location.search, STATE_KEYS);
+function formatted(value: number, format: OutputFormat): string {
+  if (format === "decimal") return decimal(value);
+  if (format === "scientific") return value.toExponential(6).replace(/(\.\d*?[1-9])0+e/, "$1e").replace(/\.0+e/, "e");
+  const engineering = formatEngineering(value, { significantDigits: 7 });
+  return format === "spice" ? engineering.replace(" ", "") : engineering;
 }
 
 function rfWatts(value: number, inputUnit: RfUnit, impedanceOhms: number): number | null {
@@ -129,19 +137,36 @@ function rfWatts(value: number, inputUnit: RfUnit, impedanceOhms: number): numbe
 }
 
 export function EngineeringConverterApp({ copy }: { copy: EngineeringConverterCopy }) {
-  const saved = useMemo(initialState, []);
-  const initialMode: Mode = saved.mode === "rf" ? "rf" : "general";
-  const [mode, setMode] = useState<Mode>(initialMode);
-  const [generalValue, setGeneralValue] = useState(initialMode === "general" && saved.value ? saved.value : DEFAULT_GENERAL.value);
-  const [fromUnit, setFromUnit] = useState(initialMode === "general" && unit(saved.from) ? saved.from : DEFAULT_GENERAL.from);
-  const [toUnit, setToUnit] = useState(initialMode === "general" && unit(saved.to) ? saved.to : DEFAULT_GENERAL.to);
-  const [rfValue, setRfValue] = useState(initialMode === "rf" && saved.value ? saved.value : DEFAULT_RF.value);
-  const [rfUnit, setRfUnit] = useState<RfUnit>(initialMode === "rf" && RF_UNITS.includes(saved.from as RfUnit) ? saved.from as RfUnit : DEFAULT_RF.from);
-  const [impedance, setImpedance] = useState(initialMode === "rf" && saved.impedance ? saved.impedance : DEFAULT_RF.impedance);
+  const [mode, setMode] = useState<Mode>("general");
+  const [generalValue, setGeneralValue] = useState(DEFAULT_GENERAL.value);
+  const [fromUnit, setFromUnit] = useState(DEFAULT_GENERAL.from);
+  const [toUnit, setToUnit] = useState(DEFAULT_GENERAL.to);
+  const [rfValue, setRfValue] = useState(DEFAULT_RF.value);
+  const [rfUnit, setRfUnit] = useState<RfUnit>(DEFAULT_RF.from);
+  const [impedance, setImpedance] = useState(DEFAULT_RF.impedance);
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>("decimal");
+  const [hydrated, setHydrated] = useState(false);
   const [valueError, setValueError] = useState<string>();
   const [impedanceError, setImpedanceError] = useState<string>();
   const [generalResult, setGeneralResult] = useState<GeneralResult>({ canonical: 4_700, converted: 4.7, baseLabel: "Ω", outputLabel: "kΩ" });
   const [rfResult, setRfResult] = useState<RfResult>({ watts: 0.001, dbm: 0, dbw: -30, vrms: Math.sqrt(0.05), vpeak: Math.sqrt(0.1), vpp: 2 * Math.sqrt(0.1), irms: Math.sqrt(0.001 / 50) });
+
+  useEffect(() => {
+    const saved = decodeToolState(window.location.search, STATE_KEYS);
+    const savedMode: Mode = saved.mode === "rf" ? "rf" : "general";
+    setMode(savedMode);
+    if (["decimal", "scientific", "engineering", "spice"].includes(saved.format)) setOutputFormat(saved.format as OutputFormat);
+    if (savedMode === "general") {
+      if (saved.value) setGeneralValue(saved.value);
+      if (unit(saved.from)) setFromUnit(saved.from);
+      if (unit(saved.to)) setToUnit(saved.to);
+    } else {
+      if (saved.value) setRfValue(saved.value);
+      if (RF_UNITS.includes(saved.from as RfUnit)) setRfUnit(saved.from as RfUnit);
+      if (saved.impedance) setImpedance(saved.impedance);
+    }
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (mode !== "general") return;
@@ -187,13 +212,13 @@ export function EngineeringConverterApp({ copy }: { copy: EngineeringConverterCo
   }, [copy.invalidImpedance, copy.invalidNumber, impedance, mode, rfUnit, rfValue]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (!hydrated) return;
     const query = mode === "general"
-      ? encodeToolState({ mode, value: generalValue, from: fromUnit, to: toUnit })
+      ? encodeToolState({ mode, value: generalValue, from: fromUnit, to: toUnit, format: outputFormat })
       : encodeToolState({ mode, value: rfValue, from: rfUnit, impedance });
     const next = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
     window.history.replaceState(window.history.state, "", next);
-  }, [fromUnit, generalValue, impedance, mode, rfUnit, rfValue, toUnit]);
+  }, [fromUnit, generalValue, hydrated, impedance, mode, outputFormat, rfUnit, rfValue, toUnit]);
 
   function reset() {
     setValueError(undefined);
@@ -229,6 +254,11 @@ export function EngineeringConverterApp({ copy }: { copy: EngineeringConverterCo
               {GENERAL_UNITS.map((candidate) => <option key={candidate.value} value={candidate.value}>{candidate.label}</option>)}
             </select>
           </label>
+          <label className="block space-y-2 text-sm font-medium">{copy.formatLabel}
+            <select aria-label={copy.formatLabel} value={outputFormat} onChange={(event) => setOutputFormat(event.target.value as OutputFormat)} className="block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-input-bg)] px-3 py-2">
+              <option value="decimal">{copy.decimalFormat}</option><option value="scientific">{copy.scientificFormat}</option><option value="engineering">{copy.engineeringFormat}</option><option value="spice">{copy.spiceFormat}</option>
+            </select>
+          </label>
         </> : <>
           <CalculatorField id="rf-converter-value" label={copy.valueLabel} value={rfValue} onChange={(event) => setRfValue(event.target.value)} error={valueError} inputMode="decimal" />
           <label className="block space-y-2 text-sm font-medium">{copy.fromUnitLabel}
@@ -244,8 +274,8 @@ export function EngineeringConverterApp({ copy }: { copy: EngineeringConverterCo
       <ResultPanel title={copy.resultTitle}>
         {mode === "general" ? (
           <dl className="space-y-4">
-            <div><dt className="text-sm text-[var(--color-muted)]">{copy.canonicalValueLabel}</dt><dd className="mt-1 font-mono text-lg">{decimal(generalResult.canonical)} {generalResult.baseLabel}</dd></div>
-            <div><dt className="text-sm text-[var(--color-muted)]">{copy.convertedValueLabel}</dt><dd className="mt-1 font-mono text-lg">{decimal(generalResult.converted)} {generalResult.outputLabel}</dd></div>
+            <div><dt className="text-sm text-[var(--color-muted)]">{copy.canonicalValueLabel}</dt><dd className="mt-1 font-mono text-lg">{formatted(generalResult.canonical, outputFormat)} {generalResult.baseLabel}</dd></div>
+            <div><dt className="text-sm text-[var(--color-muted)]">{copy.convertedValueLabel}</dt><dd className="mt-1 font-mono text-lg">{formatted(generalResult.converted, outputFormat)} {generalResult.outputLabel}</dd></div>
           </dl>
         ) : (
           <dl className="space-y-4">

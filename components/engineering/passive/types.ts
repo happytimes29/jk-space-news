@@ -37,6 +37,21 @@ export interface PassiveCircuitCopy {
   actualOutputLabel: string;
   errorLabel: string;
   noSolutionLabel: string;
+  dividerModeLabel: string;
+  designLabel: string;
+  evaluateLabel: string;
+  topResistanceLabel: string;
+  bottomResistanceLabel: string;
+  toleranceLabel: string;
+  branchCurrentLabel: string;
+  topPowerLabel: string;
+  bottomPowerLabel: string;
+  worstCaseLabel: string;
+  relativeErrorLabel: string;
+  candidateListLabel: string;
+  inputPowerLabel: string;
+  totalDissipationLabel: string;
+  resistorPowerLabel: string;
 }
 
 export interface PassiveModeProps {

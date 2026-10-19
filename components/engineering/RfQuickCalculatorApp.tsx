@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { CalculatorField } from "./CalculatorField";
 import { ResultPanel } from "./ResultPanel";
-import { complexMagnitude, complexPhaseDegrees, type Complex } from "@/lib/engineering/complex";
+import { complexAdd, complexDivide, complexMagnitude, complexPhaseDegrees, complexReciprocal, type Complex } from "@/lib/engineering/complex";
 import { formatEngineering, parseEngineeringNumber } from "@/lib/engineering/quantity";
 import { impedanceToAdmittance, reflectionCoefficient, reflectionMetrics, wavelength } from "@/lib/engineering/rf";
 import { decodeToolState, encodeToolState } from "@/lib/engineering/query-state";
@@ -36,17 +36,26 @@ export interface RfQuickCalculatorCopy {
   invalidInput: string;
   conflictingMedium: string;
   infinityLabel: string;
+  propagationInputLabel: string;
+  angleInputLabel: string;
+  delayInputLabel: string;
+  impedanceInputLabel: string;
+  zInputLabel: string;
+  yInputLabel: string;
+  gammaInputLabel: string;
+  conductanceLabel: string;
+  susceptanceLabel: string;
+  gammaRealLabel: string;
+  gammaImagLabel: string;
+  normalizedLabel: string;
 }
 
 type Mode = "propagation" | "impedance";
-interface PropagationResult { velocity: number; wavelength: number; half: number; quarter: number; delay: number; angle: number }
-interface ImpedanceResult { z: Complex; y: Complex; gamma: Complex; magnitude: number; phase: number; s11: number; vswr: number; returnLoss: number; mismatchLoss: number }
-const STATE_KEYS = ["mode", "frequency", "er", "velocityFactor", "length", "real", "imaginary", "z0"] as const;
-
-function savedState() {
-  if (typeof window === "undefined") return {};
-  return decodeToolState(window.location.search, STATE_KEYS);
-}
+type PropagationInput = "length" | "angle" | "delay";
+type ImpedanceInput = "z" | "y" | "gamma";
+interface PropagationResult { velocity: number; wavelength: number; half: number; quarter: number; length: number; delay: number; angle: number }
+interface ImpedanceResult { z: Complex; y: Complex; gamma: Complex; reference: number; magnitude: number; phase: number; s11: number; vswr: number; returnLoss: number; mismatchLoss: number }
+const STATE_KEYS = ["mode", "propagationInput", "frequency", "er", "velocityFactor", "length", "angle", "delay", "impedanceInput", "real", "imaginary", "z0"] as const;
 
 function parsed(text: string): number | undefined {
   const result = parseEngineeringNumber(text);
@@ -68,27 +77,51 @@ function complexText(value: Complex, unit = ""): string {
 function defaultPropagation(): PropagationResult {
   const result = wavelength({ frequencyHz: 1e9 });
   if (!result.ok) throw new Error("invalid propagation example");
-  return { velocity: result.value.velocityMps, wavelength: result.value.wavelengthM, half: result.value.halfM, quarter: result.value.quarterM, delay: 0.1 * result.value.delaySecondsPerM, angle: 0.1 / result.value.wavelengthM * 360 };
+  return { velocity: result.value.velocityMps, wavelength: result.value.wavelengthM, half: result.value.halfM, quarter: result.value.quarterM, length: 0.1, delay: 0.1 * result.value.delaySecondsPerM, angle: 0.1 / result.value.wavelengthM * 360 };
 }
 
 function defaultImpedance(): ImpedanceResult {
-  return { z: { re: 50, im: 0 }, y: { re: 0.02, im: 0 }, gamma: { re: 0, im: 0 }, magnitude: 0, phase: 0, s11: Number.NEGATIVE_INFINITY, vswr: 1, returnLoss: Number.POSITIVE_INFINITY, mismatchLoss: 0 };
+  return { z: { re: 50, im: 0 }, y: { re: 0.02, im: 0 }, gamma: { re: 0, im: 0 }, reference: 50, magnitude: 0, phase: 0, s11: Number.NEGATIVE_INFINITY, vswr: 1, returnLoss: Number.POSITIVE_INFINITY, mismatchLoss: 0 };
 }
 
 export function RfQuickCalculatorApp({ copy }: { copy: RfQuickCalculatorCopy }) {
-  const saved = useMemo(savedState, []);
-  const initialMode: Mode = saved.mode === "impedance" ? "impedance" : "propagation";
-  const [mode, setMode] = useState<Mode>(initialMode);
-  const [frequency, setFrequency] = useState(initialMode === "propagation" && saved.frequency ? saved.frequency : "1G");
-  const [er, setEr] = useState(initialMode === "propagation" ? saved.er ?? "" : "");
-  const [velocityFactor, setVelocityFactor] = useState(initialMode === "propagation" ? saved.velocityFactor ?? "" : "");
-  const [length, setLength] = useState(initialMode === "propagation" && saved.length ? saved.length : "0.1");
-  const [real, setReal] = useState(initialMode === "impedance" && saved.real ? saved.real : "50");
-  const [imaginary, setImaginary] = useState(initialMode === "impedance" && saved.imaginary ? saved.imaginary : "0");
-  const [z0, setZ0] = useState(initialMode === "impedance" && saved.z0 ? saved.z0 : "50");
+  const [mode, setMode] = useState<Mode>("propagation");
+  const [frequency, setFrequency] = useState("1G");
+  const [er, setEr] = useState("");
+  const [velocityFactor, setVelocityFactor] = useState("");
+  const [length, setLength] = useState("0.1");
+  const [angle, setAngle] = useState("120.083");
+  const [delay, setDelay] = useState("333.564p");
+  const [propagationInput, setPropagationInput] = useState<PropagationInput>("length");
+  const [impedanceInput, setImpedanceInput] = useState<ImpedanceInput>("z");
+  const [real, setReal] = useState("50");
+  const [imaginary, setImaginary] = useState("0");
+  const [z0, setZ0] = useState("50");
+  const [hydrated, setHydrated] = useState(false);
   const [error, setError] = useState<string>();
   const [propagation, setPropagation] = useState<PropagationResult>(defaultPropagation);
   const [impedance, setImpedance] = useState<ImpedanceResult>(defaultImpedance);
+
+  useEffect(() => {
+    const saved = decodeToolState(window.location.search, STATE_KEYS);
+    const savedMode: Mode = saved.mode === "impedance" ? "impedance" : "propagation";
+    setMode(savedMode);
+    if (savedMode === "propagation") {
+      if (["length", "angle", "delay"].includes(saved.propagationInput)) setPropagationInput(saved.propagationInput as PropagationInput);
+      if (saved.frequency) setFrequency(saved.frequency);
+      setEr(saved.er ?? "");
+      setVelocityFactor(saved.velocityFactor ?? "");
+      if (saved.length) setLength(saved.length);
+      if (saved.angle) setAngle(saved.angle);
+      if (saved.delay) setDelay(saved.delay);
+    } else {
+      if (["z", "y", "gamma"].includes(saved.impedanceInput)) setImpedanceInput(saved.impedanceInput as ImpedanceInput);
+      if (saved.real) setReal(saved.real);
+      if (saved.imaginary) setImaginary(saved.imaginary);
+      if (saved.z0) setZ0(saved.z0);
+    }
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (mode !== "propagation") return;
@@ -97,10 +130,10 @@ export function RfQuickCalculatorApp({ copy }: { copy: RfQuickCalculatorCopy }) 
       return;
     }
     const frequencyHz = parsed(frequency);
-    const lengthM = parsed(length);
+    const inputValue = parsed(propagationInput === "length" ? length : propagationInput === "angle" ? angle : delay);
     const relativePermittivity = er.trim() ? parsed(er) : undefined;
     const factor = velocityFactor.trim() ? parsed(velocityFactor) : undefined;
-    if (frequencyHz === undefined || lengthM === undefined || lengthM < 0 || (er.trim() && relativePermittivity === undefined) || (velocityFactor.trim() && factor === undefined)) {
+    if (frequencyHz === undefined || inputValue === undefined || inputValue < 0 || (er.trim() && relativePermittivity === undefined) || (velocityFactor.trim() && factor === undefined)) {
       setError(copy.invalidInput);
       return;
     }
@@ -109,18 +142,32 @@ export function RfQuickCalculatorApp({ copy }: { copy: RfQuickCalculatorCopy }) 
       setError(copy.invalidInput);
       return;
     }
+    const lengthM = propagationInput === "length" ? inputValue : propagationInput === "angle" ? inputValue / 360 * result.value.wavelengthM : inputValue * result.value.velocityMps;
     setError(undefined);
-    setPropagation({ velocity: result.value.velocityMps, wavelength: result.value.wavelengthM, half: result.value.halfM, quarter: result.value.quarterM, delay: lengthM * result.value.delaySecondsPerM, angle: lengthM / result.value.wavelengthM * 360 });
-  }, [copy.conflictingMedium, copy.invalidInput, er, frequency, length, mode, velocityFactor]);
+    setPropagation({ velocity: result.value.velocityMps, wavelength: result.value.wavelengthM, half: result.value.halfM, quarter: result.value.quarterM, length: lengthM, delay: lengthM * result.value.delaySecondsPerM, angle: lengthM / result.value.wavelengthM * 360 });
+  }, [angle, copy.conflictingMedium, copy.invalidInput, delay, er, frequency, length, mode, propagationInput, velocityFactor]);
 
   useEffect(() => {
     if (mode !== "impedance") return;
     const re = parsed(real), im = parsed(imaginary), reference = parsed(z0);
-    if (re === undefined || im === undefined || reference === undefined || re < 0) {
+    if (re === undefined || im === undefined || reference === undefined || (impedanceInput !== "gamma" && re < 0)) {
       setError(copy.invalidInput);
       return;
     }
-    const z = { re, im };
+    let z: Complex;
+    if (impedanceInput === "z") {
+      z = { re, im };
+    } else if (impedanceInput === "y") {
+      const converted = complexReciprocal({ re, im });
+      if (!converted.ok) { setError(copy.invalidInput); return; }
+      z = converted.value;
+    } else {
+      const gamma = { re, im };
+      if (complexMagnitude(gamma) > 1) { setError(copy.invalidInput); return; }
+      const normalized = complexDivide(complexAdd({ re: 1, im: 0 }, gamma), { re: 1 - gamma.re, im: -gamma.im });
+      if (!normalized.ok) { setError(copy.invalidInput); return; }
+      z = { re: normalized.value.re * reference, im: normalized.value.im * reference };
+    }
     const y = impedanceToAdmittance(z);
     const gamma = reflectionCoefficient(z, reference);
     if (!y.ok || !gamma.ok) {
@@ -133,16 +180,16 @@ export function RfQuickCalculatorApp({ copy }: { copy: RfQuickCalculatorCopy }) 
       return;
     }
     setError(undefined);
-    setImpedance({ z, y: y.value, gamma: gamma.value, magnitude: metrics.value.magnitude, phase: metrics.value.phaseDegrees, s11: metrics.value.s11Db, vswr: metrics.value.vswr, returnLoss: metrics.value.returnLossDb, mismatchLoss: metrics.value.mismatchLossDb });
-  }, [copy.invalidInput, imaginary, mode, real, z0]);
+    setImpedance({ z, y: y.value, gamma: gamma.value, reference, magnitude: metrics.value.magnitude, phase: metrics.value.phaseDegrees, s11: metrics.value.s11Db, vswr: metrics.value.vswr, returnLoss: metrics.value.returnLossDb, mismatchLoss: metrics.value.mismatchLossDb });
+  }, [copy.invalidInput, imaginary, impedanceInput, mode, real, z0]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (!hydrated) return;
     const query = mode === "propagation"
-      ? encodeToolState({ mode, frequency, er, velocityFactor, length })
-      : encodeToolState({ mode, real, imaginary, z0 });
+      ? encodeToolState({ mode, propagationInput, frequency, er, velocityFactor, length, angle, delay })
+      : encodeToolState({ mode, impedanceInput, real, imaginary, z0 });
     window.history.replaceState(window.history.state, "", `${window.location.pathname}?${query}${window.location.hash}`);
-  }, [er, frequency, imaginary, length, mode, real, velocityFactor, z0]);
+  }, [angle, delay, er, frequency, hydrated, imaginary, impedanceInput, length, mode, propagationInput, real, velocityFactor, z0]);
 
   const finiteOrInfinity = (value: number, unit = "") => `${Number.isFinite(value) ? decimal(value) : value < 0 ? `−${copy.infinityLabel}` : copy.infinityLabel}${unit ? ` ${unit}` : ""}`;
   return <div className="space-y-6">
@@ -154,13 +201,17 @@ export function RfQuickCalculatorApp({ copy }: { copy: RfQuickCalculatorCopy }) 
       <section aria-label={copy.inputTitle} className="space-y-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
         <h2 className="text-lg font-semibold">{copy.inputTitle}</h2>
         {mode === "propagation" ? <>
+          <label className="block space-y-2 text-sm font-medium">{copy.propagationInputLabel}<select aria-label={copy.propagationInputLabel} value={propagationInput} onChange={(event) => setPropagationInput(event.target.value as PropagationInput)} className="block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-input-bg)] px-3 py-2"><option value="length">{copy.lengthLabel}</option><option value="angle">{copy.angleInputLabel}</option><option value="delay">{copy.delayInputLabel}</option></select></label>
           <CalculatorField id="rf-frequency" label={copy.frequencyLabel} value={frequency} onChange={(event) => setFrequency(event.target.value)} unit="Hz" />
           <CalculatorField id="rf-er" label={copy.permittivityLabel} value={er} onChange={(event) => setEr(event.target.value)} />
           <CalculatorField id="rf-vf" label={copy.velocityFactorLabel} value={velocityFactor} onChange={(event) => setVelocityFactor(event.target.value)} error={error} />
-          <CalculatorField id="rf-length" label={copy.lengthLabel} value={length} onChange={(event) => setLength(event.target.value)} unit="m" />
+          {propagationInput === "length" && <CalculatorField id="rf-length" label={copy.lengthLabel} value={length} onChange={(event) => setLength(event.target.value)} unit="m" />}
+          {propagationInput === "angle" && <CalculatorField id="rf-angle" label={copy.angleInputLabel} value={angle} onChange={(event) => setAngle(event.target.value)} unit="°" />}
+          {propagationInput === "delay" && <CalculatorField id="rf-delay" label={copy.delayInputLabel} value={delay} onChange={(event) => setDelay(event.target.value)} unit="s" />}
         </> : <>
-          <CalculatorField id="rf-real" label={copy.resistanceLabel} value={real} onChange={(event) => setReal(event.target.value)} unit="Ω" />
-          <CalculatorField id="rf-imaginary" label={copy.reactanceLabel} value={imaginary} onChange={(event) => setImaginary(event.target.value)} unit="Ω" />
+          <label className="block space-y-2 text-sm font-medium">{copy.impedanceInputLabel}<select aria-label={copy.impedanceInputLabel} value={impedanceInput} onChange={(event) => { const next = event.target.value as ImpedanceInput; setImpedanceInput(next); setReal(next === "z" ? "50" : next === "y" ? "0.02" : "0"); setImaginary("0"); }} className="block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-input-bg)] px-3 py-2"><option value="z">{copy.zInputLabel}</option><option value="y">{copy.yInputLabel}</option><option value="gamma">{copy.gammaInputLabel}</option></select></label>
+          <CalculatorField id="rf-real" label={impedanceInput === "z" ? copy.resistanceLabel : impedanceInput === "y" ? copy.conductanceLabel : copy.gammaRealLabel} value={real} onChange={(event) => setReal(event.target.value)} unit={impedanceInput === "z" ? "Ω" : impedanceInput === "y" ? "S" : undefined} />
+          <CalculatorField id="rf-imaginary" label={impedanceInput === "z" ? copy.reactanceLabel : impedanceInput === "y" ? copy.susceptanceLabel : copy.gammaImagLabel} value={imaginary} onChange={(event) => setImaginary(event.target.value)} unit={impedanceInput === "z" ? "Ω" : impedanceInput === "y" ? "S" : undefined} />
           <CalculatorField id="rf-z0" label={copy.referenceLabel} value={z0} onChange={(event) => setZ0(event.target.value)} unit="Ω" error={error} />
         </>}
       </section>
@@ -170,12 +221,14 @@ export function RfQuickCalculatorApp({ copy }: { copy: RfQuickCalculatorCopy }) 
           <Result label={copy.wavelengthLabel}>{formatEngineering(propagation.wavelength, { unit: "m" })}</Result>
           <Result label={copy.halfWavelengthLabel}>{formatEngineering(propagation.half, { unit: "m" })}</Result>
           <Result label={copy.quarterWavelengthLabel}>{formatEngineering(propagation.quarter, { unit: "m" })}</Result>
+          <Result label={copy.lengthLabel}>{formatEngineering(propagation.length, { unit: "m" })}</Result>
           <Result label={copy.delayLabel}>{formatEngineering(propagation.delay, { unit: "s" })}</Result>
           <Result label={copy.electricalAngleLabel}>{decimal(propagation.angle)}°</Result>
         </dl> : <dl className="space-y-4">
           <Result label={copy.impedanceResultLabel}>{complexText(impedance.z, "Ω")}</Result>
           <Result label={copy.admittanceLabel}>{complexText(impedance.y, "S")}</Result>
           <Result label={copy.gammaLabel}>{complexText(impedance.gamma)}</Result>
+          <Result label={copy.normalizedLabel}>z = {complexText({ re: impedance.z.re / impedance.reference, im: impedance.z.im / impedance.reference })} · y = {complexText({ re: impedance.y.re * impedance.reference, im: impedance.y.im * impedance.reference })}</Result>
           <Result label={copy.s11Label}>{finiteOrInfinity(impedance.s11, "dB")}</Result>
           <Result label={copy.vswrLabel}>{finiteOrInfinity(impedance.vswr)}</Result>
           <Result label={copy.returnLossLabel}>{finiteOrInfinity(impedance.returnLoss, "dB")}</Result>

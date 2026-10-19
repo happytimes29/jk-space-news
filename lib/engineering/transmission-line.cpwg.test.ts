@@ -16,8 +16,8 @@ describe("Qucs grounded coplanar waveguide", () => {
     const result = groundedCoplanarWaveguideQucs({ ...example, conductorThicknessM: 35e-6 });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.value.impedanceOhms).toBeGreaterThan(0);
-    expect(Number.isFinite(result.value.effectivePermittivity)).toBe(true);
+    expect(result.value.impedanceOhms).toBeCloseTo(34.483, 3);
+    expect(result.value.effectivePermittivity).toBeCloseTo(2.71389, 5);
   });
 
   it.each([

@@ -30,10 +30,12 @@ export type AttenuatorResult = {
   topology: "tee";
   resistorsOhms: { seriesEach: number; shunt: number };
   estimatedTotalDissipationW?: number;
+  resistorDissipationW?: { inputSeries: number; shunt: number; outputSeries: number };
 } | {
   topology: "pi";
   resistorsOhms: { shuntEach: number; series: number };
   estimatedTotalDissipationW?: number;
+  resistorDissipationW?: { inputShunt: number; series: number; outputShunt: number };
 };
 
 function validateFinite(value: number, field: string): EngineeringResult<number> {
@@ -257,21 +259,45 @@ export function symmetricAttenuator(input: {
     : input.inputPowerWatts * (1 - 10 ** (-input.attenuationDb / 10));
 
   if (input.topology === "tee") {
+    const seriesEach = input.impedanceOhms * (k - 1) / (k + 1);
+    const shunt = 2 * input.impedanceOhms * k / (k ** 2 - 1);
+    let resistorDissipationW: { inputSeries: number; shunt: number; outputSeries: number } | undefined;
+    if (input.inputPowerWatts !== undefined) {
+      const inputVoltageRms = Math.sqrt(input.inputPowerWatts * input.impedanceOhms);
+      const inputCurrentRms = inputVoltageRms / input.impedanceOhms;
+      const centerVoltageRms = inputVoltageRms - inputCurrentRms * seriesEach;
+      const outputBranchCurrentRms = centerVoltageRms / (seriesEach + input.impedanceOhms);
+      resistorDissipationW = {
+        inputSeries: inputCurrentRms ** 2 * seriesEach,
+        shunt: centerVoltageRms ** 2 / shunt,
+        outputSeries: outputBranchCurrentRms ** 2 * seriesEach,
+      };
+    }
     return success({
       topology: "tee",
-      resistorsOhms: {
-        seriesEach: input.impedanceOhms * (k - 1) / (k + 1),
-        shunt: 2 * input.impedanceOhms * k / (k ** 2 - 1),
-      },
+      resistorsOhms: { seriesEach, shunt },
       ...(estimatedTotalDissipationW === undefined ? {} : { estimatedTotalDissipationW }),
+      ...(resistorDissipationW === undefined ? {} : { resistorDissipationW }),
     });
+  }
+  const shuntEach = input.impedanceOhms * (k + 1) / (k - 1);
+  const series = input.impedanceOhms * (k ** 2 - 1) / (2 * k);
+  let resistorDissipationW: { inputShunt: number; series: number; outputShunt: number } | undefined;
+  if (input.inputPowerWatts !== undefined) {
+    const inputVoltageRms = Math.sqrt(input.inputPowerWatts * input.impedanceOhms);
+    const outputParallelOhms = shuntEach * input.impedanceOhms / (shuntEach + input.impedanceOhms);
+    const seriesCurrentRms = inputVoltageRms / (series + outputParallelOhms);
+    const outputVoltageRms = seriesCurrentRms * outputParallelOhms;
+    resistorDissipationW = {
+      inputShunt: inputVoltageRms ** 2 / shuntEach,
+      series: seriesCurrentRms ** 2 * series,
+      outputShunt: outputVoltageRms ** 2 / shuntEach,
+    };
   }
   return success({
     topology: "pi",
-    resistorsOhms: {
-      shuntEach: input.impedanceOhms * (k + 1) / (k - 1),
-      series: input.impedanceOhms * (k ** 2 - 1) / (2 * k),
-    },
+    resistorsOhms: { shuntEach, series },
     ...(estimatedTotalDissipationW === undefined ? {} : { estimatedTotalDissipationW }),
+    ...(resistorDissipationW === undefined ? {} : { resistorDissipationW }),
   });
 }

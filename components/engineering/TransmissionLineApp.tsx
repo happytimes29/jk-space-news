@@ -125,7 +125,7 @@ export function TransmissionLineApp({ copy }: { copy: TransmissionLineCopy }) {
         : { kind: current.kind, ...common, gapM: current.gapM, substrateHeightM: current.substrateHeightM };
     const solved = solveTransmissionLineWidth(solveInput);
     if (!solved.ok) { setError(copy.noSolution); setSolvedWidth(undefined); return; }
-    setError(undefined); setSolvedWidth(solved.value.widthM); setResult(solved.value.result); setWarning(solved.value.result.warnings.some(({ code }) => code === "model_range"));
+    setError(undefined); setWidth(fromMetres(solved.value.widthM, unit)); setSolvedWidth(solved.value.widthM); setResult(solved.value.result); setWarning(solved.value.result.warnings.some(({ code }) => code === "model_range"));
   }
 
   const formula = kind === "microstrip" ? copy.formulaMicrostrip : kind === "stripline" ? copy.formulaStripline : copy.formulaCpwg;
@@ -138,14 +138,14 @@ export function TransmissionLineApp({ copy }: { copy: TransmissionLineCopy }) {
         <Select label={copy.unitLabel} value={unit} onChange={(value) => changeUnit(value as DisplayUnit)} options={[["mm", "mm"], ["mil", "mil"], ["um", "µm"]]} />
         <GeometryDiagram kind={kind} title={copy.diagramTitle} labels={copy.diagram} />
         <div className="grid gap-4 sm:grid-cols-2">
-          <CalculatorField id="tl-width" label={copy.widthLabel} value={width} onChange={(event) => setWidth(event.target.value)} unit={unit === "um" ? "µm" : unit} error={error} />
-          <CalculatorField id="tl-height" label={kind === "stripline" ? copy.planeLabel : copy.heightLabel} value={height} onChange={(event) => setHeight(event.target.value)} unit={unit === "um" ? "µm" : unit} />
-          {kind === "cpwg" && <CalculatorField id="tl-gap" label={copy.gapLabel} value={gap} onChange={(event) => setGap(event.target.value)} unit={unit === "um" ? "µm" : unit} />}
-          <CalculatorField id="tl-thickness" label={copy.thicknessLabel} value={thickness} onChange={(event) => setThickness(event.target.value)} unit={unit === "um" ? "µm" : unit} />
-          <CalculatorField id="tl-er" label={copy.permittivityLabel} value={permittivity} onChange={(event) => setPermittivity(event.target.value)} />
-          <CalculatorField id="tl-frequency" label={copy.frequencyLabel} value={frequency} onChange={(event) => setFrequency(event.target.value)} unit="Hz" />
-          <CalculatorField id="tl-length" label={copy.lengthLabel} value={length} onChange={(event) => setLength(event.target.value)} unit={unit === "um" ? "µm" : unit} />
-          {mode === "target" && <CalculatorField id="tl-target" label={copy.targetLabel} value={target} onChange={(event) => setTarget(event.target.value)} unit="Ω" />}
+          <CalculatorField id="tl-width" label={copy.widthLabel} value={width} onChange={(event) => { setWidth(event.target.value); setSolvedWidth(undefined); }} unit={unit === "um" ? "µm" : unit} error={error} />
+          <CalculatorField id="tl-height" label={kind === "stripline" ? copy.planeLabel : copy.heightLabel} value={height} onChange={(event) => { setHeight(event.target.value); setSolvedWidth(undefined); }} unit={unit === "um" ? "µm" : unit} />
+          {kind === "cpwg" && <CalculatorField id="tl-gap" label={copy.gapLabel} value={gap} onChange={(event) => { setGap(event.target.value); setSolvedWidth(undefined); }} unit={unit === "um" ? "µm" : unit} />}
+          <CalculatorField id="tl-thickness" label={copy.thicknessLabel} value={thickness} onChange={(event) => { setThickness(event.target.value); setSolvedWidth(undefined); }} unit={unit === "um" ? "µm" : unit} />
+          <CalculatorField id="tl-er" label={copy.permittivityLabel} value={permittivity} onChange={(event) => { setPermittivity(event.target.value); setSolvedWidth(undefined); }} />
+          <CalculatorField id="tl-frequency" label={copy.frequencyLabel} value={frequency} onChange={(event) => { setFrequency(event.target.value); setSolvedWidth(undefined); }} unit="Hz" />
+          <CalculatorField id="tl-length" label={copy.lengthLabel} value={length} onChange={(event) => { setLength(event.target.value); setSolvedWidth(undefined); }} unit={unit === "um" ? "µm" : unit} />
+          {mode === "target" && <CalculatorField id="tl-target" label={copy.targetLabel} value={target} onChange={(event) => { setTarget(event.target.value); setSolvedWidth(undefined); }} unit="Ω" />}
         </div>
         {mode === "target" && <button type="button" onClick={solve} className="w-full rounded-lg bg-[var(--color-accent)] px-4 py-2 font-medium text-white">{copy.solveLabel}</button>}
         {solvedWidth !== undefined && <p className="font-medium">{copy.solvedWidthLabel}: {fromMetres(solvedWidth, unit)} {unit === "um" ? "µm" : unit}</p>}

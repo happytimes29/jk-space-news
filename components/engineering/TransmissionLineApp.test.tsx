@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { TransmissionLineApp, type TransmissionLineCopy } from "./TransmissionLineApp";
 
 const copy: TransmissionLineCopy = {
-  inputTitle: "Geometry", modelLabel: "Model", microstripLabel: "Microstrip", striplineLabel: "Stripline", cpwgLabel: "Grounded CPW", modeLabel: "Mode", forwardLabel: "Analyze", targetModeLabel: "Target impedance", unitLabel: "Display unit", widthLabel: "Width", heightLabel: "Substrate height", planeLabel: "Plane separation", gapLabel: "Gap", thicknessLabel: "Copper thickness", permittivityLabel: "Relative permittivity", frequencyLabel: "Frequency", lengthLabel: "Length", targetLabel: "Target impedance", solveLabel: "Solve width", solvedWidthLabel: "Solved width", resultTitle: "Results", impedanceLabel: "Impedance", effectivePermittivityLabel: "Effective permittivity", velocityLabel: "Phase velocity", wavelengthLabel: "Wavelength", delayLabel: "Delay per metre", angleLabel: "Electrical angle", warningLabel: "Outside recommended model range.", invalidInput: "Check the geometry.", noSolution: "No bounded width solution.", formulaMicrostrip: "Hammerstad-Jensen quasi-static", formulaStripline: "Wheeler 1965 symmetric", formulaCpwg: "Qucs 12.10-12.18", privacyNote: "Browser-only ideal model.", diagramTitle: "Geometry diagram", diagram: { width: "W", thickness: "t", height: "h", planes: "b", gap: "s" },
+  inputTitle: "Geometry", modelLabel: "Model", microstripLabel: "Microstrip", striplineLabel: "Stripline", cpwgLabel: "Grounded CPW", modeLabel: "Mode", forwardLabel: "Analyze", targetModeLabel: "Target impedance", unitLabel: "Display unit", widthLabel: "Width", heightLabel: "Substrate height", planeLabel: "Plane separation", gapLabel: "Gap", thicknessLabel: "Copper thickness", permittivityLabel: "Relative permittivity", frequencyLabel: "Frequency", lengthLabel: "Length", targetLabel: "Target impedance", solveLabel: "Solve width", solvedWidthLabel: "Solved width", resultTitle: "Results", impedanceLabel: "Impedance", effectivePermittivityLabel: "Effective permittivity", velocityLabel: "Phase velocity", wavelengthLabel: "Wavelength", delayLabel: "Delay per metre", angleLabel: "Electrical angle", warningLabel: "Outside recommended model range.", invalidInput: "Check the geometry.", noSolution: "No bounded width solution.", formulaMicrostrip: "Hammerstad-Jensen quasi-static", formulaStripline: "Steer 3.7.1 finite-thickness centered stripline", formulaCpwg: "Qucs 12.10-12.18", privacyNote: "Browser-only ideal model.", diagramTitle: "Geometry diagram", diagram: { width: "W", thickness: "t", height: "h", planes: "b", gap: "s" },
 };
 
 beforeEach(() => window.history.replaceState({}, "", "/tools/transmission-line/app"));
@@ -52,6 +52,21 @@ describe("TransmissionLineApp", () => {
     fireEvent.change(screen.getByLabelText("Width"), { target: { value: "-1" } });
     expect(await screen.findByText(copy.invalidInput)).toBeVisible();
     expect(screen.getByTestId("impedance-value").textContent).toBe(before === screen.getByTestId("impedance-value").textContent ? before : screen.getByTestId("impedance-value").textContent);
+    expect(screen.queryByText(/Solved width/)).not.toBeInTheDocument();
+  });
+
+  it("invalidates a solved width when target or physical inputs change", async () => {
+    render(<TransmissionLineApp copy={copy} />);
+    fireEvent.change(screen.getByLabelText("Mode"), { target: { value: "target" } });
+    fireEvent.click(screen.getByRole("button", { name: "Solve width" }));
+    expect(await screen.findByText(/Solved width/)).toBeVisible();
+
+    fireEvent.change(screen.getByLabelText("Target impedance"), { target: { value: "60" } });
+    expect(screen.queryByText(/Solved width/)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Solve width" }));
+    expect(await screen.findByText(/Solved width/)).toBeVisible();
+    fireEvent.change(screen.getByLabelText("Relative permittivity"), { target: { value: "4.1" } });
     expect(screen.queryByText(/Solved width/)).not.toBeInTheDocument();
   });
 

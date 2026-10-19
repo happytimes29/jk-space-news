@@ -5,7 +5,7 @@ summary: "Enter a complex impedance at one frequency, inspect Z, Y, Γ, and comp
 status: experimental
 privacy: All values and network steps are calculated in the browser and are not sent to a server.
 inputTypes: [Single frequency, Complex load impedance, Reference impedance, Ideal RLC components]
-outputTypes: [Smith paths, Z/Y/Γ and reflection metrics, L match and E24 values]
+outputTypes: [Smith paths, Z/Y/Γ and reflection metrics, L match and E12/E24/E48/E96 values]
 updatedAt: 2026-10-19
 appUrl: /tools/smith-chart/app
 localizedApp: true
@@ -23,7 +23,7 @@ The default example is 1 GHz, a 50 Ω system, and a 25+j0 Ω load. Adding ideal 
 
 ## L matching and preferred values
 
-The L-match solver finds ideal low-pass and high-pass solutions at the selected frequency, then separately displays re-evaluated E24 values. Apply either result to inspect both component trajectories and the remaining mismatch.
+The L-match solver finds ideal low-pass and high-pass solutions at the selected frequency, then separately displays re-evaluated preferred values from a selectable E12, E24, E48, or E96 series. Apply either result to inspect both component trajectories and the remaining mismatch.
 
 ## Assumptions, privacy, and limits
 

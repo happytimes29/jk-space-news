@@ -1,5 +1,5 @@
 import { solveBisection } from "./numerics";
-import { groundedCoplanarWaveguideQucs, microstripHammerstadJensen, symmetricStriplineWheeler, type TransmissionLineResult } from "./transmission-line";
+import { groundedCoplanarWaveguideQucs, microstripHammerstadJensen, symmetricStriplineFiniteThickness, type TransmissionLineResult } from "./transmission-line";
 import { failure, success, type EngineeringResult } from "./types";
 
 interface CommonInput {
@@ -24,7 +24,7 @@ export type TransmissionLineSolveInput =
 export function analyzeTransmissionLine(input: TransmissionLineInput): EngineeringResult<TransmissionLineResult> {
   const common = { widthM: input.widthM, conductorThicknessM: input.conductorThicknessM, relativePermittivity: input.relativePermittivity, frequencyHz: input.frequencyHz, lengthM: input.lengthM };
   if (input.kind === "microstrip") return microstripHammerstadJensen({ ...common, substrateHeightM: input.substrateHeightM });
-  if (input.kind === "stripline") return symmetricStriplineWheeler({ ...common, planeSeparationM: input.planeSeparationM });
+  if (input.kind === "stripline") return symmetricStriplineFiniteThickness({ ...common, planeSeparationM: input.planeSeparationM });
   return groundedCoplanarWaveguideQucs({ ...common, gapM: input.gapM, substrateHeightM: input.substrateHeightM });
 }
 

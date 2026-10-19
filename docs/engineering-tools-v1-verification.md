@@ -20,9 +20,9 @@ Traditional Chinese originals are published content. Simplified Chinese and Engl
 ## Formula and model references
 
 - General RF: exact complex arithmetic, reflection coefficient, wavelength, and ideal lumped RLC equations documented in the source tests.
-- Smith chart: `Γ=(Z-Z0)/(Z+Z0)`, single-frequency ideal series/shunt network paths, analytic L-match synthesis, and separately re-evaluated E24 component choices.
+- Smith chart: `Γ=(Z-Z0)/(Z+Z0)`, single-frequency ideal series/shunt network paths, analytic L-match synthesis, and separately re-evaluated selectable E12/E24/E48/E96 component choices.
 - Microstrip: Hammerstad–Jensen 1980 quasi-static equations with finite-thickness correction; no Kirschning–Jansen dispersion.
-- Symmetric Stripline: Wheeler 1965 centered geometry and finite-thickness effective width.
+- Symmetric Stripline: Steer equations (3.42)–(3.44), centered geometry with finite-thickness effective width and edge fringing.
 - Grounded CPW: [Qucs Technical Guide equations (12.10)–(12.18)](https://qucs.sourceforge.net/tech/node86.html); no equation (12.19+) dispersion.
 - Complete elliptic integrals: arithmetic–geometric mean using elliptic modulus `k`; width synthesis uses bounded bisection and returns `no_bracket` outside the interval.
 
@@ -53,12 +53,10 @@ At the final integration checkpoint:
 - Numeric primitives: 8 tests passed.
 - Transmission-line forward models: 29 tests passed.
 - Transmission-line solver and application focused suite: 45 tests passed.
-- Smith integration checkpoint: 64 test files / 413 tests passed; production build succeeded.
-- Smith-era full Playwright suite: 47/47 passed.
-- Engineering-focused Vitest suite: 32 files / 245 tests passed.
-- Full Vitest suite: 71 files / 467 tests passed.
-- Transmission Line Preview Playwright: 12/12 passed, including forward/reverse and unit/query/locale scenarios.
-- Full Playwright suite: 50/50 passed.
+- Engineering-focused Vitest suite after independent-review fixes: 28 files / 211 tests passed.
+- Full Vitest suite: 71 files / 479 tests passed.
+- Engineering Preview Playwright: 13/13 passed, including share-URL hydration, nonblank PNG export, forward/reverse transmission-line solving, and unit/query/locale scenarios.
+- Full Playwright suite: 51/51 passed.
 - Production build succeeded and static generation completed 45/45 pages.
 
 ## Preview surface checks
@@ -67,9 +65,9 @@ At the final integration checkpoint:
 - Keyboard operation: direct keyboard editing and select/button flows passed.
 - Traditional Chinese, Simplified Chinese, and English copy: Preview routes returned 200 and localized headings.
 - Light/dark contrast: uses existing design tokens; no fixed low-contrast foreground was introduced.
-- Smith SVG/PNG: accessible SVG labels/table and browser PNG download passed.
+- Smith SVG/PNG: accessible SVG labels/table, browser PNG download, and a non-white pixel-content assertion passed.
 - Geometry SVGs: W/t/h, plane separation b, and CPWG gap s labels passed accessible-role tests.
-- Share URL restore: Smith ordered steps and canonical SI transmission geometry survived reload.
+- Share URL restore: Converter, passive, RF, Smith ordered steps, and canonical SI transmission geometry survived reload without hydration errors.
 - Network privacy: browser tests observed no calculation XHR/fetch payload; analytics assertion rejects numeric Smith inputs.
 
 ## Known limitations

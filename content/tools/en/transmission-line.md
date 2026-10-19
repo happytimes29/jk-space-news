@@ -23,7 +23,7 @@ Forward mode reports characteristic impedance, effective permittivity, phase vel
 
 ## Formula versions and examples
 
-Microstrip uses Hammerstad–Jensen quasi-static equations with finite-thickness correction; centered Stripline uses Wheeler 1965; CPWG uses Qucs Technical Guide equations (12.10)–(12.18) and excludes dispersion from (12.19) onward. With the default FR-4-like 4.3 and 1 GHz examples, the 3.0 mm / 1.6 mm Microstrip is near 50 Ω, the 0.75 mm / 1.6 mm Stripline is near 50 Ω, and the 3.0 mm trace with 0.2 mm CPWG gaps is about 35–36 Ω.
+Microstrip uses Hammerstad–Jensen quasi-static equations with finite-thickness correction; centered Stripline uses Steer section 3.7.1 equations (3.42)–(3.44); CPWG uses Qucs Technical Guide equations (12.10)–(12.18) and excludes dispersion from (12.19) onward. With the default FR-4-like 4.3 and 1 GHz examples, the 3.0 mm / 1.6 mm Microstrip is near 50 Ω, the 0.75 mm / 1.6 mm Stripline is about 47 Ω, and the 3.0 mm trace with 0.2 mm CPWG gaps is about 34.5 Ω.
 
 ## Ranges, privacy, and limitations
 

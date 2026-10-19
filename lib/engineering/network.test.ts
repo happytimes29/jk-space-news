@@ -80,6 +80,22 @@ describe("Smith path sampling", () => {
     expect(sampled.value.every(({ x, y }) => Number.isFinite(x) && Number.isFinite(y))).toBe(true);
   });
 
+  it.each([
+    step("series", "R", 10),
+    step("series", "L", 3.978873577e-9),
+    step("series", "C", 6.366197724e-12),
+    step("shunt", "R", 100),
+    step("shunt", "L", 7.957747155e-9),
+    step("shunt", "C", 3.183098862e-12),
+  ])("starts every %s %s trajectory at the preceding network state", (component) => {
+    const load = { re: 25, im: 10 };
+    const sampled = sampleNetworkStep(load, component, ghz, 50);
+    expect(sampled).toMatchObject({ ok: true });
+    if (!sampled.ok) return;
+    expect(sampled.value[0].impedance.re).toBeCloseTo(load.re, 12);
+    expect(sampled.value[0].impedance.im).toBeCloseTo(load.im, 12);
+  });
+
   it("rejects an unusable sample count", () => {
     expect(sampleNetworkStep({ re: 50, im: 0 }, step("series", "R", 10), ghz, 50, 1)).toMatchObject({ ok: false });
   });

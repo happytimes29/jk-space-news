@@ -27,6 +27,27 @@ test("converter calculates, recovers from invalid input, and restores query stat
   await expect(page.getByRole("region", { name: "計算結果" })).toContainText("2.2 Ω");
 });
 
+test("shareable calculator URLs hydrate without errors and survive reloads", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+
+  for (const [route, activeTab] of [
+    ["/tools/engineering-converter/app?mode=rf&value=10&from=dBm&impedance=75", "RF 功率"],
+    ["/tools/passive-circuit-calculator/app?mode=attenuator&attenuation=6&z0=50&topology=pi&inputPower=1", "衰減器"],
+    ["/tools/rf-calculator/app?mode=impedance&impedanceInput=gamma&real=-0.3333333333&imaginary=0&z0=50", "阻抗與反射"],
+  ]) {
+    await page.goto(route);
+    await expect(page.getByRole("tab", { selected: true })).toHaveText(activeTab);
+    await page.reload();
+    await expect(page.getByRole("tab", { selected: true })).toHaveText(activeTab);
+  }
+
+  expect(errors.filter((message) => /hydration|did not match|uncaught/i.test(message))).toEqual([]);
+});
+
 test("passive and RF examples calculate locally without value network requests", async ({ page }) => {
   for (const [route, tab, expected] of [
     ["/tools/passive-circuit-calculator/app", "RC", "1.59155 kHz"],
@@ -54,6 +75,15 @@ test("Smith chart edits a network, restores its query, solves matches, and expor
     if (url.pathname.startsWith("/_vercel/insights/")) analyticsPayloads.push(request.postData() ?? "");
     else if (["fetch", "xhr"].includes(request.resourceType())) unexpected.push(request.url());
   });
+  await page.addInitScript(() => {
+    const exportWindow = window as typeof window & { __smithExportBlobs?: Blob[] };
+    const nativeCreateObjectUrl = URL.createObjectURL.bind(URL);
+    exportWindow.__smithExportBlobs = [];
+    URL.createObjectURL = (blob: Blob | MediaSource) => {
+      if (blob instanceof Blob) exportWindow.__smithExportBlobs?.push(blob);
+      return nativeCreateObjectUrl(blob);
+    };
+  });
   await page.goto("/tools/smith-chart/app");
   await page.getByLabel("負載電阻 R").fill("50");
   await page.getByLabel("負載電抗 X").fill("50");
@@ -77,13 +107,39 @@ test("Smith chart edits a network, restores its query, solves matches, and expor
   await page.getByRole("button", { name: "求解 L 型匹配" }).click();
   await expect(page.getByRole("heading", { name: "低通型" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "高通型" })).toBeVisible();
-  await expect(page.getByText("E24 標準值").first()).toBeVisible();
+  await expect(page.getByText("標準值系列: E24").first()).toBeVisible();
   await page.getByRole("button", { name: "套用方案" }).first().click();
   await expect(page.getByText(/步驟 2/)).toBeVisible();
 
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "匯出 PNG" }).click();
   await expect((await download).suggestedFilename()).toBe("smith-chart.png");
+  const nonWhitePixels = await page.evaluate(async () => {
+    const exportWindow = window as typeof window & { __smithExportBlobs?: Blob[] };
+    const png = [...(exportWindow.__smithExportBlobs ?? [])].reverse().find((blob) => blob.type === "image/png");
+    if (!png) return 0;
+    const url = URL.createObjectURL(png);
+    try {
+      const image = new Image();
+      image.src = url;
+      await image.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const context = canvas.getContext("2d");
+      if (!context) return 0;
+      context.drawImage(image, 0, 0);
+      const pixels = context.getImageData(0, 0, 1024, 1024).data;
+      let count = 0;
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index] < 245 || pixels[index + 1] < 245 || pixels[index + 2] < 245) count += 1;
+      }
+      return count;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  });
+  expect(nonWhitePixels).toBeGreaterThan(10_000);
   expect(unexpected).toEqual([]);
   expect(analyticsPayloads.join(" ")).not.toMatch(/(?:25|50|1000000000|step\d|frequency|reference)/i);
 });
@@ -111,7 +167,7 @@ test("Transmission Line analyzes and synthesizes all three geometry models", asy
     if (!url.pathname.startsWith("/_vercel/insights/") && ["fetch", "xhr"].includes(request.resourceType())) unexpected.push(request.url());
   });
   await page.goto("/tools/transmission-line/app");
-  for (const [kind, formula] of [["microstrip", "Hammerstad–Jensen"], ["stripline", "Wheeler 1965"], ["cpwg", "Qucs 技術指南"]]) {
+  for (const [kind, formula] of [["microstrip", "Hammerstad–Jensen"], ["stripline", "Steer 3.7.1"], ["cpwg", "Qucs 技術指南"]]) {
     await page.getByLabel("模型", { exact: true }).selectOption(kind);
     await expect(page.getByText(new RegExp(formula))).toBeVisible();
     const impedance = Number((await page.getByTestId("impedance-value").textContent())?.split(" ")[0]);

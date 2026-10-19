@@ -17,31 +17,36 @@ export function AttenuatorMode({ copy, initial, onStateChange }: PassiveModeProp
   const [attenuation, setAttenuation] = useState(initial.attenuation ?? "6");
   const [z0, setZ0] = useState(initial.z0 ?? "50");
   const [topology, setTopology] = useState<"tee" | "pi">(initial.topology === "pi" ? "pi" : "tee");
+  const [inputPower, setInputPower] = useState(initial.inputPower ?? "1");
   const [error, setError] = useState<string>();
   const [result, setResult] = useState<AttenuatorResult>(initialResult);
 
   useEffect(() => {
-    onStateChange({ attenuation, z0, topology });
+    onStateChange({ attenuation, z0, topology, inputPower });
     const attenuationDb = parsed(attenuation);
     const impedanceOhms = parsed(z0);
-    if (attenuationDb === undefined || impedanceOhms === undefined) {
+    const inputPowerWatts = parsed(inputPower);
+    if (attenuationDb === undefined || impedanceOhms === undefined || inputPowerWatts === undefined) {
       setError(copy.errorLabel);
       return;
     }
-    const next = symmetricAttenuator({ topology, attenuationDb, impedanceOhms });
+    const next = symmetricAttenuator({ topology, attenuationDb, impedanceOhms, inputPowerWatts });
     if (!next.ok) {
       setError(copy.errorLabel);
       return;
     }
     setError(undefined);
     setResult(next.value);
-  }, [attenuation, copy.errorLabel, onStateChange, topology, z0]);
+  }, [attenuation, copy.errorLabel, inputPower, onStateChange, topology, z0]);
 
   return <ModeLayout inputTitle={copy.inputTitle} resultTitle={copy.resultTitle} inputs={<>
     <CalculatorField id="attenuation-db" label={copy.attenuationLabel} value={attenuation} onChange={(event) => setAttenuation(event.target.value)} unit="dB" error={error} />
     <CalculatorField id="attenuator-z0" label={copy.impedanceLabel} value={z0} onChange={(event) => setZ0(event.target.value)} unit="Ω" error={error} />
+    <CalculatorField id="attenuator-power" label={copy.inputPowerLabel} value={inputPower} onChange={(event) => setInputPower(event.target.value)} unit="W" error={error} />
     <SelectField label={copy.topologyLabel} value={topology} onChange={(value) => setTopology(value as "tee" | "pi")}><option value="tee">{copy.teeLabel}</option><option value="pi">{copy.piLabel}</option></SelectField>
   </>} results={<div className="space-y-4"><p className="font-semibold">{result.topology === "tee" ? copy.teeLabel : copy.piLabel}</p><dl className="space-y-4">
     {result.topology === "tee" ? <><ResultRow label="R series × 2">{formatEngineering(result.resistorsOhms.seriesEach, { unit: "Ω" })}</ResultRow><ResultRow label="R shunt">{formatEngineering(result.resistorsOhms.shunt, { unit: "Ω" })}</ResultRow></> : <><ResultRow label="R shunt × 2">{formatEngineering(result.resistorsOhms.shuntEach, { unit: "Ω" })}</ResultRow><ResultRow label="R series">{formatEngineering(result.resistorsOhms.series, { unit: "Ω" })}</ResultRow></>}
+    {result.estimatedTotalDissipationW !== undefined && <ResultRow label={copy.totalDissipationLabel}>{formatEngineering(result.estimatedTotalDissipationW, { unit: "W" })}</ResultRow>}
+    {result.resistorDissipationW && <ResultRow label={copy.resistorPowerLabel}>{Object.entries(result.resistorDissipationW).map(([name, watts]) => `${name}: ${formatEngineering(watts, { unit: "W" })}`).join(" · ")}</ResultRow>}
   </dl></div>} />;
 }

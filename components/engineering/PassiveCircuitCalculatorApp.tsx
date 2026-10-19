@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { decodeToolState, encodeToolState } from "@/lib/engineering/query-state";
 import { AttenuatorMode } from "./passive/AttenuatorMode";
 import { DividerMode } from "./passive/DividerMode";
@@ -17,28 +17,31 @@ const MODES: Array<{ mode: PassiveMode; label: keyof PassiveCircuitCopy }> = [
   { mode: "reactance", label: "reactanceTab" },
   { mode: "attenuator", label: "attenuatorTab" },
 ];
-const STATE_KEYS = ["mode", "vin", "target", "series", "load", "r", "l", "c", "f", "circuit", "attenuation", "z0", "topology"] as const;
-
-function savedState() {
-  if (typeof window === "undefined") return {};
-  return decodeToolState(window.location.search, STATE_KEYS);
-}
+const STATE_KEYS = ["mode", "dividerMode", "vin", "target", "series", "load", "rTop", "rBottom", "tolerance", "r", "l", "c", "f", "circuit", "attenuation", "z0", "topology", "inputPower"] as const;
 
 function isMode(value: string | undefined): value is PassiveMode {
   return MODES.some(({ mode }) => mode === value);
 }
 
 export function PassiveCircuitCalculatorApp({ copy }: { copy: PassiveCircuitCopy }) {
-  const initial = useMemo(savedState, []);
-  const [mode, setMode] = useState<PassiveMode>(isMode(initial.mode) ? initial.mode : "divider");
+  const [initial, setInitial] = useState<Record<string, string>>({});
+  const [mode, setMode] = useState<PassiveMode>("divider");
   const [activeState, setActiveState] = useState<Record<string, string | number | boolean>>({});
+  const [hydrated, setHydrated] = useState(false);
   const updateState = useCallback((state: Record<string, string | number | boolean>) => setActiveState(state), []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    const saved = decodeToolState(window.location.search, STATE_KEYS);
+    setInitial(saved);
+    setMode(isMode(saved.mode) ? saved.mode : "divider");
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
     const query = encodeToolState({ mode, ...activeState });
     window.history.replaceState(window.history.state, "", `${window.location.pathname}?${query}${window.location.hash}`);
-  }, [activeState, mode]);
+  }, [activeState, hydrated, mode]);
 
   function selectMode(next: PassiveMode) {
     setActiveState({});

@@ -134,7 +134,7 @@ slug 為 `transmission-line`，第一版包含：
 第一版只做準靜態閉式公式的初步估算，不計算粗糙度、頻散、表面處理、銅箔梯形、阻焊、連接器、轉角、過孔或完整導體／介質損耗。固定使用下列模型，程式註解、工具說明及基準測試必須指向同一來源，不能混用未標明來源的網路公式：
 
 - Microstrip：Hammerstad–Jensen 的準靜態特性阻抗、有效介電常數及有限導體厚度修正；不套用 Kirschning–Jansen 或其他頻散模型。
-- 對稱 Stripline：H. A. Wheeler 1965 年〈Transmission-Line Properties of Parallel Strips Separated by a Dielectric Sheet〉的分析／合成近似，包含有限導體厚度；只接受導體位於兩接地平面中央的對稱結構。
+- 對稱 Stripline：Michael Steer《Microwave and RF Design II》3.7.1 節、式 (3.42)–(3.44) 的有限導體厚度 closed-form；只接受導體位於兩接地平面中央的對稱結構。此項在獨立審查後取代原先不符合該 shielded-stripline 幾何的 Wheeler 1965 引用。
 - CPWG：Qucs Technical Guide 第 12.1.2–12.1.3 節、式 (12.10)–(12.18) 的有限厚度介質、背面接地、準靜態 conformal-mapping 模型與一階導體厚度修正；不加入該文件第 12.1.4 節的頻散式。
 
 ## 4. 資訊架構與內容模型
@@ -308,7 +308,7 @@ slug 為 `transmission-line`，第一版包含：
 ## 15. 計算模型參考
 
 - E. Hammerstad and Ø. Jensen, “Accurate Models for Microstrip Computer-Aided Design,” 1980 IEEE MTT-S International Microwave Symposium Digest。
-- H. A. Wheeler, “Transmission-Line Properties of Parallel Strips Separated by a Dielectric Sheet,” *IEEE Transactions on Microwave Theory and Techniques*, vol. 13, no. 2, 1965, DOI `10.1109/TMTT.1965.1125962`。
+- Michael Steer, *Microwave and RF Design II — Transmission Lines*, §3.7.1 “Characteristic Impedance of a Stripline,” equations (3.42)–(3.44), https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/Microwave_and_RF_Design_II_-_Transmission_Lines_%28Steer%29/03%3A_Planar_Transmission_Lines/3.07%3A_Stripline 。
 - Qucs Technical Guide，Chapter 11「Microstrip components」與 Chapter 12「Coplanar components」：`https://qucs.github.io/docs/technical/technical.pdf`。
 
 參考工具只能用於交叉比對，不能取代上述固定模型成為未版本化的計算依賴。若參考工具與本站結果不同，驗收應先比較幾何定義、導體厚度、介質模型及頻散設定，而不是直接把本站公式調到相同數字。

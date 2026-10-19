@@ -73,7 +73,7 @@ export function microstripHammerstadJensen(input: {
   return propagation({ effectivePermittivity, impedanceOhms, frequencyHz: input.frequencyHz, lengthM: input.lengthM, warnings });
 }
 
-export function symmetricStriplineWheeler(input: {
+export function symmetricStriplineFiniteThickness(input: {
   widthM: number;
   planeSeparationM: number;
   conductorThicknessM: number;
@@ -85,14 +85,20 @@ export function symmetricStriplineWheeler(input: {
   if (input.widthM <= 0 || input.planeSeparationM <= 0 || input.conductorThicknessM <= 0 || input.frequencyHz <= 0 || input.lengthM < 0) return failure("non_positive");
   if (input.relativePermittivity < 1) return failure("out_of_range", "relativePermittivity");
   if (input.conductorThicknessM >= input.planeSeparationM) return failure("unsupported_geometry", "conductorThicknessM");
-  const ratio = input.widthM / input.planeSeparationM;
-  const thicknessCorrection = input.conductorThicknessM / Math.PI
-    * (1 + Math.log(4 * Math.PI * input.widthM / input.conductorThicknessM));
-  const effectiveWidth = input.widthM + thicknessCorrection;
+  // Steer, Microwave and RF Design II, eqs. 3.42–3.44: centered
+  // homogeneous stripline with finite conductor thickness.
+  const normalizedWidth = input.widthM / input.planeSeparationM;
+  const normalizedThickness = input.conductorThicknessM / input.planeSeparationM;
+  const effectiveNormalizedWidth = normalizedWidth < 0.35
+    ? normalizedWidth - (0.35 - normalizedWidth) ** 2 / (1 + 12 * normalizedThickness)
+    : normalizedWidth;
+  const fringeCapacitance = 2 / Math.PI * Math.log(1 / (1 - normalizedThickness) + 1)
+    - normalizedThickness / Math.PI * Math.log(1 / (1 - normalizedThickness) ** 2 - 1);
   const impedanceOhms = 30 * Math.PI / Math.sqrt(input.relativePermittivity)
-    / (effectiveWidth / input.planeSeparationM + 0.441);
-  const warnings: EngineeringWarning[] = ratio < 0.1 || ratio > 2
-    ? [{ code: "model_range", field: "widthM", details: { ratio } }]
+    * (1 - normalizedThickness) / (effectiveNormalizedWidth + fringeCapacitance);
+  const widthToClearance = input.widthM / (input.planeSeparationM - input.conductorThicknessM);
+  const warnings: EngineeringWarning[] = widthToClearance <= 0.05 || normalizedThickness >= 0.025
+    ? [{ code: "model_range", field: widthToClearance <= 0.05 ? "widthM" : "conductorThicknessM", details: { widthToClearance, normalizedThickness } }]
     : [];
   return propagation({ effectivePermittivity: input.relativePermittivity, impedanceOhms, frequencyHz: input.frequencyHz, lengthM: input.lengthM, warnings });
 }
@@ -130,8 +136,9 @@ export function groundedCoplanarWaveguideQucs(input: {
   if (!q3.ok) return q3;
   let impedanceRatio = q1.value;
   // Qucs (12.11) and (12.10).
-  let fillingFactor = q3.value / (q1.value + q3.value);
-  let effectivePermittivity = 1 + fillingFactor * (input.relativePermittivity - 1);
+  const fillingFactor = q3.value / (q1.value + q3.value);
+  const zeroThicknessPermittivity = 1 + fillingFactor * (input.relativePermittivity - 1);
+  let effectivePermittivity = zeroThicknessPermittivity;
 
   if (input.conductorThicknessM > 0) {
     // Qucs (12.14)–(12.17): first-order effective gap and width.
@@ -144,10 +151,9 @@ export function groundedCoplanarWaveguideQucs(input: {
     const effectiveRatio = ellipticRatio(effectiveModulus);
     if (!effectiveRatio.ok) return effectiveRatio;
     impedanceRatio = effectiveRatio.value;
-    fillingFactor = q3.value / (effectiveRatio.value + q3.value);
-    effectivePermittivity = 1 + fillingFactor * (input.relativePermittivity - 1);
-    // Qucs (12.18): dielectric correction retains the original k1 ratio.
-    effectivePermittivity -= 0.7 * (effectivePermittivity - 1) * input.conductorThicknessM / input.gapM
+    // Qucs (12.18) corrects the zero-thickness permittivity from (12.10)–(12.12).
+    effectivePermittivity = zeroThicknessPermittivity
+      - 0.7 * (zeroThicknessPermittivity - 1) * input.conductorThicknessM / input.gapM
       / (q1.value + 0.7 * input.conductorThicknessM / input.gapM);
   }
 

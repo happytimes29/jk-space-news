@@ -39,6 +39,21 @@ const copy: PassiveCircuitCopy = {
   actualOutputLabel: "Actual output",
   errorLabel: "Check the highlighted input values.",
   noSolutionLabel: "No practical solution for these inputs.",
+  dividerModeLabel: "Divider workflow",
+  designLabel: "Design values",
+  evaluateLabel: "Evaluate R1/R2",
+  topResistanceLabel: "Top resistance R1",
+  bottomResistanceLabel: "Bottom resistance R2",
+  toleranceLabel: "Resistance tolerance",
+  branchCurrentLabel: "Branch current",
+  topPowerLabel: "R1 power",
+  bottomPowerLabel: "R2 power",
+  worstCaseLabel: "Worst-case output",
+  relativeErrorLabel: "Relative error",
+  candidateListLabel: "Ranked candidates",
+  inputPowerLabel: "Input power",
+  totalDissipationLabel: "Total resistor dissipation",
+  resistorPowerLabel: "Per-resistor dissipation",
 };
 
 beforeEach(() => window.history.replaceState({}, "", "/tools/passive-circuit-calculator/app"));
@@ -78,6 +93,20 @@ describe("PassiveCircuitCalculatorApp", () => {
     fireEvent.change(screen.getByLabelText("Topology"), { target: { value: "pi" } });
     expect(await within(result).findByText(/Pi network/)).toBeInTheDocument();
     expect(within(result).getAllByText(/Ω/).every((node) => !node.textContent?.includes("NaN"))).toBe(true);
+    expect(within(result).getByText("Total resistor dissipation")).toBeInTheDocument();
+    expect(within(result).getByText("Per-resistor dissipation")).toBeInTheDocument();
+  });
+
+  it("evaluates entered divider resistors with current, power, and tolerance range", async () => {
+    render(<PassiveCircuitCalculatorApp copy={copy} />);
+    fireEvent.change(screen.getByLabelText("Divider workflow"), { target: { value: "evaluate" } });
+    const result = screen.getByRole("region", { name: "Results" });
+    for (const label of ["Actual output", "Branch current", "R1 power", "R2 power", "Worst-case output"]) {
+      expect(await within(result).findByText(label)).toBeInTheDocument();
+    }
+    fireEvent.change(screen.getByLabelText("Top resistance R1"), { target: { value: "10k" } });
+    fireEvent.change(screen.getByLabelText("Bottom resistance R2"), { target: { value: "10k" } });
+    await waitFor(() => expect(within(result).getByText(/1\.65 V/)).toBeInTheDocument());
   });
 
   it("shows localized errors without replacing the last valid divider result", async () => {

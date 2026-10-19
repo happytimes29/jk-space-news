@@ -18,12 +18,49 @@ function canvasBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Unable to encode PNG")), "image/png"));
 }
 
+const EXPORT_COLOR_FALLBACKS: Record<string, string> = {
+  "--accent-green": "#37805b",
+  "--accent-orange": "#c96f38",
+  "--color-accent": "#9c4f24",
+  "--color-border": "#c9c2b8",
+  "--color-card": "#ffffff",
+  "--color-muted": "#665f56",
+  "--color-text": "#211d16",
+};
+
+function resolvedColor(value: string | null, rootStyle: CSSStyleDeclaration): string | null {
+  if (!value?.includes("var(")) return value;
+  return value.replace(/var\((--[\w-]+)(?:,[^)]+)?\)/g, (_match, name: string) => {
+    const resolved = rootStyle.getPropertyValue(name).trim();
+    return resolved || EXPORT_COLOR_FALLBACKS[name] || "#211d16";
+  });
+}
+
+function inlineSvgColors(source: SVGSVGElement, clone: SVGSVGElement): void {
+  const rootStyle = getComputedStyle(document.documentElement);
+  const sourceNodes = [source, ...source.querySelectorAll<SVGElement>("*")];
+  const cloneNodes = [clone, ...clone.querySelectorAll<SVGElement>("*")];
+  sourceNodes.forEach((node, index) => {
+    const target = cloneNodes[index];
+    if (!target) return;
+    for (const property of ["fill", "stroke", "color"] as const) {
+      const raw = node.getAttribute(property);
+      if (!raw) continue;
+      const computed = getComputedStyle(node)[property];
+      target.setAttribute(property, raw.includes("var(")
+        ? resolvedColor(raw, rootStyle) ?? raw
+        : computed && !computed.includes("var(") ? computed : raw);
+    }
+  });
+  clone.style.background = resolvedColor("var(--color-card)", rootStyle) ?? "#ffffff";
+  clone.style.color = resolvedColor("var(--color-text)", rootStyle) ?? "#211d16";
+}
+
 export async function exportSmithChartPng(svg: SVGSVGElement, summary: SmithExportSummary, filename: string): Promise<void> {
   const clone = svg.cloneNode(true) as SVGSVGElement;
   clone.setAttribute("width", "1024");
   clone.setAttribute("height", "1024");
-  clone.style.background = "#ffffff";
-  clone.style.color = "#211d16";
+  inlineSvgColors(svg, clone);
   const source = new XMLSerializer().serializeToString(clone);
   const svgUrl = URL.createObjectURL(new Blob([source], { type: "image/svg+xml;charset=utf-8" }));
   let pngUrl: string | undefined;

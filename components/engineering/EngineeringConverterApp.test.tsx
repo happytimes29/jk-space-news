@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { EngineeringConverterApp, type EngineeringConverterCopy } from "./EngineeringConverterApp";
 
 const copy: EngineeringConverterCopy = {
@@ -19,7 +19,14 @@ const copy: EngineeringConverterCopy = {
   invalidNumber: "Enter a valid engineering number.",
   invalidImpedance: "Impedance must be positive.",
   incompatibleUnits: "Choose units for the same quantity.",
+  formatLabel: "Output format",
+  decimalFormat: "Decimal",
+  scientificFormat: "Scientific",
+  engineeringFormat: "Engineering",
+  spiceFormat: "SPICE",
 };
+
+beforeEach(() => window.history.replaceState({}, "", "/tools/engineering-converter/app"));
 
 describe("EngineeringConverterApp", () => {
   it("accepts engineering notation and changes display units without changing the SI value", async () => {
@@ -31,6 +38,17 @@ describe("EngineeringConverterApp", () => {
     fireEvent.change(screen.getByLabelText("Value"), { target: { value: "2R2" } });
     await waitFor(() => expect(within(results).getByText("2.2 Ω")).toBeInTheDocument());
     expect(within(results).getByText("0.0022 kΩ")).toBeInTheDocument();
+  });
+
+  it("offers decimal, scientific, engineering, and SPICE output formats", async () => {
+    render(<EngineeringConverterApp copy={copy} />);
+    const results = screen.getByRole("region", { name: "Results" });
+    fireEvent.change(screen.getByLabelText("Output format"), { target: { value: "scientific" } });
+    expect(within(results).getByText(/4\.7e\+3 Ω/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Output format"), { target: { value: "engineering" } });
+    expect(within(results).getByText(/4\.7 k Ω/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Output format"), { target: { value: "spice" } });
+    expect(within(results).getByText(/4\.7k Ω/)).toBeInTheDocument();
   });
 
   it("converts RF power at the selected impedance", async () => {

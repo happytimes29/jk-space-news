@@ -16,7 +16,7 @@
 
 - Models are lossless quasi-static estimates only; do not add dispersion, roughness, solder mask, trapezoidal copper, finish, discontinuities, vias, connectors, or full conductor/dielectric loss.
 - Microstrip uses Hammerstad–Jensen quasi-static impedance/effective-permittivity plus its finite-thickness correction, without Kirschning–Jansen dispersion.
-- Symmetric Stripline uses Wheeler 1965 and rejects off-center/asymmetric geometry.
+- Symmetric Stripline uses Michael Steer's finite-thickness centered-stripline equations (3.42)–(3.44) and rejects off-center/asymmetric geometry.
 - CPWG uses Qucs Technical Guide equations (12.10)–(12.18) for finite substrate/backside ground and first-order thickness correction, without equations (12.19) onward.
 - Inputs display mm, mil, or µm but calculation modules receive meters; frequency is hertz and dielectric constant is dimensionless.
 - Reverse solving must report failure and never reuse a previous width when no bounded solution exists.
@@ -109,7 +109,7 @@ git add lib/engineering/transmission-line.ts lib/engineering/transmission-line.m
 git commit -m "feat: add Hammerstad Jensen microstrip model"
 ```
 
-### Task 3: Wheeler symmetric Stripline model
+### Task 3: Finite-thickness symmetric Stripline model
 
 **Files:**
 - Modify: `lib/engineering/transmission-line.ts`
@@ -117,18 +117,18 @@ git commit -m "feat: add Hammerstad Jensen microstrip model"
 - Modify: `docs/engineering/transmission-line-models.md`
 
 **Interfaces:**
-- Produces: `symmetricStriplineWheeler(input: { widthM: number; planeSeparationM: number; conductorThicknessM: number; relativePermittivity: number; frequencyHz: number; lengthM: number }): EngineeringResult<TransmissionLineResult>`.
+- Produces: `symmetricStriplineFiniteThickness(input: { widthM: number; planeSeparationM: number; conductorThicknessM: number; relativePermittivity: number; frequencyHz: number; lengthM: number }): EngineeringResult<TransmissionLineResult>`.
 
 - [ ] **Step 1: Write failing Stripline reference and domain tests**
 
-For `εr=4.3`, `b=1.6 mm` plane separation, `w=0.75 mm`, `t=35 µm`, and `1 GHz`, assert impedance is between 45 Ω and 55 Ω, `εeff=εr`, and propagation metrics use `c/√εr`. Assert `t>=b`, non-positive geometry/frequency, `εr<1`, and unsupported shape ratios are rejected or warned according to the documented Wheeler validity range.
+For `εr=4.3`, `b=1.6 mm` plane separation, `w=0.10 mm`, `t=35 µm`, and `1 GHz`, assert impedance is approximately `95.207720 Ω`, `εeff=εr`, and propagation metrics use `c/√εr`. Assert `t>=b`, non-positive geometry/frequency, `εr<1`, and unsupported shape ratios are rejected or warned according to the documented validity range.
 
 - [ ] **Step 2: Run the Stripline test and verify failure**
 
 Run: `npm test -- lib/engineering/transmission-line.stripline.test.ts`
-Expected: FAIL because `symmetricStriplineWheeler` does not exist.
+Expected: FAIL because `symmetricStriplineFiniteThickness` does not exist.
 
-- [ ] **Step 3: Implement Wheeler 1965 analysis and document the symmetric geometry**
+- [ ] **Step 3: Implement Steer equations (3.42)–(3.44) and document the symmetric geometry**
 
 The public input has one plane separation and therefore encodes a centered trace only; do not accept top/bottom distances that suggest unsupported asymmetric Stripline.
 
@@ -141,7 +141,7 @@ Expected: PASS.
 
 ```bash
 git add lib/engineering/transmission-line.ts lib/engineering/transmission-line.stripline.test.ts docs/engineering/transmission-line-models.md
-git commit -m "feat: add Wheeler symmetric stripline model"
+git commit -m "feat: add finite thickness symmetric stripline model"
 ```
 
 ### Task 4: Qucs grounded CPW model

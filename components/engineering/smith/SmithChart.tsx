@@ -26,7 +26,7 @@ function coordinate(point: SmithPoint | undefined): string {
   return point ? `${Number(point.x.toPrecision(5))}, ${Number(point.y.toPrecision(5))}` : "—";
 }
 
-export function SmithChart({ mode, paths, activePoint, targetPoint, labels, size = 640 }: { mode: SmithChartMode; paths: SmithPath[]; activePoint: SmithPoint; targetPoint: SmithPoint; labels: SmithChartLabels; size?: number }) {
+export function SmithChart({ mode, paths, activePoint, targetPoint, labels, size = 640, showTable = true }: { mode: SmithChartMode; paths: SmithPath[]; activePoint: SmithPoint; targetPoint: SmithPoint; labels: SmithChartLabels; size?: number; showTable?: boolean }) {
   const clipId = `smith-clip-${useId().replace(/:/g, "")}`;
   const grid = buildSmithGrid(mode);
   return <figure className="space-y-4">
@@ -47,10 +47,10 @@ export function SmithChart({ mode, paths, activePoint, targetPoint, labels, size
       <circle data-marker="load" cx={activePoint.x} cy={activePoint.y} r="0.035" fill="var(--accent-orange)" stroke="var(--color-text)" strokeWidth="0.01"><title>{labels.load}</title></circle>
       <rect data-marker="target" x={targetPoint.x - 0.025} y={targetPoint.y - 0.025} width="0.05" height="0.05" fill="var(--accent-green)" stroke="var(--color-text)" strokeWidth="0.01"><title>{labels.target}</title></rect>
     </svg>
-    <div className="overflow-x-auto"><table aria-label={labels.pathTableTitle} className="w-full text-left text-sm"><thead><tr><th>{labels.pointLabel}</th><th>{labels.startLabel}</th><th>{labels.endLabel}</th></tr></thead><tbody>
+    {showTable && <div className="overflow-x-auto"><table aria-label={labels.pathTableTitle} className="w-full text-left text-sm"><thead><tr><th>{labels.pointLabel}</th><th>{labels.startLabel}</th><th>{labels.endLabel}</th></tr></thead><tbody>
       <tr><th>{labels.load}</th><td>{coordinate(activePoint)}</td><td>—</td></tr>
       <tr><th>{labels.target}</th><td>{coordinate(targetPoint)}</td><td>—</td></tr>
       {paths.map((path) => <tr key={path.id}><th>{path.label}</th><td>{coordinate(path.points[0])}</td><td>{coordinate(path.points.at(-1))}</td></tr>)}
-    </tbody></table></div>
+    </tbody></table></div>}
   </figure>;
 }

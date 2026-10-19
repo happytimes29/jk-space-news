@@ -19,7 +19,7 @@ Microstrip 輸入走線寬度 W、基板高度 h、銅厚 t；對稱 Stripline �
 
 ## 公式版本與參考例
 
-Microstrip 採 Hammerstad–Jensen 準靜態公式與有限銅厚修正；對稱 Stripline 採 Wheeler 1965；CPWG 採 Qucs Technical Guide (12.10)–(12.18)，不使用 (12.19) 之後的頻散式。預設 FR-4 類 4.3、1 GHz 範例中，3.0 mm / 1.6 mm Microstrip 約為 50 Ω；0.75 mm / 1.6 mm 對稱 Stripline 也落在約 50 Ω；3.0 mm、0.2 mm gap 的 CPWG 約 35–36 Ω。
+Microstrip 採 Hammerstad–Jensen 準靜態公式與有限銅厚修正；對稱 Stripline 採 Steer 3.7.1 式 (3.42)–(3.44) 的有限厚度模型；CPWG 採 Qucs Technical Guide (12.10)–(12.18)，不使用 (12.19) 之後的頻散式。預設 FR-4 類 4.3、1 GHz 範例中，3.0 mm / 1.6 mm Microstrip 約為 50 Ω；0.75 mm / 1.6 mm 對稱 Stripline 約為 47 Ω；3.0 mm、0.2 mm gap 的 CPWG 約 34.5 Ω。
 
 ## 範圍、隱私與限制
 
