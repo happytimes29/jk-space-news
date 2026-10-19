@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { NoteItem, NoteType } from "@/lib/notes";
 import { filterNotes } from "./notes-view";
 
-const base = { summary: "原創筆記", publishedAt: "2026-10-14", updatedAt: "2026-10-15", tags: [], author: "JK Space", featured: false, readingTime: 1, content: "正文" };
+const base = { summary: "原創筆記", publishedAt: "2026-10-14", updatedAt: "2026-10-15", tags: [], author: "JK Space", featured: false, readingTime: 1, content: "正文", locale: "zh-TW" as const, translationOf: "fixture", translationStatus: "published" as const };
 const items: NoteItem[] = [
   { ...base, type: "engineering", slug: "engineering", title: "工程", publishedAt: "2026-10-10" },
   { ...base, type: "automation", slug: "automation", title: "自動化" },

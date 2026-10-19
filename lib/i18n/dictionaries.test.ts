@@ -24,11 +24,9 @@ describe("localized dictionaries", () => {
 
     if ("unexpected" in mutation) {
       candidate.unexpected = mutation.unexpected;
-    } else if (typeof mutation.navigation === "string") {
+    } else if ("navigation" in mutation) {
       candidate.navigation = mutation.navigation;
-    } else if (mutation.navigation) {
-      candidate.navigation = mutation.navigation;
-    } else if (mutation.site) {
+    } else if ("site" in mutation) {
       candidate.site = { ...(candidate.site as Record<string, unknown>), ...mutation.site };
     }
 

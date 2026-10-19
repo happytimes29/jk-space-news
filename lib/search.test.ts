@@ -11,6 +11,7 @@ describe("buildSearchItems", () => {
       publishedAt: "2026-10-14T00:00:00.000Z", updatedAt: "2026-10-14T00:00:00.000Z",
       type: "engineering", tags: ["量測"], author: "JK", featured: false,
       content: "測試內容", readingTime: 1,
+      locale: "zh-TW", translationOf: "test-method", translationStatus: "published",
     };
     const projects = loadProjects();
     const items = buildSearchItems([

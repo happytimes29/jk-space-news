@@ -4,9 +4,9 @@ import type { ToolItem } from "./tools";
 import type { NoteItem } from "./notes";
 import { selectHomeContent } from "./home";
 
-const project: ProjectItem = { title: "工程案例", slug: "project", summary: "實際問題", year: 2026, status: "maintained", areas: ["hardware"], role: "設計", tags: [], featured: true, updatedAt: "2026-10-14", readingTime: 1, content: "正文" };
-const tool: ToolItem = { title: "工程工具", slug: "tool", summary: "用途", status: "available", privacy: "瀏覽器內處理", inputTypes: ["HTML"], outputTypes: ["CSV"], updatedAt: "2026-10-14", readingTime: 1, content: "正文" };
-const note: NoteItem = { title: "工程筆記", slug: "note", summary: "摘要", type: "engineering", publishedAt: "2026-10-14", updatedAt: "2026-10-14", author: "JK Space", tags: [], featured: false, readingTime: 1, content: "正文" };
+const project: ProjectItem = { title: "工程案例", slug: "project", summary: "實際問題", year: 2026, status: "maintained", areas: ["hardware"], role: "設計", tags: [], featured: true, updatedAt: "2026-10-14", readingTime: 1, content: "正文", locale: "zh-TW", translationOf: "project", translationStatus: "published" };
+const tool: ToolItem = { title: "工程工具", slug: "tool", summary: "用途", status: "available", privacy: "瀏覽器內處理", inputTypes: ["HTML"], outputTypes: ["CSV"], updatedAt: "2026-10-14", readingTime: 1, content: "正文", locale: "zh-TW", translationOf: "tool", translationStatus: "published" };
+const note: NoteItem = { title: "工程筆記", slug: "note", summary: "摘要", type: "engineering", publishedAt: "2026-10-14", updatedAt: "2026-10-14", author: "JK Space", tags: [], featured: false, readingTime: 1, content: "正文", locale: "zh-TW", translationOf: "note", translationStatus: "published" };
 
 describe("selectHomeContent", () => {
   // Catches leaking unfeatured work, date-sorting the curated order, or exceeding the homepage limit.

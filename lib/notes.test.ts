@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadNotes, getAllNotes, getRecentNotes, getNoteBySlug } from "./notes";
-import { fixtureDirectory, noteData, writeContent } from "./content/test-fixtures";
+import { fixtureDirectory, noteData, writeContent, writeTranslation } from "./content/test-fixtures";
 
 const directories: string[] = [];
 function directory() { const dir = fixtureDirectory(); directories.push(dir); return dir; }
@@ -17,7 +17,14 @@ describe("notes", () => {
   it.each(["engineering", "automation", "project-log"])("loads an original %s note", (type) => {
     const dir = directory();
     writeContent(dir, "note.mdx", { ...noteData, type, relatedProjects: ["pcb-test-point-comparison"], relatedTools: [] });
-    expect(loadNotes(dir)[0]).toMatchObject({ ...noteData, type, publishedAt: "2026-10-13T00:00:00.000Z", updatedAt: "2026-10-14T00:00:00.000Z", relatedProjects: ["pcb-test-point-comparison"], relatedTools: [], readingTime: 1 });
+    expect(loadNotes(dir)[0]).toMatchObject({ ...noteData, type, publishedAt: "2026-10-13T00:00:00.000Z", updatedAt: "2026-10-14T00:00:00.000Z", relatedProjects: ["pcb-test-point-comparison"], relatedTools: [], readingTime: 1, locale: "zh-TW", translationOf: "test-note", translationStatus: "published" });
+  });
+
+  it("loads a localized note without falling back to Traditional Chinese", () => {
+    const dir = directory();
+    writeContent(dir, "test-note.md", noteData);
+    writeTranslation(dir, "en", "test-note.md", { ...noteData, title: "Test note", locale: "en", translationOf: "test-note", translationStatus: "published", translatedAt: "2026-10-19" });
+    expect(loadNotes(dir, { locale: "en", visibility: "production" })).toMatchObject([{ title: "Test note", locale: "en", translationStatus: "published" }]);
   });
 
   it("loads a commentary note with its mandatory source disclosure", () => {

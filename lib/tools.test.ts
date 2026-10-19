@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadTools, getAllTools, getFeaturedTool, getToolBySlug } from "./tools";
-import { fixtureDirectory, toolData, writeContent } from "./content/test-fixtures";
+import { fixtureDirectory, toolData, writeContent, writeTranslation } from "./content/test-fixtures";
 
 const directories: string[] = [];
 function directory() { const dir = fixtureDirectory(); directories.push(dir); return dir; }
@@ -15,9 +15,16 @@ describe("tools", () => {
   it("loads privacy, formats and optional links without inventing metadata", () => {
     const dir = directory();
     writeContent(dir, "tool.md", { ...toolData, relatedProject: "pcb-test-point-comparison" });
-    expect(loadTools(dir)[0]).toMatchObject({ ...toolData, updatedAt: "2026-10-14T00:00:00.000Z", relatedProject: "pcb-test-point-comparison" });
+    expect(loadTools(dir)[0]).toMatchObject({ ...toolData, updatedAt: "2026-10-14T00:00:00.000Z", relatedProject: "pcb-test-point-comparison", locale: "zh-TW", translationOf: "test-tool", translationStatus: "published" });
     expect(loadTools(dir)[0].privacy).toContain("瀏覽器");
     expect(loadTools(dir)[0].coverImage).toBeUndefined();
+  });
+
+  it("loads a localized tool through the same visibility contract", () => {
+    const dir = directory();
+    writeContent(dir, "test-tool.md", toolData);
+    writeTranslation(dir, "zh-cn", "test-tool.md", { ...toolData, title: "测试工具", locale: "zh-CN", translationOf: "test-tool", translationStatus: "published", translatedAt: "2026-10-19" });
+    expect(loadTools(dir, { locale: "zh-CN", visibility: "production" })).toMatchObject([{ title: "测试工具", locale: "zh-CN", translationStatus: "published" }]);
   });
 
   it("sorts tools newest first", () => {

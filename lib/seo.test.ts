@@ -8,6 +8,7 @@ import { articleJsonLd, buildSitemapEntries, ogTypeLabel, personJsonLd, projectJ
 const note: NoteItem = {
   title: "工程取捨", slug: "engineering tradeoffs", summary: "可重現的判斷", type: "engineering", author: "JK Space",
   publishedAt: "2026-10-13T00:00:00.000Z", updatedAt: "2026-10-14T00:00:00.000Z", tags: [], featured: false, readingTime: 1, content: "原創內容",
+  locale: "zh-TW", translationOf: "engineering tradeoffs", translationStatus: "published",
 };
 const config = { ...siteConfig, url: "https://lab.example.com" };
 

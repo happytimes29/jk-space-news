@@ -7,9 +7,20 @@ export function fixtureDirectory() {
 }
 
 export function writeContent(directory: string, name: string, data: Record<string, unknown>, content = "測試正文。") {
+  fs.mkdirSync(directory, { recursive: true });
   const file = path.join(directory, name);
   fs.writeFileSync(file, `---\n${JSON.stringify(data)}\n---\n${content}\n`);
   return file;
+}
+
+export function writeTranslation(
+  directory: string,
+  segment: "zh-cn" | "en",
+  name: string,
+  data: Record<string, unknown>,
+  content = "Translated content.",
+) {
+  return writeContent(path.join(directory, segment), name, data, content);
 }
 
 export const projectData = {

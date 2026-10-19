@@ -2,10 +2,11 @@ import { describe, expect, it } from "vitest";
 import type { ProjectItem } from "@/lib/projects";
 import { filterProjects } from "./projects-view";
 
-const project = (slug: string, overrides: Partial<ProjectItem>): ProjectItem => ({
+const project = (slug: string, overrides: Partial<Omit<ProjectItem, "locale" | "translationOf" | "translationStatus">>): ProjectItem => ({
   slug, title: slug, summary: "工程案例", year: 2026, status: "completed",
   areas: ["hardware"], role: "設計與實作", tags: [], featured: false,
   updatedAt: "2026-01-01", readingTime: 1, content: "案例正文", ...overrides,
+  locale: "zh-TW", translationOf: slug, translationStatus: "published",
 });
 const items = [
   project("newest", { updatedAt: "2026-10-14", areas: ["product"] }),

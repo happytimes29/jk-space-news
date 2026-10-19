@@ -1,10 +1,16 @@
 import path from "node:path";
-import { ContentFields, estimateReadingTime, loadContentCollection } from "./content/shared";
+import { ContentFields, estimateReadingTime, type ContentFile } from "./content/shared";
+import {
+  loadLocalizedContentCollection,
+  type ContentQuery,
+  type LocalizedContent,
+  type WithoutLocalization,
+} from "./content/translations";
 
 export type ProjectStatus = "active" | "completed" | "maintained" | "archived";
 export type ProjectArea = "hardware" | "automation" | "product";
 
-export interface ProjectItem {
+export interface ProjectItem extends LocalizedContent {
   title: string;
   slug: string;
   summary: string;
@@ -26,8 +32,7 @@ export interface ProjectItem {
   content: string;
 }
 
-export function loadProjects(directory = path.join(process.cwd(), "content/projects")): ProjectItem[] {
-  return loadContentCollection(directory, ({ file, data, content }) => {
+function parseProject({ file, data, content }: ContentFile): WithoutLocalization<ProjectItem> {
     const fields = new ContentFields(file, data);
     return {
       title: fields.string("title"), slug: fields.string("slug"), summary: fields.string("summary"),
@@ -38,18 +43,25 @@ export function loadProjects(directory = path.join(process.cwd(), "content/proje
       demoUrl: fields.optionalUrl("demoUrl", true), repositoryUrl: fields.optionalUrl("repositoryUrl"),
       relatedTools: fields.optionalStrings("relatedTools"), relatedNotes: fields.optionalStrings("relatedNotes"),
       outcome: fields.optionalString("outcome"), readingTime: estimateReadingTime(content), content,
-    } satisfies ProjectItem;
-  }).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
+    };
 }
 
-export async function getAllProjects(): Promise<ProjectItem[]> {
-  return loadProjects();
+export function loadProjects(
+  directory = path.join(process.cwd(), "content/projects"),
+  query: ContentQuery = {},
+): ProjectItem[] {
+  return loadLocalizedContentCollection({ directory, query, parse: parseProject })
+    .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
 }
 
-export async function getFeaturedProjects(limit = 4): Promise<ProjectItem[]> {
-  return (await getAllProjects()).filter((project) => project.featured).slice(0, limit);
+export async function getAllProjects(query: ContentQuery = {}): Promise<ProjectItem[]> {
+  return loadProjects(undefined, query);
 }
 
-export async function getProjectBySlug(slug: string): Promise<ProjectItem | null> {
-  return (await getAllProjects()).find((project) => project.slug === slug) ?? null;
+export async function getFeaturedProjects(limit = 4, query: ContentQuery = {}): Promise<ProjectItem[]> {
+  return (await getAllProjects(query)).filter((project) => project.featured).slice(0, limit);
+}
+
+export async function getProjectBySlug(slug: string, query: ContentQuery = {}): Promise<ProjectItem | null> {
+  return (await getAllProjects(query)).find((project) => project.slug === slug) ?? null;
 }

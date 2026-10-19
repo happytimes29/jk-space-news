@@ -3,7 +3,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadProjects, getAllProjects, getFeaturedProjects, getProjectBySlug } from "./projects";
 import { ContentValidationError } from "./content/shared";
-import { fixtureDirectory, projectData, writeContent } from "./content/test-fixtures";
+import { fixtureDirectory, projectData, writeContent, writeTranslation } from "./content/test-fixtures";
 
 const directories: string[] = [];
 function directory() { const dir = fixtureDirectory(); directories.push(dir); return dir; }
@@ -16,7 +16,15 @@ describe("projects", () => {
   it("loads the PRD model and optional project relationships", () => {
     const dir = directory();
     writeContent(dir, "not-the-slug.mdx", { ...projectData, gallery: ["/images/pcb.png"], demoUrl: "/tools/pcb-test-point", repositoryUrl: "https://example.com/repo", relatedTools: ["pcb-test-point"], relatedNotes: [], outcome: "可檢查差異" });
-    expect(loadProjects(dir)[0]).toMatchObject({ ...projectData, updatedAt: "2026-10-14T00:00:00.000Z", gallery: ["/images/pcb.png"], relatedTools: ["pcb-test-point"], relatedNotes: [], outcome: "可檢查差異", content: "測試正文。\n" });
+    expect(loadProjects(dir)[0]).toMatchObject({ ...projectData, updatedAt: "2026-10-14T00:00:00.000Z", gallery: ["/images/pcb.png"], relatedTools: ["pcb-test-point"], relatedNotes: [], outcome: "可檢查差異", content: "測試正文。\n", locale: "zh-TW", translationOf: "test-project", translationStatus: "published" });
+  });
+
+  it("loads a visible localized project without mixing in originals", () => {
+    const dir = directory();
+    writeContent(dir, "test-project.md", projectData);
+    writeTranslation(dir, "en", "test-project.md", { ...projectData, title: "Test project", locale: "en", translationOf: "test-project", translationStatus: "reviewed", translatedAt: "2026-10-19" });
+    expect(loadProjects(dir, { locale: "en", visibility: "preview" })).toMatchObject([{ title: "Test project", locale: "en", translationOf: "test-project", translationStatus: "reviewed", translatedAt: "2026-10-19T00:00:00.000Z" }]);
+    expect(loadProjects(dir, { locale: "en", visibility: "production" })).toEqual([]);
   });
 
   it("sorts projects by update date, independent of featured status", () => {

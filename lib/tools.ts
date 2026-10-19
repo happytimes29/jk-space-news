@@ -1,9 +1,15 @@
 import path from "node:path";
-import { ContentFields, estimateReadingTime, loadContentCollection } from "./content/shared";
+import { ContentFields, estimateReadingTime, type ContentFile } from "./content/shared";
+import {
+  loadLocalizedContentCollection,
+  type ContentQuery,
+  type LocalizedContent,
+  type WithoutLocalization,
+} from "./content/translations";
 
 export type ToolStatus = "available" | "experimental" | "maintenance" | "archived";
 
-export interface ToolItem {
+export interface ToolItem extends LocalizedContent {
   title: string;
   slug: string;
   summary: string;
@@ -21,8 +27,7 @@ export interface ToolItem {
   content: string;
 }
 
-export function loadTools(directory = path.join(process.cwd(), "content/tools")): ToolItem[] {
-  return loadContentCollection(directory, ({ file, data, content }) => {
+function parseTool({ file, data, content }: ContentFile): WithoutLocalization<ToolItem> {
     const fields = new ContentFields(file, data);
     return {
       title: fields.string("title"), slug: fields.string("slug"), summary: fields.string("summary"),
@@ -32,18 +37,25 @@ export function loadTools(directory = path.join(process.cwd(), "content/tools"))
       coverImage: fields.optionalUrl("coverImage", true), sampleUrl: fields.optionalUrl("sampleUrl", true),
       repositoryUrl: fields.optionalUrl("repositoryUrl"), relatedProject: fields.optionalString("relatedProject"),
       readingTime: estimateReadingTime(content), content,
-    } satisfies ToolItem;
-  }).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
+    };
 }
 
-export async function getAllTools(): Promise<ToolItem[]> {
-  return loadTools();
+export function loadTools(
+  directory = path.join(process.cwd(), "content/tools"),
+  query: ContentQuery = {},
+): ToolItem[] {
+  return loadLocalizedContentCollection({ directory, query, parse: parseTool })
+    .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
 }
 
-export async function getFeaturedTool(): Promise<ToolItem | null> {
-  return (await getAllTools()).find((tool) => tool.status === "available") ?? null;
+export async function getAllTools(query: ContentQuery = {}): Promise<ToolItem[]> {
+  return loadTools(undefined, query);
 }
 
-export async function getToolBySlug(slug: string): Promise<ToolItem | null> {
-  return (await getAllTools()).find((tool) => tool.slug === slug) ?? null;
+export async function getFeaturedTool(query: ContentQuery = {}): Promise<ToolItem | null> {
+  return (await getAllTools(query)).find((tool) => tool.status === "available") ?? null;
+}
+
+export async function getToolBySlug(slug: string, query: ContentQuery = {}): Promise<ToolItem | null> {
+  return (await getAllTools(query)).find((tool) => tool.slug === slug) ?? null;
 }

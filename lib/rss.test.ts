@@ -7,6 +7,7 @@ afterEach(() => vi.unstubAllEnvs());
 const note: NoteItem = {
   title: `PCB & <工具> "筆記" '測試'`, slug: "pcb-check", summary: "A < B & C > D", type: "engineering", author: "作者", tags: [], featured: false,
   publishedAt: "2026-10-13T00:00:00.000Z", updatedAt: "2026-10-14T00:00:00.000Z", readingTime: 1, content: "正文",
+  locale: "zh-TW", translationOf: "pcb-check", translationStatus: "published",
 };
 
 function parse(xml: string) {

@@ -57,6 +57,7 @@ describe("personal engineering lab homepage", () => {
       type: "commentary", publishedAt: "2026-10-15", updatedAt: "2026-10-15", author: "JK Space",
       tags: [], featured: false, readingTime: 4, content: "原創觀點",
       sourceTitle: "原始規格", sourceUrl: "https://example.com/spec", sourcePublishedAt: "2026-10-14",
+      locale: "zh-TW", translationOf: "spec-tradeoffs", translationStatus: "published",
     };
     render(<HomePageContent featuredProjects={[]} featuredTool={null} recentNotes={[note]} now={{ content: "整理工程實驗", updatedAt: "2026-10-14" }} />);
     const notes = screen.getByRole("region", { name: "最新筆記與觀點" });
