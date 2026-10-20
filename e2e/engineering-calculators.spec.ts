@@ -1,6 +1,19 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 
 const preview = process.env.CONTENT_PREVIEW === "1";
+
+async function expectSvgTextInside(diagram: Locator) {
+  const diagramBox = await diagram.boundingBox();
+  expect(diagramBox).not.toBeNull();
+  for (const label of await diagram.locator("text").all()) {
+    const box = await label.boundingBox();
+    if (!box) continue;
+    expect(box.x).toBeGreaterThanOrEqual(diagramBox!.x - 1);
+    expect(box.y).toBeGreaterThanOrEqual(diagramBox!.y - 1);
+    expect(box.x + box.width).toBeLessThanOrEqual(diagramBox!.x + diagramBox!.width + 1);
+    expect(box.y + box.height).toBeLessThanOrEqual(diagramBox!.y + diagramBox!.height + 1);
+  }
+}
 
 test("engineering applications navigate directly in every visible locale and preserve back links", async ({ page }) => {
   const locales = preview
@@ -226,6 +239,170 @@ test("Transmission Line preserves SI geometry across units, query reload, keyboa
       const response = await page.goto(route);
       expect(response?.status()).toBe(200);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
+    }
+  }
+});
+
+test("attenuator topology cards hydrate, support keyboard selection, and keep extreme labels inside the diagram", async ({ page }) => {
+  await page.goto("/tools/passive-circuit-calculator/app?mode=attenuator&attenuation=6&z0=50&topology=pi&inputPower=0");
+  const diagram = page.getByRole("img", { name: "衰減器電路圖" });
+  const pi = page.getByRole("radio", { name: "π 型網路" });
+  const tee = page.getByRole("radio", { name: "T 型網路" });
+  await expect(pi).toBeChecked();
+  await expect(diagram.getByTestId("attenuator-pi-network")).toBeVisible();
+  await expect(diagram.getByTestId("attenuator-diagram-output-power")).toContainText("0 W");
+
+  await pi.focus();
+  await page.keyboard.press("ArrowLeft");
+  await expect(tee).toBeChecked();
+  await page.keyboard.press("Enter");
+  await expect(pi).toBeChecked();
+  await tee.focus();
+  await page.keyboard.press("Space");
+  await expect(tee).toBeChecked();
+  await page.keyboard.press("ArrowRight");
+  await expect(pi).toBeChecked();
+  await expect.poll(() => new URL(page.url()).searchParams.get("topology")).toBe("pi");
+
+  await page.getByLabel("輸入功率").fill("1");
+  await page.getByLabel("衰減量").fill("0.001");
+  const labels = ["attenuator-diagram-input-power", "attenuator-diagram-output-power", "attenuator-diagram-r1", "attenuator-diagram-r2", "attenuator-diagram-r3", "attenuator-diagram-r1-power", "attenuator-diagram-r2-power", "attenuator-diagram-r3-power", "attenuator-diagram-total-power"];
+  const diagramBox = await diagram.boundingBox();
+  expect(diagramBox).not.toBeNull();
+  for (const testId of labels) {
+    const label = diagram.getByTestId(testId);
+    await expect(label).toBeVisible();
+    const box = await label.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(diagramBox!.x);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(diagramBox!.x + diagramBox!.width);
+  }
+  await expectSvgTextInside(diagram);
+});
+
+test("RF diagrams update across propagation inputs, recover from medium conflicts, and cover reflection limits", async ({ page }) => {
+  await page.goto("/tools/rf-calculator/app");
+  const propagation = page.getByRole("img", { name: "RF 傳播示意圖" });
+  await expect(propagation).toContainText("100 mm");
+
+  await page.getByLabel("換算起始量").selectOption("angle");
+  await page.getByLabel("輸入電氣角度").fill("180");
+  await expect(propagation.getByTestId("propagation-length")).toContainText("149.896 mm");
+  await page.getByLabel("換算起始量").selectOption("delay");
+  await page.getByLabel("輸入傳播延遲").fill("1n");
+  await expect(propagation.getByTestId("propagation-length")).toContainText("299.792 mm");
+
+  await page.getByLabel("有效相對介電常數 εeff").fill("4");
+  await page.getByLabel("速度因子").fill("0.5");
+  await expect(page.getByLabel("有效相對介電常數 εeff")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByLabel("速度因子")).toHaveAttribute("aria-invalid", "true");
+  await expect(propagation).toHaveAttribute("data-stale", "true");
+  await page.getByLabel("速度因子").fill("");
+  await expect(propagation).not.toHaveAttribute("data-stale", "true");
+  await expect(propagation.getByTestId("propagation-medium")).toContainText("εeff = 4");
+
+  await page.getByRole("tab", { name: "阻抗與反射" }).click();
+  const reflection = page.getByRole("img", { name: "RF 反射示意圖" });
+  await expect(reflection).toContainText("無反射波");
+  await page.getByLabel("電阻 R").fill("0");
+  await expect(reflection.getByTestId("short-load")).toBeVisible();
+  await page.getByLabel("RF 換算起始量").selectOption("gamma");
+  await page.getByLabel("Γ 實部").fill("1");
+  await expect(reflection.getByTestId("open-load")).toBeVisible();
+  await page.getByLabel("Γ 實部").fill("0");
+  await page.getByLabel("Γ 虛部").fill("1");
+  await expect(reflection.getByTestId("finite-load")).toBeVisible();
+  await expect(reflection).toContainText("0 + j1");
+});
+
+test("RF Smith link preserves locale and matching solutions include live schematics", async ({ page }) => {
+  await page.goto("/tools/rf-calculator/app?mode=impedance");
+  await expect(page.getByRole("link", { name: "在史密斯圖中開啟" })).toHaveAttribute("href", "/tools/smith-chart/app");
+
+  if (preview) {
+    await page.goto("/en/tools/rf-calculator/app?mode=impedance");
+    await expect(page.getByRole("link", { name: "Open in Smith chart" })).toHaveAttribute("href", "/en/tools/smith-chart/app");
+  }
+
+  await page.goto("/tools/smith-chart/app");
+  await page.getByRole("button", { name: "求解 L 型匹配" }).click();
+  const diagrams = page.getByRole("img", { name: /匹配網路示意圖/ });
+  await expect(diagrams).toHaveCount(2);
+  await expect(diagrams.first().getByTestId("matching-step-0-ideal")).toContainText("理想值");
+  await expect(diagrams.first().getByTestId("matching-step-0-rounded")).toContainText("標準值結果");
+});
+
+test("all transmission-line cross-sections show live values and retain a valid SI snapshot", async ({ page }) => {
+  await page.goto("/tools/transmission-line/app");
+  const diagram = page.getByRole("img", { name: "傳輸線幾何" });
+  for (const [kind, dimension] of [["microstrip", "h"], ["stripline", "b"], ["cpwg", "s"]]) {
+    await page.getByLabel("模型", { exact: true }).selectOption(kind);
+    await expect(diagram).toContainText(dimension);
+    await expect(diagram).toContainText("Z₀");
+    await expect(diagram).toContainText("電氣角度");
+  }
+
+  await page.getByLabel("模型", { exact: true }).selectOption("microstrip");
+  await page.getByLabel("走線寬度").fill("4");
+  await expect(diagram).toContainText("4 mm");
+  await page.getByLabel("走線寬度").fill("-1");
+  await expect(diagram).toHaveAttribute("data-stale", "true");
+  await expect(page.getByText("目前輸入無效，圖中顯示最後一次有效結果。")).toBeVisible();
+  await page.getByLabel("顯示單位").selectOption("mil");
+  await expect(diagram).toContainText(/157\.4803.*mil/);
+});
+
+test("new RF diagrams remain visible without page overflow across widths and color schemes", async ({ page }) => {
+  const routesAndDiagrams = [
+    ["/tools/passive-circuit-calculator/app?mode=attenuator", "衰減器電路圖"],
+    ["/tools/rf-calculator/app", "RF 傳播示意圖"],
+    ["/tools/rf-calculator/app?mode=impedance", "RF 反射示意圖"],
+    ["/tools/transmission-line/app", "傳輸線幾何"],
+  ];
+  for (const colorScheme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme });
+    for (const width of [320, 768, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const [route, name] of routesAndDiagrams) {
+        await page.goto(route);
+        const diagram = page.getByRole("img", { name });
+        await expect(diagram).toBeVisible();
+        await expectSvgTextInside(diagram);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      }
+      await page.goto("/tools/smith-chart/app");
+      await page.getByRole("button", { name: "求解 L 型匹配" }).click();
+      const matching = page.getByRole("img", { name: /匹配網路示意圖/ }).first();
+      await expect(matching).toBeVisible();
+      await expectSvgTextInside(matching);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    }
+  }
+});
+
+test("all localized Preview diagrams fit their SVG bounds", async ({ page }) => {
+  test.setTimeout(90_000);
+  test.skip(!preview, "Translated tools are visible only in content Preview.");
+  await page.setViewportSize({ width: 768, height: 900 });
+  for (const colorScheme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme });
+    for (const [prefix, labels] of [
+      ["", { attenuator: "衰減器電路圖", propagation: "RF 傳播示意圖", reflection: "RF 反射示意圖", smith: /匹配網路示意圖/, transmission: "傳輸線幾何", attenuationTab: "衰減器", reflectionTab: "阻抗與反射", solve: "求解 L 型匹配" }],
+      ["/zh-cn", { attenuator: "衰减器电路图", propagation: "RF 传播示意图", reflection: "RF 反射示意图", smith: /匹配网络示意图/, transmission: "传输线几何", attenuationTab: "衰减器", reflectionTab: "阻抗与反射", solve: "求解 L 型匹配" }],
+      ["/en", { attenuator: "Attenuator circuit diagram", propagation: "Propagation diagram", reflection: "Reflection diagram", smith: /Matching network diagram/, transmission: "Transmission-line geometry", attenuationTab: "Attenuator", reflectionTab: "Impedance and reflection", solve: "Solve L match" }],
+    ] as const) {
+      await page.goto(`${prefix}/tools/passive-circuit-calculator/app`);
+      await page.getByRole("tab", { name: labels.attenuationTab }).click();
+      await expectSvgTextInside(page.getByRole("img", { name: labels.attenuator }));
+      await page.goto(`${prefix}/tools/rf-calculator/app`);
+      await expectSvgTextInside(page.getByRole("img", { name: labels.propagation }));
+      await page.getByRole("tab", { name: labels.reflectionTab }).click();
+      await expectSvgTextInside(page.getByRole("img", { name: labels.reflection }));
+      await page.goto(`${prefix}/tools/smith-chart/app`);
+      await page.getByRole("button", { name: labels.solve }).click();
+      await expectSvgTextInside(page.getByRole("img", { name: labels.smith }).first());
+      await page.goto(`${prefix}/tools/transmission-line/app`);
+      await expectSvgTextInside(page.getByRole("img", { name: labels.transmission }));
     }
   }
 });

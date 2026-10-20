@@ -10,6 +10,7 @@ const copy: PassiveCircuitCopy = {
   rlcDiagramLabel: "RLC circuit diagram",
   reactanceDiagramLabel: "Inductive and capacitive reactance diagram",
   attenuatorDiagramLabel: "Attenuator circuit diagram",
+  attenuatorDiagramDescription: "Live resistor positions, values, and power for the selected network.",
   rcTab: "RC",
   lcTab: "LC",
   rlcTab: "RLC",
@@ -32,6 +33,7 @@ const copy: PassiveCircuitCopy = {
   attenuationLabel: "Attenuation",
   impedanceLabel: "System impedance",
   topologyLabel: "Topology",
+  topologyHint: "Choose the network that matches your layout.",
   teeLabel: "T network",
   piLabel: "Pi network",
   cutoffLabel: "Cutoff frequency",
@@ -60,6 +62,11 @@ const copy: PassiveCircuitCopy = {
   inputPowerLabel: "Input power",
   totalDissipationLabel: "Total resistor dissipation",
   resistorPowerLabel: "Per-resistor dissipation",
+  inputPortLabel: "Input",
+  outputPortLabel: "Output",
+  groundLabel: "Ground",
+  outputPowerLabel: "Output power",
+  lastValidResultLabel: "Showing the last valid result.",
 };
 
 beforeEach(() => window.history.replaceState({}, "", "/tools/passive-circuit-calculator/app"));
@@ -171,7 +178,7 @@ describe("PassiveCircuitCalculatorApp", () => {
     expect((await within(result).findAllByText(/T network/)).length).toBeGreaterThan(0);
     expect(within(result).getAllByText(/Ω/).length).toBeGreaterThan(1);
 
-    fireEvent.change(screen.getByLabelText("Topology"), { target: { value: "pi" } });
+    fireEvent.click(screen.getByRole("radio", { name: "Pi network" }));
     expect((await within(result).findAllByText(/Pi network/)).length).toBeGreaterThan(0);
     expect(within(result).getAllByText(/Ω/).every((node) => !node.textContent?.includes("NaN"))).toBe(true);
     expect(within(result).getByText("Total resistor dissipation")).toBeInTheDocument();
@@ -190,13 +197,41 @@ describe("PassiveCircuitCalculatorApp", () => {
     expect(within(diagram).getByTestId("attenuator-diagram-r2")).toHaveTextContent("R2 66.931 Ω");
     expect(within(diagram).getByTestId("attenuator-diagram-r3")).toHaveTextContent("R3 16.6139 Ω");
 
-    fireEvent.change(screen.getByLabelText("Topology"), { target: { value: "pi" } });
+    fireEvent.click(screen.getByRole("radio", { name: "Pi network" }));
     await waitFor(() => {
       expect(within(diagram).getByTestId("attenuator-diagram-topology")).toHaveTextContent("Pi network");
       expect(within(diagram).getByTestId("attenuator-diagram-r1")).toHaveTextContent("R1 150.476 Ω");
       expect(within(diagram).getByTestId("attenuator-diagram-r2")).toHaveTextContent("R2 37.3519 Ω");
       expect(within(diagram).getByTestId("attenuator-diagram-r3")).toHaveTextContent("R3 150.476 Ω");
     });
+  });
+
+  it("hydrates pi, maps all power labels, accepts zero, and preserves stale diagram data", async () => {
+    window.history.replaceState({}, "", "/tools/passive-circuit-calculator/app?mode=attenuator&topology=pi&attenuation=6&z0=50&inputPower=1");
+    render(<PassiveCircuitCalculatorApp copy={copy} />);
+
+    const piRadio = await screen.findByRole("radio", { name: "Pi network" });
+    expect(piRadio).toBeChecked();
+    expect(screen.getByTestId("topology-card-pi")).toHaveAttribute("data-selected", "true");
+    const diagram = screen.getByRole("img", { name: "Attenuator circuit diagram" });
+    expect(within(diagram).getByTestId("attenuator-pi-network")).toBeInTheDocument();
+    expect(within(diagram).getByTestId("attenuator-diagram-r1-power")).toHaveTextContent("R1");
+    expect(within(diagram).getByTestId("attenuator-diagram-r2-power")).toHaveTextContent("R2");
+    expect(within(diagram).getByTestId("attenuator-diagram-r3-power")).toHaveTextContent("R3");
+    expect(within(diagram).getByTestId("attenuator-diagram-input-power")).toHaveTextContent("1 W");
+    expect(within(diagram).getByTestId("attenuator-diagram-output-power")).toHaveTextContent("251.189 mW");
+
+    fireEvent.change(screen.getByLabelText("Input power"), { target: { value: "0" } });
+    await waitFor(() => expect(within(diagram).getByTestId("attenuator-diagram-output-power")).toHaveTextContent("0 W"));
+
+    fireEvent.change(screen.getByLabelText("Attenuation"), { target: { value: "0" } });
+    fireEvent.click(screen.getByRole("radio", { name: "T network" }));
+    await waitFor(() => expect(screen.getByTestId("topology-card-tee")).toHaveAttribute("data-selected", "true"));
+    expect(within(diagram).getByTestId("attenuator-pi-network")).toBeInTheDocument();
+    expect(diagram).toHaveAttribute("data-stale", "true");
+    expect(screen.getByRole("status")).toHaveTextContent("Showing the last valid result.");
+    expect(screen.getByLabelText("Attenuation")).toHaveAccessibleDescription("Check the highlighted input values.");
+    expect(screen.getByLabelText("System impedance")).not.toHaveAttribute("aria-invalid", "true");
   });
 
   it("evaluates entered divider resistors with current, power, and tolerance range", async () => {

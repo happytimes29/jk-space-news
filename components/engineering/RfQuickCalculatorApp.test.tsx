@@ -8,7 +8,8 @@ const copy: RfQuickCalculatorCopy = {
   inputTitle: "Inputs",
   resultTitle: "Results",
   frequencyLabel: "Frequency",
-  permittivityLabel: "Relative permittivity",
+  permittivityLabel: "Effective relative permittivity εeff",
+  permittivityGuidance: "Use the transmission line's effective permittivity, not the raw substrate value.",
   velocityFactorLabel: "Velocity factor",
   lengthLabel: "Physical length",
   resistanceLabel: "Resistance",
@@ -44,6 +45,19 @@ const copy: RfQuickCalculatorCopy = {
   normalizedLabel: "Normalized z / y",
   shortCircuitLabel: "Short circuit",
   openCircuitLabel: "Open circuit",
+  propagationDiagramLabel: "Propagation diagram",
+  propagationDiagramDescription: "A travelling wave with wavelength and physical-length markers.",
+  waveDirectionLabel: "Wave direction",
+  mediumLabel: "Medium",
+  freeSpaceLabel: "Free space",
+  lastValidResultLabel: "Showing the last valid result.",
+  reflectionDiagramLabel: "Reflection diagram",
+  reflectionDiagramDescription: "Incident and reflected waves at the load.",
+  incidentWaveLabel: "Incident wave",
+  reflectedWaveLabel: "Reflected wave",
+  loadLabel: "Load",
+  zeroReflectionLabel: "No reflected wave",
+  smithChartLinkLabel: "Open in Smith chart",
 };
 
 beforeEach(() => window.history.replaceState({}, "", "/tools/rf-calculator/app"));
@@ -52,17 +66,30 @@ describe("RfQuickCalculatorApp", () => {
   it("shows free-space, half, and quarter wavelength at 1 GHz", () => {
     render(<RfQuickCalculatorApp copy={copy} />);
     const result = screen.getByRole("region", { name: "Results" });
-    expect(within(result).getByText(/299\.792 mm/)).toBeInTheDocument();
-    expect(within(result).getByText(/149\.896 mm/)).toBeInTheDocument();
-    expect(within(result).getByText(/74\.9481 mm/)).toBeInTheDocument();
+    expect(within(result).getAllByText(/299\.792 mm/).length).toBeGreaterThan(0);
+    expect(within(result).getAllByText(/149\.896 mm/).length).toBeGreaterThan(0);
+    expect(within(result).getAllByText(/74\.9481 mm/).length).toBeGreaterThan(0);
   });
 
   it("changes propagation velocity and wavelength for a dielectric", async () => {
     render(<RfQuickCalculatorApp copy={copy} />);
     const result = screen.getByRole("region", { name: "Results" });
-    fireEvent.change(screen.getByLabelText("Relative permittivity"), { target: { value: "4" } });
-    await waitFor(() => expect(within(result).getByText(/149\.896 mm/)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Effective relative permittivity εeff"), { target: { value: "4" } });
+    await waitFor(() => expect(within(result).getAllByText(/149\.896 mm/).length).toBeGreaterThan(0));
     expect(within(result).getByText(/149\.896 Mm\/s/)).toBeInTheDocument();
+  });
+
+  it("maps wavelength model errors to their actual fields", async () => {
+    render(<RfQuickCalculatorApp copy={copy} />);
+    fireEvent.change(screen.getByLabelText("Effective relative permittivity εeff"), { target: { value: "4" } });
+    fireEvent.change(screen.getByLabelText("Frequency"), { target: { value: "-1" } });
+    await waitFor(() => expect(screen.getByLabelText("Frequency")).toHaveAccessibleDescription(copy.invalidInput));
+    expect(screen.getByLabelText("Effective relative permittivity εeff")).not.toHaveAttribute("aria-invalid", "true");
+
+    fireEvent.change(screen.getByLabelText("Frequency"), { target: { value: "1G" } });
+    fireEvent.change(screen.getByLabelText("Effective relative permittivity εeff"), { target: { value: "-4" } });
+    await waitFor(() => expect(screen.getByLabelText("Effective relative permittivity εeff")).toHaveAttribute("aria-invalid", "true"));
+    expect(screen.getByLabelText("Frequency")).not.toHaveAttribute("aria-invalid", "true");
   });
 
   it("converts electrical angle and delay back to physical length", async () => {
@@ -85,7 +112,7 @@ describe("RfQuickCalculatorApp", () => {
 
     fireEvent.change(screen.getByLabelText("Resistance"), { target: { value: "25" } });
     fireEvent.change(screen.getByLabelText("Reactance"), { target: { value: "25" } });
-    await waitFor(() => expect(within(result).getByText(/25 \+ j25 Ω/)).toBeInTheDocument());
+    await waitFor(() => expect(within(result).getAllByText(/25 \+ j25 Ω/).length).toBeGreaterThan(0));
     for (const label of ["Admittance Y", "Reflection coefficient Γ", "S11", "Return loss", "Mismatch loss"]) {
       expect(within(result).getByText(label)).toBeInTheDocument();
     }
@@ -96,10 +123,10 @@ describe("RfQuickCalculatorApp", () => {
     render(<RfQuickCalculatorApp copy={copy} />);
     fireEvent.click(screen.getByRole("tab", { name: "Impedance and reflection" }));
     fireEvent.change(screen.getByLabelText("Convert from RF quantity"), { target: { value: "y" } });
-    expect(await within(screen.getByRole("region", { name: "Results" })).findByText(/50 \+ j0 Ω/)).toBeInTheDocument();
+    expect((await within(screen.getByRole("region", { name: "Results" })).findAllByText(/50 \+ j0 Ω/)).length).toBeGreaterThan(0);
     fireEvent.change(screen.getByLabelText("Convert from RF quantity"), { target: { value: "gamma" } });
     fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "-0.3333333333" } });
-    expect(await within(screen.getByRole("region", { name: "Results" })).findByText(/25 \+ j0 Ω/)).toBeInTheDocument();
+    expect((await within(screen.getByRole("region", { name: "Results" })).findAllByText(/25 \+ j0 Ω/)).length).toBeGreaterThan(0);
     expect(within(screen.getByRole("region", { name: "Results" })).getByText("Normalized z / y")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Reference impedance"), { target: { value: "50R" } });
     await waitFor(() => expect(screen.getByRole("region", { name: "Results" })).not.toHaveTextContent("NaN"));
@@ -125,10 +152,71 @@ describe("RfQuickCalculatorApp", () => {
   it("rejects conflicting medium inputs and preserves the last valid result", async () => {
     render(<RfQuickCalculatorApp copy={copy} />);
     const result = screen.getByRole("region", { name: "Results" });
-    fireEvent.change(screen.getByLabelText("Relative permittivity"), { target: { value: "4" } });
-    await waitFor(() => expect(within(result).getByText(/149\.896 mm/)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Effective relative permittivity εeff"), { target: { value: "4" } });
+    await waitFor(() => expect(within(result).getAllByText(/149\.896 mm/).length).toBeGreaterThan(0));
     fireEvent.change(screen.getByLabelText("Velocity factor"), { target: { value: "0.8" } });
-    expect(await screen.findByRole("alert")).toHaveTextContent(copy.conflictingMedium);
-    expect(within(result).getByText(/149\.896 mm/)).toBeInTheDocument();
+    expect(await screen.findAllByRole("alert")).toHaveLength(2);
+    expect(within(result).getAllByText(/149\.896 mm/).length).toBeGreaterThan(0);
+  });
+
+  it("keeps one live propagation diagram across input modes and marks invalid medium state stale", async () => {
+    render(<RfQuickCalculatorApp copy={copy} />);
+    const diagram = screen.getByRole("img", { name: "Propagation diagram" });
+    for (const text of ["1 GHz", "λ 299.792 mm", "λ/2 149.896 mm", "λ/4 74.9481 mm", "100 mm", "120.083°", "333.564 ps"]) {
+      expect(diagram).toHaveTextContent(text);
+    }
+
+    fireEvent.change(screen.getByLabelText("Convert from"), { target: { value: "angle" } });
+    fireEvent.change(screen.getByLabelText("Electrical angle input"), { target: { value: "180" } });
+    await waitFor(() => expect(within(diagram).getByTestId("propagation-length")).toHaveTextContent("149.896 mm"));
+    fireEvent.change(screen.getByLabelText("Convert from"), { target: { value: "delay" } });
+    fireEvent.change(screen.getByLabelText("Propagation delay input"), { target: { value: "1n" } });
+    await waitFor(() => expect(within(diagram).getByTestId("propagation-length")).toHaveTextContent("299.792 mm"));
+
+    fireEvent.change(screen.getByLabelText("Effective relative permittivity εeff"), { target: { value: "4" } });
+    await waitFor(() => expect(within(diagram).getByTestId("propagation-medium")).toHaveTextContent("εeff = 4"));
+    fireEvent.change(screen.getByLabelText("Velocity factor"), { target: { value: "0.8" } });
+    expect(await screen.findAllByRole("alert")).toHaveLength(2);
+    expect(screen.getByLabelText("Effective relative permittivity εeff")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByLabelText("Velocity factor")).toHaveAttribute("aria-invalid", "true");
+    expect(diagram).toHaveAttribute("data-stale", "true");
+    expect(screen.getByRole("status")).toHaveTextContent("Showing the last valid result.");
+    fireEvent.change(screen.getByLabelText("Velocity factor"), { target: { value: "" } });
+    await waitFor(() => expect(diagram).not.toHaveAttribute("data-stale"));
+  });
+
+  it("shows the repeated-wave marker only after one full wavelength", async () => {
+    render(<RfQuickCalculatorApp copy={copy} />);
+    const diagram = screen.getByRole("img", { name: "Propagation diagram" });
+    fireEvent.change(screen.getByLabelText("Convert from"), { target: { value: "angle" } });
+    fireEvent.change(screen.getByLabelText("Electrical angle input"), { target: { value: "360" } });
+    await waitFor(() => expect(within(diagram).queryByTestId("propagation-repeat-marker")).not.toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Electrical angle input"), { target: { value: "361" } });
+    await waitFor(() => expect(within(diagram).getByTestId("propagation-repeat-marker")).toBeInTheDocument());
+  });
+
+  it("draws matched, short, open, and imaginary unit-circle reflection states", async () => {
+    render(<RfQuickCalculatorApp copy={copy} smithChartHref="/en/tools/smith-chart/app" />);
+    fireEvent.click(screen.getByRole("tab", { name: "Impedance and reflection" }));
+    const diagram = screen.getByRole("img", { name: "Reflection diagram" });
+    expect(within(diagram).getByTestId("finite-load")).toBeInTheDocument();
+    expect(within(diagram).getByText("No reflected wave")).toBeInTheDocument();
+    expect(within(diagram).queryByTestId("reflected-arrow")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open in Smith chart" })).toHaveAttribute("href", "/en/tools/smith-chart/app");
+
+    fireEvent.change(screen.getByLabelText("Resistance"), { target: { value: "0" } });
+    await waitFor(() => expect(within(diagram).getByTestId("short-load")).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Convert from RF quantity"), { target: { value: "gamma" } });
+    fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "1" } });
+    await waitFor(() => expect(within(diagram).getByTestId("open-load")).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "0" } });
+    fireEvent.change(screen.getByLabelText("Γ imaginary"), { target: { value: "1" } });
+    await waitFor(() => expect(within(diagram).getByTestId("finite-load")).toBeInTheDocument());
+    expect(within(diagram).getByTestId("reflected-arrow")).toBeInTheDocument();
+    expect(within(diagram).queryByTestId("open-load")).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "1.1" } });
+    await waitFor(() => expect(diagram).toHaveAttribute("data-stale", "true"));
+    expect(screen.getByRole("status")).toHaveTextContent("Showing the last valid result.");
   });
 });

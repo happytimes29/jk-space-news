@@ -26,17 +26,21 @@ export interface RlcResult {
   bandwidthHz: number;
 }
 
-export type AttenuatorResult = {
+interface AttenuatorPowerSummary {
+  inputPowerW?: number;
+  outputPowerW?: number;
+  estimatedTotalDissipationW?: number;
+}
+
+export type AttenuatorResult = AttenuatorPowerSummary & ({
   topology: "tee";
   resistorsOhms: { seriesEach: number; shunt: number };
-  estimatedTotalDissipationW?: number;
   resistorDissipationW?: { inputSeries: number; shunt: number; outputSeries: number };
 } | {
   topology: "pi";
   resistorsOhms: { shuntEach: number; series: number };
-  estimatedTotalDissipationW?: number;
   resistorDissipationW?: { inputShunt: number; series: number; outputShunt: number };
-};
+});
 
 function validateFinite(value: number, field: string): EngineeringResult<number> {
   return Number.isFinite(value) ? success(value) : failure("non_finite", field);
@@ -46,6 +50,12 @@ function validatePositive(value: number, field: string): EngineeringResult<numbe
   const finite = validateFinite(value, field);
   if (!finite.ok) return finite;
   return value > 0 ? success(value) : failure("non_positive", field);
+}
+
+function validateNonNegative(value: number, field: string): EngineeringResult<number> {
+  const finite = validateFinite(value, field);
+  if (!finite.ok) return finite;
+  return value >= 0 ? success(value) : failure("out_of_range", field);
 }
 
 function effectiveParallel(left: number, right?: number): number {
@@ -248,19 +258,27 @@ export function symmetricAttenuator(input: {
   const impedance = validatePositive(input.impedanceOhms, "impedanceOhms");
   if (!impedance.ok) return impedance;
   if (input.inputPowerWatts !== undefined) {
-    const power = validatePositive(input.inputPowerWatts, "inputPowerWatts");
+    const power = validateNonNegative(input.inputPowerWatts, "inputPowerWatts");
     if (!power.ok) return power;
   }
 
-  const k = 10 ** (input.attenuationDb / 20);
-  if (!Number.isFinite(k)) return failure("out_of_range", "attenuationDb");
-  const estimatedTotalDissipationW = input.inputPowerWatts === undefined
+  const attenuationNepers = input.attenuationDb * Math.LN10 / 20;
+  if (!Number.isFinite(attenuationNepers)) return failure("out_of_range", "attenuationDb");
+  const halfTanh = Math.tanh(attenuationNepers / 2);
+  const sinh = Math.sinh(attenuationNepers);
+  if (!Number.isFinite(sinh) || halfTanh <= 0) return failure("out_of_range", "attenuationDb");
+  const inputPowerW = input.inputPowerWatts;
+  const outputPowerW = inputPowerW === undefined
     ? undefined
-    : input.inputPowerWatts * (1 - 10 ** (-input.attenuationDb / 10));
+    : inputPowerW * Math.exp(-2 * attenuationNepers);
+  const estimatedTotalDissipationW = inputPowerW === undefined || outputPowerW === undefined
+    ? undefined
+    : inputPowerW * -Math.expm1(-2 * attenuationNepers);
 
   if (input.topology === "tee") {
-    const seriesEach = input.impedanceOhms * (k - 1) / (k + 1);
-    const shunt = 2 * input.impedanceOhms * k / (k ** 2 - 1);
+    const seriesEach = input.impedanceOhms * halfTanh;
+    const shunt = input.impedanceOhms / sinh;
+    if (![seriesEach, shunt].every((value) => Number.isFinite(value) && value > 0)) return failure("out_of_range", "attenuationDb");
     let resistorDissipationW: { inputSeries: number; shunt: number; outputSeries: number } | undefined;
     if (input.inputPowerWatts !== undefined) {
       const inputVoltageRms = Math.sqrt(input.inputPowerWatts * input.impedanceOhms);
@@ -272,16 +290,19 @@ export function symmetricAttenuator(input: {
         shunt: centerVoltageRms ** 2 / shunt,
         outputSeries: outputBranchCurrentRms ** 2 * seriesEach,
       };
+      if (!Object.values(resistorDissipationW).every((value) => Number.isFinite(value) && value >= 0)) return failure("out_of_range", "attenuationDb");
     }
     return success({
       topology: "tee",
       resistorsOhms: { seriesEach, shunt },
+      ...(inputPowerW === undefined ? {} : { inputPowerW, outputPowerW }),
       ...(estimatedTotalDissipationW === undefined ? {} : { estimatedTotalDissipationW }),
       ...(resistorDissipationW === undefined ? {} : { resistorDissipationW }),
     });
   }
-  const shuntEach = input.impedanceOhms * (k + 1) / (k - 1);
-  const series = input.impedanceOhms * (k ** 2 - 1) / (2 * k);
+  const shuntEach = input.impedanceOhms / halfTanh;
+  const series = input.impedanceOhms * sinh;
+  if (![shuntEach, series].every((value) => Number.isFinite(value) && value > 0)) return failure("out_of_range", "attenuationDb");
   let resistorDissipationW: { inputShunt: number; series: number; outputShunt: number } | undefined;
   if (input.inputPowerWatts !== undefined) {
     const inputVoltageRms = Math.sqrt(input.inputPowerWatts * input.impedanceOhms);
@@ -293,10 +314,12 @@ export function symmetricAttenuator(input: {
       series: seriesCurrentRms ** 2 * series,
       outputShunt: outputVoltageRms ** 2 / shuntEach,
     };
+    if (!Object.values(resistorDissipationW).every((value) => Number.isFinite(value) && value >= 0)) return failure("out_of_range", "attenuationDb");
   }
   return success({
     topology: "pi",
     resistorsOhms: { shuntEach, series },
+    ...(inputPowerW === undefined ? {} : { inputPowerW, outputPowerW }),
     ...(estimatedTotalDissipationW === undefined ? {} : { estimatedTotalDissipationW }),
     ...(resistorDissipationW === undefined ? {} : { resistorDissipationW }),
   });

@@ -47,6 +47,31 @@ describe("SmithChart", () => {
     }
   });
 
+  it("renders an engineering-scale grid, a marker legend, and numbered network paths", () => {
+    const active = point(25, 50);
+    const target = point(50, 0);
+    render(<SmithChart mode="impedance" activePoint={active} targetPoint={target} paths={[{ id: "step-1", label: "Step 1 · series L 4 nH", points: [active, target] }]} labels={labels} />);
+
+    const svg = screen.getByRole("img", { name: "Smith chart" });
+    expect(within(svg).getByText("r 0.2")).toBeInTheDocument();
+    expect(within(svg).getByText("x +0.2")).toBeInTheDocument();
+    expect(within(svg).getByText("x −0.2")).toBeInTheDocument();
+    expect(svg.querySelector('[data-grid-level="minor"]')).toBeInTheDocument();
+    expect(Number(svg.querySelector('[data-grid-level="major"]')?.getAttribute("stroke-width"))).toBeGreaterThanOrEqual(1);
+    expect(Number(svg.querySelector('[data-network-path]')?.getAttribute("stroke-width"))).toBeGreaterThanOrEqual(2);
+    expect(svg.querySelector('[data-path-marker="1"]')).toBeInTheDocument();
+    expect(svg.querySelector('[data-legend="load"]')).toHaveTextContent("Load");
+    expect(svg.querySelector('[data-legend="target"]')).toHaveTextContent("Target");
+  });
+
+  it("keeps solution thumbnails readable with a compact unlabeled grid", () => {
+    render(<SmithChart mode="admittance" detail="compact" size={240} showTable={false} activePoint={point(25, 0)} targetPoint={point(50, 0)} paths={[]} labels={labels} />);
+
+    const svg = screen.getByRole("img", { name: "Smith chart" });
+    expect(within(svg).queryByText("g 0.2")).not.toBeInTheDocument();
+    expect(svg.querySelector('[data-grid-level="minor"]')).not.toBeInTheDocument();
+  });
+
   it("renders the full numeric readout outside the chart", () => {
     const active = point(25, 25);
     const readout = smithReadout(active);

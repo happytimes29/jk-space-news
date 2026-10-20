@@ -15,6 +15,8 @@ import { smithPoint, smithReadout, type SmithPoint, type SmithReadout } from "@/
 import type { Complex } from "@/lib/engineering/complex";
 import type { SmithChartMode } from "./smith/smith-grid";
 import type { ESeries } from "@/lib/engineering/standard-values";
+import { MatchingNetworkDiagram } from "./smith/MatchingNetworkDiagram";
+import { DiagramStatusNotice } from "./diagrams/EngineeringDiagramFrame";
 
 export interface SmithChartCopy {
   inputTitle: string;
@@ -51,6 +53,11 @@ export interface SmithChartCopy {
   matchedImpedanceLabel: string;
   residualLabel: string;
   schematicLabel: string;
+  matchingDiagramLabel: string;
+  matchingDiagramDescription: string;
+  sourceLabel: string;
+  loadLabel: string;
+  lastValidResultLabel: string;
   chart: SmithChartLabels;
   readout: SmithReadoutLabels;
 }
@@ -70,6 +77,7 @@ interface MatchView {
 
 type Connection = NetworkStep["connection"];
 type Component = NetworkStep["component"];
+type ErrorField = "frequency" | "reference" | "resistance" | "reactance" | "component";
 
 const STEP_KEYS = Array.from({ length: 20 }, (_, index) => `step${index}`);
 const STATE_KEYS = ["mode", "frequency", "reference", "r", "x", ...STEP_KEYS] as const;
@@ -149,8 +157,10 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
   const [hydrated, setHydrated] = useState(false);
   const [visual, setVisual] = useState(initialVisual);
   const [error, setError] = useState<string>();
+  const [errorField, setErrorField] = useState<ErrorField>();
   const [matches, setMatches] = useState<MatchView[]>([]);
   const [preferredSeries, setPreferredSeries] = useState<ESeries>(24);
+  const [isStale, setIsStale] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -169,16 +179,22 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
     const referenceOhms = parse(reference);
     const re = parse(resistance);
     const im = parse(reactance);
-    if (frequencyHz === undefined || referenceOhms === undefined || re === undefined || im === undefined || frequencyHz <= 0 || referenceOhms <= 0 || re < 0) {
+    if (frequencyHz === undefined || frequencyHz <= 0 || referenceOhms === undefined || referenceOhms <= 0 || re === undefined || re < 0 || im === undefined) {
       setError(copy.invalidInput);
+      setErrorField(frequencyHz === undefined || frequencyHz <= 0 ? "frequency" : referenceOhms === undefined || referenceOhms <= 0 ? "reference" : re === undefined || re < 0 ? "resistance" : "reactance");
+      setIsStale(true);
       return;
     }
     const next = buildVisual({ re, im }, referenceOhms, frequencyHz, history.present, { series: copy.seriesLabel, shunt: copy.shuntLabel });
     if (!next) {
       setError(copy.invalidInput);
+      setErrorField(history.present.length > 0 ? "component" : "resistance");
+      setIsStale(true);
       return;
     }
     setError(undefined);
+    setErrorField(undefined);
+    setIsStale(false);
     setVisual(next);
   }, [copy.invalidInput, copy.seriesLabel, copy.shuntLabel, frequency, history.present, reactance, reference, resistance]);
 
@@ -194,9 +210,12 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
     const value = parse(componentValue);
     if (value === undefined || value <= 0 || history.present.length >= 20) {
       setError(copy.invalidInput);
+      setErrorField("component");
       return;
     }
     const step: NetworkStep = { id: `manual-${Date.now()}-${history.present.length}`, connection, component, value };
+    setError(undefined);
+    setErrorField(undefined);
     setHistory((current) => pushHistory(current, [...current.present, step]));
     setMatches([]);
   }
@@ -212,6 +231,8 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
     setComponentValue("4n");
     setHistory(createHistory([]));
     setMatches([]);
+    setError(undefined);
+    setErrorField(undefined);
   }
 
   function solve() {
@@ -221,11 +242,13 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
     const im = parse(reactance);
     if (frequencyHz === undefined || referenceOhms === undefined || re === undefined || im === undefined || re <= 0 || frequencyHz <= 0 || referenceOhms <= 0) {
       setError(copy.invalidInput);
+      setErrorField(frequencyHz === undefined || frequencyHz <= 0 ? "frequency" : referenceOhms === undefined || referenceOhms <= 0 ? "reference" : re === undefined || re <= 0 ? "resistance" : "reactance");
       return;
     }
     const result = solveLMatch({ load: { re, im }, targetOhms: referenceOhms, frequencyHz });
     if (!result.ok) {
       setError(copy.invalidInput);
+      setErrorField(result.error.field === "frequencyHz" ? "frequency" : result.error.field === "targetOhms" ? "reference" : "resistance");
       return;
     }
     const views = result.value.flatMap((ideal) => {
@@ -234,6 +257,7 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
     });
     setMatches(views);
     setError(undefined);
+    setErrorField(undefined);
   }
 
   function changePreferredSeries(series: ESeries) {
@@ -287,10 +311,10 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
     <div className="grid gap-6 xl:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]">
       <section aria-label={copy.inputTitle} className="space-y-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
         <h2 className="text-lg font-semibold">{copy.inputTitle}</h2>
-        <CalculatorField id="smith-frequency" label={copy.frequencyLabel} value={frequency} onChange={(event) => changeProblemInput(setFrequency, event.target.value)} unit="Hz" />
-        <CalculatorField id="smith-reference" label={copy.referenceLabel} value={reference} onChange={(event) => changeProblemInput(setReference, event.target.value)} unit="Ω" />
-        <CalculatorField id="smith-resistance" label={copy.resistanceLabel} value={resistance} onChange={(event) => changeProblemInput(setResistance, event.target.value)} unit="Ω" error={error} />
-        <CalculatorField id="smith-reactance" label={copy.reactanceLabel} value={reactance} onChange={(event) => changeProblemInput(setReactance, event.target.value)} unit="Ω" />
+        <CalculatorField id="smith-frequency" label={copy.frequencyLabel} value={frequency} onChange={(event) => changeProblemInput(setFrequency, event.target.value)} unit="Hz" error={errorField === "frequency" ? error : undefined} />
+        <CalculatorField id="smith-reference" label={copy.referenceLabel} value={reference} onChange={(event) => changeProblemInput(setReference, event.target.value)} unit="Ω" error={errorField === "reference" ? error : undefined} />
+        <CalculatorField id="smith-resistance" label={copy.resistanceLabel} value={resistance} onChange={(event) => changeProblemInput(setResistance, event.target.value)} unit="Ω" error={errorField === "resistance" ? error : undefined} />
+        <CalculatorField id="smith-reactance" label={copy.reactanceLabel} value={reactance} onChange={(event) => changeProblemInput(setReactance, event.target.value)} unit="Ω" error={errorField === "reactance" ? error : undefined} />
         <label className="block space-y-2 text-sm font-medium">{copy.chartModeLabel}<select aria-label={copy.chartModeLabel} value={mode} onChange={(event) => setMode(event.target.value as SmithChartMode)} className="block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-input-bg)] px-3 py-2">
           <option value="impedance">{copy.impedanceMode}</option><option value="admittance">{copy.admittanceMode}</option>
         </select></label>
@@ -298,7 +322,7 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
           <label className="space-y-2 text-sm font-medium">{copy.connectionLabel}<select aria-label={copy.connectionLabel} value={connection} onChange={(event) => setConnection(event.target.value as Connection)} className="block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-input-bg)] px-3 py-2"><option value="series">{copy.seriesLabel}</option><option value="shunt">{copy.shuntLabel}</option></select></label>
           <label className="space-y-2 text-sm font-medium">{copy.componentLabel}<select aria-label={copy.componentLabel} value={component} onChange={(event) => setComponent(event.target.value as Component)} className="block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-input-bg)] px-3 py-2"><option value="R">R</option><option value="L">L</option><option value="C">C</option></select></label>
         </div>
-        <CalculatorField id="smith-component-value" label={copy.valueLabel} value={componentValue} onChange={(event) => setComponentValue(event.target.value)} unit={componentUnit(component)} />
+        <CalculatorField id="smith-component-value" label={copy.valueLabel} value={componentValue} onChange={(event) => { setComponentValue(event.target.value); if (errorField === "component") { setError(undefined); setErrorField(undefined); } }} unit={componentUnit(component)} error={errorField === "component" ? error : undefined} />
         <button type="button" onClick={addStep} className="w-full rounded-lg bg-[var(--color-accent)] px-4 py-2 font-medium text-white">{copy.addStepLabel}</button>
         <div className="grid grid-cols-3 gap-2">
           <button type="button" disabled={!history.past.length} onClick={() => setHistory(undoHistory)} className="rounded-lg border border-[var(--color-border)] px-3 py-2 disabled:opacity-40">{copy.undoLabel}</button>
@@ -312,7 +336,8 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
 
       <div className="space-y-6">
         <section ref={chartRef} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-          <SmithChart mode={mode} paths={visual.paths} activePoint={visual.activePoint} targetPoint={visual.targetPoint} labels={copy.chart} />
+          <div data-stale={isStale ? "true" : undefined} className={isStale ? "opacity-55" : undefined}><SmithChart mode={mode} paths={visual.paths} activePoint={visual.activePoint} targetPoint={visual.targetPoint} labels={copy.chart} /></div>
+          <DiagramStatusNotice stale={isStale} label={copy.lastValidResultLabel} />
         </section>
         <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5"><SmithReadoutTable readout={visual.readout} labels={copy.readout} /></section>
         <div className="flex flex-wrap gap-3">
@@ -330,9 +355,10 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
         <div><strong>{copy.idealLabel}</strong><ol className="mt-1 text-sm">{ideal.steps.map((step) => <li key={step.id}>{stepText(step, copy)}</li>)}</ol></div>
         <div><strong>{copy.roundedLabel}</strong><span className="ml-2 text-xs text-[var(--color-muted)]">{copy.preferredSeriesLabel}: E{preferredSeries}</span><ol className="mt-1 text-sm">{rounded.steps.map((step) => <li key={step.id}>{stepText(step, copy)}</li>)}</ol></div>
         <p className="text-sm"><strong>{copy.schematicLabel}:</strong> {rounded.steps.map((step) => `${step.connection === "series" ? copy.seriesLabel : copy.shuntLabel} ${step.component}`).join(" → ")}</p>
+        <MatchingNetworkDiagram label={`${copy.matchingDiagramLabel} ${ideal.character === "low-pass" ? copy.lowPassLabel : copy.highPassLabel}`} description={copy.matchingDiagramDescription} ideal={ideal} rounded={rounded} sourceLabel={copy.sourceLabel} loadLabel={copy.loadLabel} idealLabel={copy.idealLabel} roundedLabel={copy.roundedLabel} />
         <p className="text-sm"><strong>{copy.matchedImpedanceLabel}:</strong> {complexTextForMatch(rounded.matchedImpedance)} Ω</p>
         <p className="text-sm"><strong>{copy.residualLabel}:</strong> |Γ| = {Number(rounded.residualGammaMagnitude.toPrecision(6))}</p>
-        {preview && <SmithChart mode={mode} paths={preview.paths} activePoint={preview.activePoint} targetPoint={preview.targetPoint} labels={copy.chart} size={240} showTable={false} />}
+        {preview && <SmithChart mode={mode} paths={preview.paths} activePoint={preview.activePoint} targetPoint={preview.targetPoint} labels={copy.chart} size={240} showTable={false} detail="compact" />}
         <button type="button" onClick={() => applySolution(rounded)} className="rounded-lg bg-[var(--color-accent)] px-4 py-2 font-medium text-white">{copy.selectSolutionLabel}</button>
       </article>; })}</div>
     </section>}

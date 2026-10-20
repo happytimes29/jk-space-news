@@ -6,18 +6,20 @@ status: experimental
 privacy: All values are calculated in the browser and are not sent to a server.
 inputTypes: [R/L/C, Voltage and frequency, E-series and load]
 outputTypes: [Preferred values, Cutoff and resonance, Attenuator values]
-updatedAt: 2026-10-19
+updatedAt: 2026-10-20
 appUrl: /tools/passive-circuit-calculator/app
 localizedApp: true
 locale: en
 translationOf: passive-circuit-calculator
 translationStatus: reviewed
-translatedAt: 2026-10-19
+translatedAt: 2026-10-20
 ---
 
 ## Purpose, inputs, and outputs
 
 The divider ranks E12/E24/E48/E96 pairs from Vin, target Vout, and an optional load. Other modes calculate RC time constant and cutoff, LC/RLC resonance, Q, bandwidth, Xc, Xl, and symmetric T/pi attenuators.
+
+Prominent circuit cards switch between T and pi attenuator topologies. The live schematic identifies the input, output, ground, and physical R1/R2/R3 positions. When input power is supplied, it also shows output power, total dissipation, and each resistor's dissipation to support power-rating decisions.
 
 ## Example and formulas
 
@@ -25,4 +27,4 @@ The 3.3 V to 1.8 V example ranks actual loaded output error. With 1 kΩ and 100 
 
 ## Assumptions, privacy, and limits
 
-These are ideal lumped-element formulas. ESR, ESL, SRF, parasitics, power ratings, and layout are excluded. Values stay in the browser; validate critical designs with SPICE, datasheets, and measurements. Updated 2026-10-19.
+These are ideal lumped-element formulas. ESR, ESL, SRF, parasitics, thermal derating, and layout are excluded; diagram power is an ideal steady-state estimate, not a component-rating guarantee. Values stay in the browser; validate critical designs with SPICE, datasheets, and measurements. Updated 2026-10-20.

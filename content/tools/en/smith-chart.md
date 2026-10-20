@@ -6,18 +6,18 @@ status: experimental
 privacy: All values and network steps are calculated in the browser and are not sent to a server.
 inputTypes: [Single frequency, Complex load impedance, Reference impedance, Ideal RLC components]
 outputTypes: [Smith paths, Z/Y/Γ and reflection metrics, L match and E12/E24/E48/E96 values]
-updatedAt: 2026-10-19
+updatedAt: 2026-10-20
 appUrl: /tools/smith-chart/app
 localizedApp: true
 locale: en
 translationOf: smith-chart
 translationStatus: reviewed
-translatedAt: 2026-10-19
+translatedAt: 2026-10-20
 ---
 
 ## Purpose, inputs, and chart conventions
 
-Enter one frequency, reference impedance `Z0`, and load `Z=R+jX`. The tool maps `Γ=(Z-Z0)/(Z+Z0)` onto a Smith chart: the center is a match, the right edge is open, and the left edge is short. An admittance grid is also available. Readouts include Z, Y, Γ, S11, VSWR, return loss, and mismatch loss.
+Enter one frequency, reference impedance `Z0`, and load `Z=R+jX`. The tool maps `Γ=(Z-Z0)/(Z+Z0)` onto a Smith chart: the center is a match, the right edge is open, and the left edge is short. Labeled major scales, minor grid lines, constant-resistance circles, and positive/negative reactance arcs make the position readable; admittance mode shows the corresponding conductance and susceptance grid. Readouts include Z, Y, Γ, S11, VSWR, return loss, and mismatch loss.
 
 The default example is 1 GHz, a 50 Ω system, and a 25+j0 Ω load. Adding ideal series or shunt R, L, and C components keeps a path for every step; undo, redo, and the share URL retain the same physical network.
 
@@ -25,6 +25,8 @@ The default example is 1 GHz, a 50 Ω system, and a 25+j0 Ω load. Adding ideal 
 
 The L-match solver finds ideal low-pass and high-pass solutions at the selected frequency, then separately displays re-evaluated preferred values from a selectable E12, E24, E48, or E96 series. Apply either result to inspect both component trajectories and the remaining mismatch.
 
+Each solution includes a source-to-load matching schematic that distinguishes series and shunt components and labels both ideal values and the selected E-series values. Changing the preferred-value series updates the schematic immediately.
+
 ## Assumptions, privacy, and limits
 
-Version one accepts only a manually entered complex impedance at one frequency; it does not import S-parameters. The ideal lumped model excludes ESR, Q, self-resonance, package and trace parasitics, transmission-line effects, tolerance, and broadband optimization. Verify a final design with circuit/EM simulation and VNA measurements. Calculations and PNG export stay in the browser. Updated 2026-10-19.
+Version one accepts only a manually entered complex impedance at one frequency; it does not import S-parameters. The ideal lumped model excludes ESR, Q, self-resonance, package and trace parasitics, transmission-line effects, tolerance, and broadband optimization. Verify a final design with circuit/EM simulation and VNA measurements. Calculations and PNG export stay in the browser. Updated 2026-10-20.

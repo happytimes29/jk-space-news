@@ -6,18 +6,20 @@ status: experimental
 privacy: All values are calculated in the browser and are not sent to a server.
 inputTypes: [Frequency and medium, Length/angle/delay, Z/Y/Γ, Reference impedance]
 outputTypes: [Wavelength and angle, Z/Y/Γ, S11/VSWR/loss]
-updatedAt: 2026-10-19
+updatedAt: 2026-10-20
 appUrl: /tools/rf-calculator/app
 localizedApp: true
 locale: en
 translationOf: rf-calculator
 translationStatus: reviewed
-translatedAt: 2026-10-19
+translatedAt: 2026-10-20
 ---
 
 ## Purpose, inputs, and outputs
 
 Propagation mode converts among physical length, electrical angle, and delay at a frequency with either relative permittivity or velocity factor. RF mode accepts complex Z, Y, or Γ and displays Z, Y, Γ, normalized values, S11, VSWR, return loss, and mismatch loss.
+
+The live propagation diagram marks λ, λ/2, λ/4, physical length, delay, and electrical angle. The reflection diagram shows incident and reflected waves, the load, and Γ, with a locale-preserving link to the Smith chart. Here εeff means the transmission mode's effective relative permittivity, not the raw substrate material Dk; enter either εeff or velocity factor, not both.
 
 ## Example and formulas
 
@@ -25,4 +27,4 @@ At 1 GHz, `λ=c/f` is about 299.792 mm in free space and a quarter wave is about
 
 ## Assumptions, privacy, and limits
 
-The medium uses `v=c/√εr` or velocity factor, never both. Dispersion, loss, geometry, and calibration planes are excluded. Values stay in the browser; use EM simulation or VNA measurements for final verification. Updated 2026-10-19.
+The medium uses `v=c/√εeff` or velocity factor, never both. Dispersion, loss, geometry, and calibration planes are excluded. Values stay in the browser; use EM simulation or VNA measurements for final verification. Updated 2026-10-20.
