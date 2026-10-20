@@ -13,6 +13,7 @@ import {
   seriesRlc,
 } from "@/lib/engineering/passive";
 import { ModeLayout, parsed, ResultRow, SelectField } from "./shared";
+import { RcDiagram } from "./RcDiagram";
 import type { PassiveCircuitCopy, PassiveMode, PassiveModeProps } from "./types";
 
 function Fields({ copy, values, set, error, mode }: { copy: PassiveCircuitCopy; values: Record<string, string>; set: (key: string, value: string) => void; error?: string; mode: PassiveMode }) {
@@ -45,15 +46,25 @@ export function ReactiveMode({ copy, initial, onStateChange, mode }: PassiveMode
   }, [copy.errorLabel, mode, onStateChange, values]);
 
   const set = (key: string, value: string) => setValues((current) => ({ ...current, [key]: value }));
+  const diagramValue = (value: number | undefined, unit: string) => value === undefined ? "—" : formatEngineering(value, { unit });
   return <ModeLayout inputTitle={copy.inputTitle} resultTitle={copy.resultTitle} inputs={<>
     <Fields copy={copy} values={values} set={set} error={error} mode={mode} />
     {mode === "rlc" && <SelectField label={copy.circuitTypeLabel} value={values.circuit} onChange={(value) => set("circuit", value)}><option value="series">{copy.seriesCircuitLabel}</option><option value="parallel">{copy.parallelCircuitLabel}</option></SelectField>}
-  </>} results={<dl className="space-y-4">
+  </>} results={<>
+    {mode === "rc" && <RcDiagram
+      label={copy.rcDiagramLabel}
+      resistance={diagramValue(parsed(values.r), "Ω")}
+      capacitance={diagramValue(parsed(values.c), "F")}
+      cutoff={formatEngineering(result.cutoff, { unit: "Hz" })}
+      timeConstant={formatEngineering(result.time, { unit: "s" })}
+    />}
+    <dl className="space-y-4">
     {mode === "rc" && <><ResultRow label={copy.cutoffLabel}>{formatEngineering(result.cutoff, { unit: "Hz" })}</ResultRow><ResultRow label={copy.timeConstantLabel}>{formatEngineering(result.time, { unit: "s" })}</ResultRow></>}
     {(mode === "lc" || mode === "rlc") && <ResultRow label={copy.resonanceLabel}>{formatEngineering(result.resonance, { unit: "Hz" })}</ResultRow>}
     {mode === "rlc" && <><ResultRow label={copy.qualityLabel}>{formatEngineering(result.q)}</ResultRow><ResultRow label={copy.bandwidthLabel}>{formatEngineering(result.bandwidth, { unit: "Hz" })}</ResultRow></>}
     {mode === "reactance" && <><ResultRow label={copy.inductiveReactanceLabel}>{formatEngineering(result.xl, { unit: "Ω" })}</ResultRow><ResultRow label={copy.capacitiveReactanceLabel}>{formatEngineering(result.xc, { unit: "Ω" })}</ResultRow></>}
-  </dl>} />;
+    </dl>
+  </>} />;
 }
 
 function calculate(mode: "rc" | "lc" | "rlc" | "reactance", values: Record<string, string>): Record<string, number> | null {

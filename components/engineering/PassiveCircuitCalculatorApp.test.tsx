@@ -5,6 +5,7 @@ import { PassiveCircuitCalculatorApp, type PassiveCircuitCopy } from "./PassiveC
 const copy: PassiveCircuitCopy = {
   dividerTab: "Divider",
   dividerDiagramLabel: "Voltage divider circuit diagram",
+  rcDiagramLabel: "RC low-pass circuit diagram",
   rcTab: "RC",
   lcTab: "LC",
   rlcTab: "RLC",
@@ -77,11 +78,29 @@ describe("PassiveCircuitCalculatorApp", () => {
   it("calculates RC cutoff and LC resonance examples", async () => {
     render(<PassiveCircuitCalculatorApp copy={copy} />);
     fireEvent.click(screen.getByRole("tab", { name: "RC" }));
-    expect(await screen.findByText(/1\.59155 kHz/)).toBeInTheDocument();
-    expect(screen.getByText(/100 µs/)).toBeInTheDocument();
+    expect((await screen.findAllByText(/1\.59155 kHz/)).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/100 µs/).length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole("tab", { name: "LC" }));
     expect(await screen.findByText(/1\.59155 GHz/)).toBeInTheDocument();
+  });
+
+  it("updates the RC low-pass diagram values while the user types", async () => {
+    render(<PassiveCircuitCalculatorApp copy={copy} />);
+    fireEvent.click(screen.getByRole("tab", { name: "RC" }));
+
+    const diagram = await screen.findByRole("img", { name: "RC low-pass circuit diagram" });
+    expect(within(diagram).getByTestId("rc-diagram-r")).toHaveTextContent("1 kΩ");
+    expect(within(diagram).getByTestId("rc-diagram-c")).toHaveTextContent("100 nF");
+    expect(within(diagram).getByTestId("rc-diagram-cutoff")).toHaveTextContent("1.59155 kHz");
+    expect(within(diagram).getByTestId("rc-diagram-time")).toHaveTextContent("100 µs");
+
+    fireEvent.change(screen.getByLabelText("Resistance"), { target: { value: "2k" } });
+    await waitFor(() => {
+      expect(within(diagram).getByTestId("rc-diagram-r")).toHaveTextContent("2 kΩ");
+      expect(within(diagram).getByTestId("rc-diagram-cutoff")).toHaveTextContent("795.775 Hz");
+      expect(within(diagram).getByTestId("rc-diagram-time")).toHaveTextContent("200 µs");
+    });
   });
 
   it("calculates positive finite tee and pi attenuator values", async () => {
