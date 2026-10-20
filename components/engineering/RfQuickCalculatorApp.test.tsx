@@ -8,7 +8,8 @@ const copy: RfQuickCalculatorCopy = {
   inputTitle: "Inputs",
   resultTitle: "Results",
   frequencyLabel: "Frequency",
-  permittivityLabel: "Relative permittivity",
+  permittivityLabel: "Effective relative permittivity εeff",
+  permittivityGuidance: "Use the transmission line's effective permittivity, not the raw substrate value.",
   velocityFactorLabel: "Velocity factor",
   lengthLabel: "Physical length",
   resistanceLabel: "Resistance",
@@ -44,6 +45,12 @@ const copy: RfQuickCalculatorCopy = {
   normalizedLabel: "Normalized z / y",
   shortCircuitLabel: "Short circuit",
   openCircuitLabel: "Open circuit",
+  propagationDiagramLabel: "Propagation diagram",
+  propagationDiagramDescription: "A travelling wave with wavelength and physical-length markers.",
+  waveDirectionLabel: "Wave direction",
+  mediumLabel: "Medium",
+  freeSpaceLabel: "Free space",
+  lastValidResultLabel: "Showing the last valid result.",
 };
 
 beforeEach(() => window.history.replaceState({}, "", "/tools/rf-calculator/app"));
@@ -52,16 +59,16 @@ describe("RfQuickCalculatorApp", () => {
   it("shows free-space, half, and quarter wavelength at 1 GHz", () => {
     render(<RfQuickCalculatorApp copy={copy} />);
     const result = screen.getByRole("region", { name: "Results" });
-    expect(within(result).getByText(/299\.792 mm/)).toBeInTheDocument();
-    expect(within(result).getByText(/149\.896 mm/)).toBeInTheDocument();
-    expect(within(result).getByText(/74\.9481 mm/)).toBeInTheDocument();
+    expect(within(result).getAllByText(/299\.792 mm/).length).toBeGreaterThan(0);
+    expect(within(result).getAllByText(/149\.896 mm/).length).toBeGreaterThan(0);
+    expect(within(result).getAllByText(/74\.9481 mm/).length).toBeGreaterThan(0);
   });
 
   it("changes propagation velocity and wavelength for a dielectric", async () => {
     render(<RfQuickCalculatorApp copy={copy} />);
     const result = screen.getByRole("region", { name: "Results" });
-    fireEvent.change(screen.getByLabelText("Relative permittivity"), { target: { value: "4" } });
-    await waitFor(() => expect(within(result).getByText(/149\.896 mm/)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Effective relative permittivity εeff"), { target: { value: "4" } });
+    await waitFor(() => expect(within(result).getAllByText(/149\.896 mm/).length).toBeGreaterThan(0));
     expect(within(result).getByText(/149\.896 Mm\/s/)).toBeInTheDocument();
   });
 
@@ -125,10 +132,36 @@ describe("RfQuickCalculatorApp", () => {
   it("rejects conflicting medium inputs and preserves the last valid result", async () => {
     render(<RfQuickCalculatorApp copy={copy} />);
     const result = screen.getByRole("region", { name: "Results" });
-    fireEvent.change(screen.getByLabelText("Relative permittivity"), { target: { value: "4" } });
-    await waitFor(() => expect(within(result).getByText(/149\.896 mm/)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Effective relative permittivity εeff"), { target: { value: "4" } });
+    await waitFor(() => expect(within(result).getAllByText(/149\.896 mm/).length).toBeGreaterThan(0));
     fireEvent.change(screen.getByLabelText("Velocity factor"), { target: { value: "0.8" } });
-    expect(await screen.findByRole("alert")).toHaveTextContent(copy.conflictingMedium);
-    expect(within(result).getByText(/149\.896 mm/)).toBeInTheDocument();
+    expect(await screen.findAllByRole("alert")).toHaveLength(2);
+    expect(within(result).getAllByText(/149\.896 mm/).length).toBeGreaterThan(0);
+  });
+
+  it("keeps one live propagation diagram across input modes and marks invalid medium state stale", async () => {
+    render(<RfQuickCalculatorApp copy={copy} />);
+    const diagram = screen.getByRole("img", { name: "Propagation diagram" });
+    for (const text of ["1 GHz", "λ 299.792 mm", "λ/2 149.896 mm", "λ/4 74.9481 mm", "100 mm", "120.083°", "333.564 ps"]) {
+      expect(diagram).toHaveTextContent(text);
+    }
+
+    fireEvent.change(screen.getByLabelText("Convert from"), { target: { value: "angle" } });
+    fireEvent.change(screen.getByLabelText("Electrical angle input"), { target: { value: "180" } });
+    await waitFor(() => expect(within(diagram).getByTestId("propagation-length")).toHaveTextContent("149.896 mm"));
+    fireEvent.change(screen.getByLabelText("Convert from"), { target: { value: "delay" } });
+    fireEvent.change(screen.getByLabelText("Propagation delay input"), { target: { value: "1n" } });
+    await waitFor(() => expect(within(diagram).getByTestId("propagation-length")).toHaveTextContent("299.792 mm"));
+
+    fireEvent.change(screen.getByLabelText("Effective relative permittivity εeff"), { target: { value: "4" } });
+    await waitFor(() => expect(within(diagram).getByTestId("propagation-medium")).toHaveTextContent("εeff = 4"));
+    fireEvent.change(screen.getByLabelText("Velocity factor"), { target: { value: "0.8" } });
+    expect(await screen.findAllByRole("alert")).toHaveLength(2);
+    expect(screen.getByLabelText("Effective relative permittivity εeff")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByLabelText("Velocity factor")).toHaveAttribute("aria-invalid", "true");
+    expect(diagram).toHaveAttribute("data-stale", "true");
+    expect(screen.getByRole("status")).toHaveTextContent("Showing the last valid result.");
+    fireEvent.change(screen.getByLabelText("Velocity factor"), { target: { value: "" } });
+    await waitFor(() => expect(diagram).not.toHaveAttribute("data-stale"));
   });
 });
