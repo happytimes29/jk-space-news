@@ -8,6 +8,7 @@ export interface PassiveCircuitCopy {
   rlcDiagramLabel: string;
   reactanceDiagramLabel: string;
   attenuatorDiagramLabel: string;
+  attenuatorDiagramDescription: string;
   rcTab: string;
   lcTab: string;
   rlcTab: string;
@@ -30,6 +31,7 @@ export interface PassiveCircuitCopy {
   attenuationLabel: string;
   impedanceLabel: string;
   topologyLabel: string;
+  topologyHint: string;
   teeLabel: string;
   piLabel: string;
   cutoffLabel: string;
@@ -58,6 +60,11 @@ export interface PassiveCircuitCopy {
   inputPowerLabel: string;
   totalDissipationLabel: string;
   resistorPowerLabel: string;
+  inputPortLabel: string;
+  outputPortLabel: string;
+  groundLabel: string;
+  outputPowerLabel: string;
+  lastValidResultLabel: string;
 }
 
 export interface PassiveModeProps {
