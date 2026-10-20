@@ -6,6 +6,7 @@ export interface PassiveCircuitCopy {
   rcDiagramLabel: string;
   lcDiagramLabel: string;
   rlcDiagramLabel: string;
+  reactanceDiagramLabel: string;
   rcTab: string;
   lcTab: string;
   rlcTab: string;

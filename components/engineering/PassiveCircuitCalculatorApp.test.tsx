@@ -8,6 +8,7 @@ const copy: PassiveCircuitCopy = {
   rcDiagramLabel: "RC low-pass circuit diagram",
   lcDiagramLabel: "LC resonant tank circuit diagram",
   rlcDiagramLabel: "RLC circuit diagram",
+  reactanceDiagramLabel: "Inductive and capacitive reactance diagram",
   rcTab: "RC",
   lcTab: "LC",
   rlcTab: "RLC",
@@ -140,6 +141,25 @@ describe("PassiveCircuitCalculatorApp", () => {
       expect(within(diagram).getByTestId("rlc-diagram-topology")).toHaveTextContent("Parallel");
       expect(within(diagram).getByTestId("rlc-diagram-q")).toHaveTextContent("Q 2");
       expect(within(diagram).getByTestId("rlc-diagram-bandwidth")).toHaveTextContent("79.5775 kHz");
+    });
+  });
+
+  it("updates both reactance paths from the shared frequency", async () => {
+    render(<PassiveCircuitCalculatorApp copy={copy} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Reactance" }));
+
+    const diagram = await screen.findByRole("img", { name: "Inductive and capacitive reactance diagram" });
+    expect(within(diagram).getByTestId("reactance-diagram-frequency")).toHaveTextContent("1 GHz");
+    expect(within(diagram).getByTestId("reactance-diagram-l")).toHaveTextContent("10 nH");
+    expect(within(diagram).getByTestId("reactance-diagram-c")).toHaveTextContent("1 pF");
+    expect(within(diagram).getByTestId("reactance-diagram-xl")).toHaveTextContent("Xₗ 62.8319 Ω");
+    expect(within(diagram).getByTestId("reactance-diagram-xc")).toHaveTextContent("X꜀ 159.155 Ω");
+
+    fireEvent.change(screen.getByLabelText("Frequency"), { target: { value: "2G" } });
+    await waitFor(() => {
+      expect(within(diagram).getByTestId("reactance-diagram-frequency")).toHaveTextContent("2 GHz");
+      expect(within(diagram).getByTestId("reactance-diagram-xl")).toHaveTextContent("Xₗ 125.664 Ω");
+      expect(within(diagram).getByTestId("reactance-diagram-xc")).toHaveTextContent("X꜀ 79.5775 Ω");
     });
   });
 

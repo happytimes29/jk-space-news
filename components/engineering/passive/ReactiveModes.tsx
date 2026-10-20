@@ -16,6 +16,7 @@ import { ModeLayout, parsed, ResultRow, SelectField } from "./shared";
 import { RcDiagram } from "./RcDiagram";
 import { LcDiagram } from "./LcDiagram";
 import { RlcDiagram } from "./RlcDiagram";
+import { ReactanceDiagram } from "./ReactanceDiagram";
 import type { PassiveCircuitCopy, PassiveMode, PassiveModeProps } from "./types";
 
 function Fields({ copy, values, set, error, mode }: { copy: PassiveCircuitCopy; values: Record<string, string>; set: (key: string, value: string) => void; error?: string; mode: PassiveMode }) {
@@ -76,6 +77,14 @@ export function ReactiveMode({ copy, initial, onStateChange, mode }: PassiveMode
       resonance={formatEngineering(result.resonance, { unit: "Hz" })}
       quality={formatEngineering(result.q)}
       bandwidth={formatEngineering(result.bandwidth, { unit: "Hz" })}
+    />}
+    {mode === "reactance" && <ReactanceDiagram
+      label={copy.reactanceDiagramLabel}
+      frequency={diagramValue(parsed(values.f), "Hz")}
+      inductance={diagramValue(parsed(values.l), "H")}
+      capacitance={diagramValue(parsed(values.c), "F")}
+      inductiveReactance={formatEngineering(result.xl, { unit: "Ω" })}
+      capacitiveReactance={formatEngineering(result.xc, { unit: "Ω" })}
     />}
     <dl className="space-y-4">
     {mode === "rc" && <><ResultRow label={copy.cutoffLabel}>{formatEngineering(result.cutoff, { unit: "Hz" })}</ResultRow><ResultRow label={copy.timeConstantLabel}>{formatEngineering(result.time, { unit: "s" })}</ResultRow></>}
