@@ -1,13 +1,13 @@
 # Engineering and RF Tools v1 — Preview verification
 
-Date: 2026-10-19
-Branch: `codex/engineering-rf-tools-v1`
-Candidate base: `bfa05717` (final integration commit is recorded by Git history immediately after this document)
+Date: 2026-10-20
+Branch: `codex/rf-visual-enhancements`
+Candidate base: `4d976859` (the final verification commit is recorded by Git history immediately after this document)
 Runtime: Node `v26.8.2`, npm `11.19.1`
 
 ## Candidate scope
 
-The reviewed Preview contains five browser-only engineering applications:
+The reviewed candidate contains five browser-only engineering applications. This increment adds accessible, live diagrams to the four RF/passive tools while preserving the existing formulas and query keys:
 
 1. Engineering unit and RF power converter
 2. Passive circuit calculator
@@ -15,7 +15,7 @@ The reviewed Preview contains five browser-only engineering applications:
 4. Single-frequency Smith chart and ideal L matching
 5. PCB transmission-line impedance and width calculator
 
-Traditional Chinese originals are published content. Simplified Chinese and English additions remain `reviewed` and are visible only with `CONTENT_PREVIEW=1`. This candidate is not authorized for merge, production deployment, or promotion of translations to `published`.
+Traditional Chinese originals are published content. Simplified Chinese and English additions remain `reviewed` and are visible only with `CONTENT_PREVIEW=1`. This candidate is not authorized for merge or production deployment before owner approval of the Vercel Preview.
 
 ## Formula and model references
 
@@ -36,37 +36,39 @@ Focused commands:
 npm test -- lib/engineering/numerics.test.ts
 npm test -- lib/engineering/transmission-line*.test.ts components/engineering/TransmissionLineApp.test.tsx components/engineering/transmission-line
 npm test -- lib/engineering components/engineering lib/tools.test.ts lib/i18n/dictionaries.test.ts lib/search.test.ts lib/seo.test.ts app/seo.test.tsx
-CONTENT_PREVIEW=1 npx playwright test e2e/engineering-calculators.spec.ts
+NEXT_PUBLIC_SITE_URL=https://jk-space.com npx playwright test e2e/engineering-calculators.spec.ts
+CONTENT_PREVIEW=1 NEXT_PUBLIC_SITE_URL=https://jk-space.com npx playwright test e2e/engineering-calculators.spec.ts
 ```
 
 Release-candidate commands:
 
 ```text
 npm run verify
-npm run test:e2e
+NEXT_PUBLIC_SITE_URL=https://jk-space.com npm run test:e2e
 ```
 
 ## Results
 
 At the final integration checkpoint:
 
-- Numeric primitives: 8 tests passed.
-- Transmission-line forward models: 29 tests passed.
-- Transmission-line solver and application focused suite: 45 tests passed.
-- Engineering-focused Vitest suite after independent-review fixes: 28 files / 214 tests passed.
-- Full Vitest suite: 71 files / 482 tests passed.
-- Engineering Preview Playwright: 14/14 passed, including share-URL hydration, ideal RF open/short limits, stale-match invalidation, nonblank PNG export, forward/reverse transmission-line solving, and unit/query/locale scenarios.
-- Full Playwright suite: 52/52 passed.
+- Transmission-line geometry focused suite: 3 files / 20 tests passed.
+- Full Vitest suite: 76 files / 517 tests passed.
+- Engineering Playwright: 21/21 passed in normal content mode and 21/21 with `CONTENT_PREVIEW=1` for all three locales.
+- Full Playwright suite: 59/59 passed.
 - Production build succeeded and static generation completed 45/45 pages.
+- `npm run verify` passed lint, TypeScript, Vitest, 15 legacy-news guards, and the production build.
 
 ## Preview surface checks
 
-- Desktop and 320 px mobile layouts: covered by Playwright overflow checks.
-- Keyboard operation: direct keyboard editing and select/button flows passed.
-- Traditional Chinese, Simplified Chinese, and English copy: Preview routes returned 200 and localized headings.
-- Light/dark contrast: uses existing design tokens; no fixed low-contrast foreground was introduced.
+- 320, 768, and 1440 px layouts: all new RF diagrams remained visible with no document-level horizontal overflow.
+- Light and dark color schemes: every affected calculator diagram remained visible using shared design tokens.
+- Keyboard operation: direct keyboard editing, T/π radio-arrow selection, selects, and buttons passed.
+- Traditional Chinese, Simplified Chinese, and English copy: Preview routes returned 200, localized headings, and locale-preserving Smith links.
 - Smith SVG/PNG: accessible SVG labels/table, browser PNG download, and a non-white pixel-content assertion passed.
-- Geometry SVGs: W/t/h, plane separation b, and CPWG gap s labels passed accessible-role tests.
+- Attenuator SVG: direct π hydration, zero input/output power, per-resistor dissipation, and near-zero attenuation labels passed bounds checks.
+- RF SVGs: length/angle/delay propagation, εeff conflicts and recovery, matched/short/open/Γ=j reflection states passed.
+- Smith SVGs: both low-pass and high-pass matching solutions show ideal and E-series component values.
+- Geometry SVGs: Microstrip W/t/h, Stripline W/t/b, CPWG W/t/h/s, live units, Z₀, electrical angle, and invalid-input SI snapshot behavior passed.
 - Share URL restore: Converter, passive, RF, Smith ordered steps, and canonical SI transmission geometry survived reload without hydration errors.
 - Network privacy: browser tests observed no calculation XHR/fetch payload; analytics assertion rejects numeric Smith inputs.
 
@@ -75,9 +77,11 @@ At the final integration checkpoint:
 - Smith v1 accepts one manually entered complex impedance at one frequency; no Touchstone/S-parameter import, broadband optimization, parasitic/Q/ESR model, or tolerance analysis.
 - Transmission-line results are lossless quasi-static estimates. They omit dispersion, roughness, conductor/dielectric loss, solder mask, etch trapezoid, surface finish, glass weave, finite lateral grounds, ground vias, bends, connectors, and discontinuities.
 - Stripline is symmetric and centered only. CPWG assumes infinite lateral grounds and a continuous backside ground.
+- Attenuator resistor power is an ideal steady-state estimate and excludes temperature rise, pulse rating, and derating.
+- RF propagation εeff is an effective modal value, not unadjusted material Dk. Dispersion and loss remain outside the quick model.
 - Formula-range warnings are advisory; final geometry must be confirmed with the PCB fabricator, a 2D/3D field solver, and measurement.
 - Translation review is incomplete by policy: `zh-CN` and `en` tool introductions remain `reviewed`, so production intentionally returns 404 for those unpublished detail/application routes.
 
 ## Publication gate
 
-Do not change `translationStatus`, merge, push, deploy, or publish this candidate without a new explicit owner authorization.
+The branch may be pushed and opened as a PR to obtain a Vercel Preview. Do not change `translationStatus`, merge, deploy to production, or publish this candidate without explicit owner approval after Preview inspection.
