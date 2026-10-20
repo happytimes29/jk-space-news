@@ -6,6 +6,7 @@ import { formatEngineering } from "@/lib/engineering/quantity";
 import { dividerWorstCase, loadedDivider, suggestDivider, type DividerCandidate, type DividerResult } from "@/lib/engineering/passive";
 import type { ESeries } from "@/lib/engineering/standard-values";
 import { ModeLayout, parsed, ResultRow, SelectField } from "./shared";
+import { DividerDiagram } from "./DividerDiagram";
 import type { PassiveModeProps } from "./types";
 
 function initialCandidates(): DividerCandidate[] {
@@ -65,6 +66,10 @@ export function DividerMode({ copy, initial, onStateChange }: PassiveModeProps) 
   }, [copy.errorLabel, copy.noSolutionLabel, dividerMode, load, loadEnabled, onStateChange, rBottom, rTop, series, target, tolerance, vin]);
 
   const best = candidates[0];
+  const diagramTop = dividerMode === "design" ? best.rTopOhms : parsed(rTop);
+  const diagramBottom = dividerMode === "design" ? best.rBottomOhms : parsed(rBottom);
+  const diagramLoad = loadEnabled ? parsed(load) : undefined;
+  const diagramValue = (value: number | undefined, unit: string) => value === undefined ? "—" : formatEngineering(value, { unit });
   return <ModeLayout inputTitle={copy.inputTitle} resultTitle={copy.resultTitle} inputs={<>
     <SelectField label={copy.dividerModeLabel} value={dividerMode} onChange={(value) => setDividerMode(value as "design" | "evaluate")}><option value="design">{copy.designLabel}</option><option value="evaluate">{copy.evaluateLabel}</option></SelectField>
     <CalculatorField id="divider-vin" label={copy.vinLabel} value={vin} onChange={(event) => setVin(event.target.value)} unit="V" />
@@ -73,7 +78,16 @@ export function DividerMode({ copy, initial, onStateChange }: PassiveModeProps) 
     <CalculatorField id="divider-tolerance" label={copy.toleranceLabel} value={tolerance} onChange={(event) => setTolerance(event.target.value)} unit="%" />
     <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={loadEnabled} onChange={(event) => setLoadEnabled(event.target.checked)} />{copy.enableLoadLabel}</label>
     {loadEnabled && <CalculatorField id="divider-load" label={copy.loadLabel} value={load} onChange={(event) => setLoad(event.target.value)} unit="Ω" error={error} />}
-  </>} results={<dl className="space-y-4">
+  </>} results={<>
+    <DividerDiagram
+      label={copy.dividerDiagramLabel}
+      vin={diagramValue(parsed(vin), "V")}
+      rTop={diagramValue(diagramTop, "Ω")}
+      rBottom={diagramValue(diagramBottom, "Ω")}
+      vout={formatEngineering(operating.vout, { unit: "V" })}
+      load={diagramLoad === undefined ? undefined : diagramValue(diagramLoad, "Ω")}
+    />
+    <dl className="space-y-4">
     {dividerMode === "design" && <><ResultRow label={copy.targetVoutLabel}>{target} V · E{series}</ResultRow>
     <ResultRow label={copy.bestCandidateLabel}><span data-testid="best-divider">{formatEngineering(best.rTopOhms, { unit: "Ω" })} / {formatEngineering(best.rBottomOhms, { unit: "Ω" })}</span></ResultRow>
     <ResultRow label={copy.relativeErrorLabel}>{formatEngineering(best.relativeVoltageError * 100, { unit: "%" })}</ResultRow></>}
@@ -83,5 +97,6 @@ export function DividerMode({ copy, initial, onStateChange }: PassiveModeProps) 
     <ResultRow label={copy.bottomPowerLabel}>{formatEngineering(operating.rBottomPowerW, { unit: "W" })}</ResultRow>
     <ResultRow label={copy.worstCaseLabel}>{formatEngineering(worstCase.minVout, { unit: "V" })} – {formatEngineering(worstCase.maxVout, { unit: "V" })}</ResultRow>
     {dividerMode === "design" && <ResultRow label={copy.candidateListLabel}><ol className="space-y-1">{candidates.slice(0, 5).map((candidate) => <li key={`${candidate.rTopOhms}:${candidate.rBottomOhms}`}>{formatEngineering(candidate.rTopOhms, { unit: "Ω" })} / {formatEngineering(candidate.rBottomOhms, { unit: "Ω" })} · {formatEngineering(candidate.vout, { unit: "V" })} · {formatEngineering(candidate.relativeVoltageError * 100, { unit: "%" })}</li>)}</ol></ResultRow>}
-  </dl>} />;
+    </dl>
+  </>} />;
 }

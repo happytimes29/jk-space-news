@@ -238,3 +238,37 @@ for (const route of ["engineering-converter", "passive-circuit-calculator", "rf-
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 }
+
+test("long divider load values remain inside the circuit diagram", async ({ page }) => {
+  await page.goto("/tools/passive-circuit-calculator/app?mode=divider&dividerMode=evaluate&vin=12&rTop=10k&rBottom=20k&tolerance=1&load=123456");
+
+  const diagram = page.getByRole("img", { name: "分壓器電路圖" });
+  const loadLabel = diagram.getByTestId("divider-diagram-load");
+  await expect(loadLabel).toHaveText("123.456 kΩ");
+
+  const [diagramBox, labelBox] = await Promise.all([diagram.boundingBox(), loadLabel.boundingBox()]);
+  expect(diagramBox).not.toBeNull();
+  expect(labelBox).not.toBeNull();
+  expect(labelBox!.x).toBeGreaterThanOrEqual(diagramBox!.x);
+  expect(labelBox!.x + labelBox!.width).toBeLessThanOrEqual(diagramBox!.x + diagramBox!.width);
+});
+
+test("loaded divider keeps the output value clear of the load resistor", async ({ page }) => {
+  await page.goto("/tools/passive-circuit-calculator/app?mode=divider&dividerMode=evaluate&vin=12&rTop=10k&rBottom=20k&tolerance=1&load=100k");
+
+  const diagram = page.getByRole("img", { name: "分壓器電路圖" });
+  const [outputBox, resistorBox] = await Promise.all([
+    diagram.getByTestId("divider-diagram-vout").boundingBox(),
+    diagram.getByTestId("divider-diagram-load-resistor").boundingBox(),
+  ]);
+  expect(outputBox).not.toBeNull();
+  expect(resistorBox).not.toBeNull();
+
+  const overlaps = !(
+    outputBox!.x + outputBox!.width <= resistorBox!.x
+    || resistorBox!.x + resistorBox!.width <= outputBox!.x
+    || outputBox!.y + outputBox!.height <= resistorBox!.y
+    || resistorBox!.y + resistorBox!.height <= outputBox!.y
+  );
+  expect(overlaps).toBe(false);
+});
