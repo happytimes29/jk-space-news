@@ -7,10 +7,11 @@ interface DividerDiagramProps {
   load?: string;
 }
 
-function Resistor({ x, y }: { x: number; y: number }) {
+function Resistor({ x, y, testId }: { x: number; y: number; testId?: string }) {
   return (
     <path
       d={`M ${x} ${y} l -9 8 l 18 12 l -18 12 l 18 12 l -18 12 l 18 12 l -9 8`}
+      data-testid={testId}
       fill="none"
       stroke="currentColor"
       strokeLinecap="round"
@@ -43,7 +44,7 @@ export function DividerDiagram({ label, vin, rTop, rBottom, vout, load }: Divide
 
         <Resistor x={270} y={74} />
         <Resistor x={270} y={170} />
-        {load && <Resistor x={400} y={174} />}
+        {load && <Resistor x={400} y={174} testId="divider-diagram-load-resistor" />}
 
         <g fill="currentColor" fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace" fontSize="15">
           <text x="72" y="105" fontWeight="700">+</text>
@@ -55,8 +56,8 @@ export function DividerDiagram({ label, vin, rTop, rBottom, vout, load }: Divide
           <text x="294" y="204" fontWeight="700">R2</text>
           <text x="294" y="225" data-testid="divider-diagram-r2">{rBottom}</text>
 
-          <text x="354" y="145" fill="var(--color-accent)" fontWeight="700">Vout</text>
-          <text x="354" y="190" data-testid="divider-diagram-vout">{vout}</text>
+          <text x="354" y="105" fill="var(--color-accent)" fontWeight="700">Vout</text>
+          <text x="354" y="126" data-testid="divider-diagram-vout">{vout}</text>
 
           {load && <>
             <text x="420" y="200" fontWeight="700">RL</text>
