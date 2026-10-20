@@ -4,6 +4,7 @@ import { PassiveCircuitCalculatorApp, type PassiveCircuitCopy } from "./PassiveC
 
 const copy: PassiveCircuitCopy = {
   dividerTab: "Divider",
+  dividerDiagramLabel: "Voltage divider circuit diagram",
   rcTab: "RC",
   lcTab: "LC",
   rlcTab: "RLC",
@@ -106,7 +107,28 @@ describe("PassiveCircuitCalculatorApp", () => {
     }
     fireEvent.change(screen.getByLabelText("Top resistance R1"), { target: { value: "10k" } });
     fireEvent.change(screen.getByLabelText("Bottom resistance R2"), { target: { value: "10k" } });
-    await waitFor(() => expect(within(result).getByText(/1\.65 V/)).toBeInTheDocument());
+    await waitFor(() => expect(within(result).getAllByText(/1\.65 V/).length).toBeGreaterThan(0));
+  });
+
+  it("updates the divider circuit diagram values while the user types", async () => {
+    render(<PassiveCircuitCalculatorApp copy={copy} />);
+    fireEvent.change(screen.getByLabelText("Divider workflow"), { target: { value: "evaluate" } });
+
+    fireEvent.change(screen.getByLabelText("Input voltage"), { target: { value: "12" } });
+    fireEvent.change(screen.getByLabelText("Top resistance R1"), { target: { value: "10k" } });
+    fireEvent.change(screen.getByLabelText("Bottom resistance R2"), { target: { value: "20k" } });
+
+    const diagram = await screen.findByRole("img", { name: "Voltage divider circuit diagram" });
+    await waitFor(() => {
+      expect(within(diagram).getByTestId("divider-diagram-vin")).toHaveTextContent("12 V");
+      expect(within(diagram).getByTestId("divider-diagram-r1")).toHaveTextContent("10 kΩ");
+      expect(within(diagram).getByTestId("divider-diagram-r2")).toHaveTextContent("20 kΩ");
+      expect(within(diagram).getByTestId("divider-diagram-vout")).toHaveTextContent("8 V");
+    });
+
+    fireEvent.click(screen.getByLabelText("Include load"));
+    expect(await within(diagram).findByTestId("divider-diagram-load")).toHaveTextContent("100 kΩ");
+    await waitFor(() => expect(within(diagram).getByTestId("divider-diagram-vout")).toHaveTextContent("7.5 V"));
   });
 
   it("hydrates direct divider share URLs before emitting default state", async () => {

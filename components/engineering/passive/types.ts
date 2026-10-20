@@ -2,6 +2,7 @@ export type PassiveMode = "divider" | "rc" | "lc" | "rlc" | "reactance" | "atten
 
 export interface PassiveCircuitCopy {
   dividerTab: string;
+  dividerDiagramLabel: string;
   rcTab: string;
   lcTab: string;
   rlcTab: string;
