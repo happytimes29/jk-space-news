@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { AttenuatorTopologyPicker } from "./AttenuatorTopologyPicker";
 
 describe("AttenuatorTopologyPicker", () => {
-  it("offers two schematic radios and supports arrow-key selection", () => {
+  it("offers visibly focusable schematic radios with Enter and arrow-key selection", () => {
     const onChange = vi.fn();
     function Harness() {
       const [value, setValue] = useState<"tee" | "pi">("tee");
@@ -24,10 +24,15 @@ describe("AttenuatorTopologyPicker", () => {
     expect(radios[0]).toBeChecked();
     expect(screen.getByTestId("topology-card-tee")).toHaveAttribute("data-selected", "true");
     expect(screen.getByTestId("topology-card-tee")).toHaveTextContent("✓");
+    expect(screen.getByTestId("topology-card-tee")).toHaveClass("focus-within:ring-2");
 
+    fireEvent.keyDown(radios[1], { key: "Enter" });
+    expect(onChange).toHaveBeenLastCalledWith("pi");
+    expect(radios[1]).toBeChecked();
+    fireEvent.keyDown(radios[1], { key: "ArrowLeft" });
+    expect(radios[0]).toBeChecked();
     fireEvent.keyDown(radios[0], { key: "ArrowRight" });
-    expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange).toHaveBeenCalledWith("pi");
+    expect(onChange).toHaveBeenLastCalledWith("pi");
     expect(radios[1]).toBeChecked();
     expect(screen.getByTestId("topology-card-pi")).toHaveAttribute("data-selected", "true");
   });

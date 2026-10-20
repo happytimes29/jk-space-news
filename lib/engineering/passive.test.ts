@@ -159,6 +159,20 @@ describe("symmetric attenuator calculations", () => {
   });
 
   it.each([
+    ["tee", 1e-12], ["pi", 1e-12], ["tee", 4000], ["pi", 4000],
+  ] as const)("keeps all calculated values finite for %s at %s dB", (topology, attenuationDb) => {
+    const result = symmetricAttenuator({ topology, attenuationDb, impedanceOhms: 50, inputPowerWatts: 1 });
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) throw new Error("expected attenuator");
+    expect(Object.values(result.value.resistorsOhms).every((value) => Number.isFinite(value) && value > 0)).toBe(true);
+    expect([result.value.outputPowerW, result.value.estimatedTotalDissipationW, ...Object.values(result.value.resistorDissipationW ?? {})].every((value) => value !== undefined && Number.isFinite(value) && value >= 0)).toBe(true);
+  });
+
+  it.each(["tee", "pi"] as const)("rejects attenuation too extreme for finite %s components", (topology) => {
+    expect(symmetricAttenuator({ topology, attenuationDb: Number.MAX_VALUE, impedanceOhms: 50, inputPowerWatts: 1 })).toMatchObject({ ok: false, error: { field: "attenuationDb" } });
+  });
+
+  it.each([
     ["attenuationDb", () => symmetricAttenuator({ topology: "tee", attenuationDb: 0, impedanceOhms: 50 })],
     ["attenuationDb", () => symmetricAttenuator({ topology: "pi", attenuationDb: -1, impedanceOhms: 50 })],
     ["impedanceOhms", () => symmetricAttenuator({ topology: "tee", attenuationDb: 6, impedanceOhms: 0 })],

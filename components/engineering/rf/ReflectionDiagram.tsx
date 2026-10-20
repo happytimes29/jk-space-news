@@ -12,7 +12,7 @@ interface ReflectionDiagramProps {
 }
 
 export function ReflectionDiagram({ label, description, values, labels, limit, stale, staleLabel }: ReflectionDiagramProps) {
-  const reflectionOpacity = Math.max(0.18, Math.min(1, values.magnitude));
+  const reflectionOpacity = Math.min(1, values.magnitude);
   return (
     <EngineeringDiagramFrame label={label} title={label} description={description} viewBox="0 0 700 340" stale={stale} staleLabel={staleLabel} minWidthClassName="min-w-[540px]">
       <defs>
@@ -22,7 +22,7 @@ export function ReflectionDiagram({ label, description, values, labels, limit, s
       <g fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="3">
         <path d="M70 170H570" />
         <path d="M100 115H500" stroke="var(--color-accent)" strokeWidth="5" markerEnd="url(#incident-arrow)" />
-        <path d="M500 225H100" strokeWidth="5" opacity={reflectionOpacity} markerEnd="url(#reflected-arrow)" data-testid="reflected-arrow" />
+        {values.magnitude > 0 && <path d="M500 225H100" strokeWidth="5" opacity={reflectionOpacity} markerEnd="url(#reflected-arrow)" data-testid="reflected-arrow" />}
       </g>
       {limit === "finite" && <g data-testid="finite-load"><ResistorSymbol x1={570} y1={110} x2={570} y2={235} orientation="vertical" /><path d="M570 110V85 M570 235V260" stroke="currentColor" strokeWidth="3" /></g>}
       {limit === "short" && <g data-testid="short-load" fill="none" stroke="currentColor" strokeWidth="5"><path d="M570 85V260" /><path d="M545 260H595" /></g>}

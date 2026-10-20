@@ -52,9 +52,9 @@ NEXT_PUBLIC_SITE_URL=https://jk-space.com npm run test:e2e
 At the final integration checkpoint:
 
 - Transmission-line geometry focused suite: 3 files / 20 tests passed.
-- Full Vitest suite: 76 files / 517 tests passed.
-- Engineering Playwright: 21/21 passed in normal content mode and 21/21 with `CONTENT_PREVIEW=1` for all three locales.
-- Full Playwright suite: 59/59 passed.
+- Full Vitest suite: 76 files / 526 tests passed.
+- Engineering Playwright: 21 passed with one Preview-only check skipped in normal content mode, and 22/22 passed with `CONTENT_PREVIEW=1` for all three locales.
+- Full Playwright suite: 59 passed with the one Preview-only localization check skipped.
 - Production build succeeded and static generation completed 45/45 pages.
 - `npm run verify` passed lint, TypeScript, Vitest, 15 legacy-news guards, and the production build.
 
@@ -63,7 +63,7 @@ At the final integration checkpoint:
 - 320, 768, and 1440 px layouts: all new RF diagrams remained visible with no document-level horizontal overflow.
 - Light and dark color schemes: every affected calculator diagram remained visible using shared design tokens.
 - Keyboard operation: direct keyboard editing, T/π radio-arrow selection, selects, and buttons passed.
-- Traditional Chinese, Simplified Chinese, and English copy: Preview routes returned 200, localized headings, and locale-preserving Smith links.
+- Traditional Chinese, Simplified Chinese, and English copy: Preview routes returned 200, localized headings, locale-preserving Smith links, and every SVG text label remained inside its diagram in light and dark schemes.
 - Smith SVG/PNG: accessible SVG labels/table, browser PNG download, and a non-white pixel-content assertion passed.
 - Attenuator SVG: direct π hydration, zero input/output power, per-resistor dissipation, and near-zero attenuation labels passed bounds checks.
 - RF SVGs: length/angle/delay propagation, εeff conflicts and recovery, matched/short/open/Γ=j reflection states passed.

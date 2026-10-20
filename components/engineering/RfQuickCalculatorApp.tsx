@@ -165,7 +165,8 @@ export function RfQuickCalculatorApp({ copy, smithChartHref = "/tools/smith-char
     const result = wavelength({ frequencyHz, relativePermittivity, velocityFactor: factor });
     if (!result.ok) {
       setError(copy.invalidInput);
-      setPropagationErrorFields([relativePermittivity !== undefined ? "er" : factor !== undefined ? "velocityFactor" : "frequency"]);
+      const field = result.error.field === "relativePermittivity" ? "er" : result.error.field === "velocityFactor" ? "velocityFactor" : "frequency";
+      setPropagationErrorFields([field]);
       setPropagationStale(true);
       return;
     }
@@ -290,7 +291,7 @@ export function RfQuickCalculatorApp({ copy, smithChartHref = "/tools/smith-char
             delay: formatEngineering(propagation.delaySeconds, { unit: "s" }),
             angle: `${decimal(propagation.angleDegrees)}°`,
             medium: propagation.medium.kind === "free-space" ? copy.freeSpaceLabel : propagation.medium.kind === "effective-permittivity" ? `εeff = ${decimal(propagation.medium.value)}` : `VF = ${decimal(propagation.medium.value)}`,
-            repeated: propagation.angleDegrees > 720,
+            repeated: propagation.angleDegrees > 360,
           }}
           labels={{ frequency: copy.frequencyLabel, wavelength: copy.wavelengthLabel, half: copy.halfWavelengthLabel, quarter: copy.quarterWavelengthLabel, length: copy.lengthLabel, delay: copy.delayLabel, angle: copy.electricalAngleLabel, medium: copy.mediumLabel, waveDirection: copy.waveDirectionLabel }}
           stale={propagationStale}

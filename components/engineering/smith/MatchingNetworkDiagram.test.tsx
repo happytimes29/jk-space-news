@@ -14,7 +14,7 @@ describe("MatchingNetworkDiagram", () => {
     [[{ id: "1", connection: "series", component: "C", value: 2e-12 }, { id: "2", connection: "shunt", component: "L", value: 10e-9 }], ["series", "shunt"], ["C", "L"]],
     [[{ id: "1", connection: "shunt", component: "C", value: 2e-12 }, { id: "2", connection: "series", component: "L", value: 10e-9 }], ["shunt", "series"], ["C", "L"]],
     [[{ id: "1", connection: "shunt", component: "L", value: 10e-9 }, { id: "2", connection: "series", component: "C", value: 2e-12 }], ["shunt", "series"], ["L", "C"]],
-  ] as const)("draws the supplied two-step topology in order", (steps, connections, components) => {
+  ] as const)("draws load-to-source solver steps in the correct source-to-load positions", (steps, connections, components) => {
     const ideal = solution("ideal", steps as unknown as [NetworkStep, NetworkStep]);
     const rounded = solution("rounded", steps as unknown as [NetworkStep, NetworkStep], 1.2);
     render(<MatchingNetworkDiagram label="Matching network" description="Two-component L match" ideal={ideal} rounded={rounded} sourceLabel="Source" loadLabel="Load" idealLabel="Ideal" roundedLabel="Rounded" />);
@@ -25,9 +25,17 @@ describe("MatchingNetworkDiagram", () => {
       const group = within(diagram).getByTestId(`matching-step-${index}`);
       expect(group).toHaveAttribute("data-connection", connection);
       expect(group).toHaveAttribute("data-component", components[index]);
+      expect(group).toHaveAttribute("data-side", index === 0 ? "load" : "source");
       if (connection === "shunt") expect(within(group).getByTestId(`matching-step-${index}-ground`)).toBeInTheDocument();
       expect(within(diagram).getByTestId(`matching-step-${index}-ideal`)).not.toHaveTextContent("—");
       expect(within(diagram).getByTestId(`matching-step-${index}-rounded`).textContent).not.toBe(within(diagram).getByTestId(`matching-step-${index}-ideal`).textContent);
+    });
+    const backbone = within(diagram).getByTestId("matching-backbone");
+    expect(backbone).not.toHaveAttribute("d", "M55 120H585");
+    steps.forEach((step, index) => {
+      if (step.connection !== "series") return;
+      const x = index === 0 ? 415 : 225;
+      expect(backbone.getAttribute("d")).not.toContain(`H${x}`);
     });
   });
 });

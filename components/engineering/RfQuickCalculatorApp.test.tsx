@@ -79,6 +79,19 @@ describe("RfQuickCalculatorApp", () => {
     expect(within(result).getByText(/149\.896 Mm\/s/)).toBeInTheDocument();
   });
 
+  it("maps wavelength model errors to their actual fields", async () => {
+    render(<RfQuickCalculatorApp copy={copy} />);
+    fireEvent.change(screen.getByLabelText("Effective relative permittivity εeff"), { target: { value: "4" } });
+    fireEvent.change(screen.getByLabelText("Frequency"), { target: { value: "-1" } });
+    await waitFor(() => expect(screen.getByLabelText("Frequency")).toHaveAccessibleDescription(copy.invalidInput));
+    expect(screen.getByLabelText("Effective relative permittivity εeff")).not.toHaveAttribute("aria-invalid", "true");
+
+    fireEvent.change(screen.getByLabelText("Frequency"), { target: { value: "1G" } });
+    fireEvent.change(screen.getByLabelText("Effective relative permittivity εeff"), { target: { value: "-4" } });
+    await waitFor(() => expect(screen.getByLabelText("Effective relative permittivity εeff")).toHaveAttribute("aria-invalid", "true"));
+    expect(screen.getByLabelText("Frequency")).not.toHaveAttribute("aria-invalid", "true");
+  });
+
   it("converts electrical angle and delay back to physical length", async () => {
     render(<RfQuickCalculatorApp copy={copy} />);
     fireEvent.change(screen.getByLabelText("Convert from"), { target: { value: "angle" } });
@@ -172,12 +185,23 @@ describe("RfQuickCalculatorApp", () => {
     await waitFor(() => expect(diagram).not.toHaveAttribute("data-stale"));
   });
 
+  it("shows the repeated-wave marker only after one full wavelength", async () => {
+    render(<RfQuickCalculatorApp copy={copy} />);
+    const diagram = screen.getByRole("img", { name: "Propagation diagram" });
+    fireEvent.change(screen.getByLabelText("Convert from"), { target: { value: "angle" } });
+    fireEvent.change(screen.getByLabelText("Electrical angle input"), { target: { value: "360" } });
+    await waitFor(() => expect(within(diagram).queryByTestId("propagation-repeat-marker")).not.toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Electrical angle input"), { target: { value: "361" } });
+    await waitFor(() => expect(within(diagram).getByTestId("propagation-repeat-marker")).toBeInTheDocument());
+  });
+
   it("draws matched, short, open, and imaginary unit-circle reflection states", async () => {
     render(<RfQuickCalculatorApp copy={copy} smithChartHref="/en/tools/smith-chart/app" />);
     fireEvent.click(screen.getByRole("tab", { name: "Impedance and reflection" }));
     const diagram = screen.getByRole("img", { name: "Reflection diagram" });
     expect(within(diagram).getByTestId("finite-load")).toBeInTheDocument();
     expect(within(diagram).getByText("No reflected wave")).toBeInTheDocument();
+    expect(within(diagram).queryByTestId("reflected-arrow")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open in Smith chart" })).toHaveAttribute("href", "/en/tools/smith-chart/app");
 
     fireEvent.change(screen.getByLabelText("Resistance"), { target: { value: "0" } });
@@ -188,6 +212,7 @@ describe("RfQuickCalculatorApp", () => {
     fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "0" } });
     fireEvent.change(screen.getByLabelText("Γ imaginary"), { target: { value: "1" } });
     await waitFor(() => expect(within(diagram).getByTestId("finite-load")).toBeInTheDocument());
+    expect(within(diagram).getByTestId("reflected-arrow")).toBeInTheDocument();
     expect(within(diagram).queryByTestId("open-load")).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "1.1" } });

@@ -1,6 +1,19 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 
 const preview = process.env.CONTENT_PREVIEW === "1";
+
+async function expectSvgTextInside(diagram: Locator) {
+  const diagramBox = await diagram.boundingBox();
+  expect(diagramBox).not.toBeNull();
+  for (const label of await diagram.locator("text").all()) {
+    const box = await label.boundingBox();
+    if (!box) continue;
+    expect(box.x).toBeGreaterThanOrEqual(diagramBox!.x - 1);
+    expect(box.y).toBeGreaterThanOrEqual(diagramBox!.y - 1);
+    expect(box.x + box.width).toBeLessThanOrEqual(diagramBox!.x + diagramBox!.width + 1);
+    expect(box.y + box.height).toBeLessThanOrEqual(diagramBox!.y + diagramBox!.height + 1);
+  }
+}
 
 test("engineering applications navigate directly in every visible locale and preserve back links", async ({ page }) => {
   const locales = preview
@@ -242,13 +255,18 @@ test("attenuator topology cards hydrate, support keyboard selection, and keep ex
   await pi.focus();
   await page.keyboard.press("ArrowLeft");
   await expect(tee).toBeChecked();
+  await page.keyboard.press("Enter");
+  await expect(pi).toBeChecked();
+  await tee.focus();
+  await page.keyboard.press("Space");
+  await expect(tee).toBeChecked();
   await page.keyboard.press("ArrowRight");
   await expect(pi).toBeChecked();
   await expect.poll(() => new URL(page.url()).searchParams.get("topology")).toBe("pi");
 
   await page.getByLabel("輸入功率").fill("1");
   await page.getByLabel("衰減量").fill("0.001");
-  const labels = ["attenuator-diagram-r1", "attenuator-diagram-r2", "attenuator-diagram-r3"];
+  const labels = ["attenuator-diagram-input-power", "attenuator-diagram-output-power", "attenuator-diagram-r1", "attenuator-diagram-r2", "attenuator-diagram-r3", "attenuator-diagram-r1-power", "attenuator-diagram-r2-power", "attenuator-diagram-r3-power", "attenuator-diagram-total-power"];
   const diagramBox = await diagram.boundingBox();
   expect(diagramBox).not.toBeNull();
   for (const testId of labels) {
@@ -259,6 +277,7 @@ test("attenuator topology cards hydrate, support keyboard selection, and keep ex
     expect(box!.x).toBeGreaterThanOrEqual(diagramBox!.x);
     expect(box!.x + box!.width).toBeLessThanOrEqual(diagramBox!.x + diagramBox!.width);
   }
+  await expectSvgTextInside(diagram);
 });
 
 test("RF diagrams update across propagation inputs, recover from medium conflicts, and cover reflection limits", async ({ page }) => {
@@ -337,6 +356,7 @@ test("new RF diagrams remain visible without page overflow across widths and col
   const routesAndDiagrams = [
     ["/tools/passive-circuit-calculator/app?mode=attenuator", "衰減器電路圖"],
     ["/tools/rf-calculator/app", "RF 傳播示意圖"],
+    ["/tools/rf-calculator/app?mode=impedance", "RF 反射示意圖"],
     ["/tools/transmission-line/app", "傳輸線幾何"],
   ];
   for (const colorScheme of ["light", "dark"] as const) {
@@ -345,9 +365,44 @@ test("new RF diagrams remain visible without page overflow across widths and col
       await page.setViewportSize({ width, height: 900 });
       for (const [route, name] of routesAndDiagrams) {
         await page.goto(route);
-        await expect(page.getByRole("img", { name })).toBeVisible();
+        const diagram = page.getByRole("img", { name });
+        await expect(diagram).toBeVisible();
+        await expectSvgTextInside(diagram);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       }
+      await page.goto("/tools/smith-chart/app");
+      await page.getByRole("button", { name: "求解 L 型匹配" }).click();
+      const matching = page.getByRole("img", { name: /匹配網路示意圖/ }).first();
+      await expect(matching).toBeVisible();
+      await expectSvgTextInside(matching);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    }
+  }
+});
+
+test("all localized Preview diagrams fit their SVG bounds", async ({ page }) => {
+  test.setTimeout(90_000);
+  test.skip(!preview, "Translated tools are visible only in content Preview.");
+  await page.setViewportSize({ width: 768, height: 900 });
+  for (const colorScheme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme });
+    for (const [prefix, labels] of [
+      ["", { attenuator: "衰減器電路圖", propagation: "RF 傳播示意圖", reflection: "RF 反射示意圖", smith: /匹配網路示意圖/, transmission: "傳輸線幾何", attenuationTab: "衰減器", reflectionTab: "阻抗與反射", solve: "求解 L 型匹配" }],
+      ["/zh-cn", { attenuator: "衰减器电路图", propagation: "RF 传播示意图", reflection: "RF 反射示意图", smith: /匹配网络示意图/, transmission: "传输线几何", attenuationTab: "衰减器", reflectionTab: "阻抗与反射", solve: "求解 L 型匹配" }],
+      ["/en", { attenuator: "Attenuator circuit diagram", propagation: "Propagation diagram", reflection: "Reflection diagram", smith: /Matching network diagram/, transmission: "Transmission-line geometry", attenuationTab: "Attenuator", reflectionTab: "Impedance and reflection", solve: "Solve L match" }],
+    ] as const) {
+      await page.goto(`${prefix}/tools/passive-circuit-calculator/app`);
+      await page.getByRole("tab", { name: labels.attenuationTab }).click();
+      await expectSvgTextInside(page.getByRole("img", { name: labels.attenuator }));
+      await page.goto(`${prefix}/tools/rf-calculator/app`);
+      await expectSvgTextInside(page.getByRole("img", { name: labels.propagation }));
+      await page.getByRole("tab", { name: labels.reflectionTab }).click();
+      await expectSvgTextInside(page.getByRole("img", { name: labels.reflection }));
+      await page.goto(`${prefix}/tools/smith-chart/app`);
+      await page.getByRole("button", { name: labels.solve }).click();
+      await expectSvgTextInside(page.getByRole("img", { name: labels.smith }).first());
+      await page.goto(`${prefix}/tools/transmission-line/app`);
+      await expectSvgTextInside(page.getByRole("img", { name: labels.transmission }));
     }
   }
 });

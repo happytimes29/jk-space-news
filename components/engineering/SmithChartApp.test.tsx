@@ -60,10 +60,28 @@ describe("SmithChartApp", () => {
     const before = within(table).getByRole("row", { name: /Load/ }).textContent;
     fireEvent.change(screen.getByLabelText("Load resistance"), { target: { value: "-1" } });
     expect(await screen.findByText(copy.invalidInput)).toBeVisible();
+    expect(screen.getByLabelText("Load resistance")).toHaveAccessibleDescription(copy.invalidInput);
+    expect(screen.getByLabelText("Frequency")).not.toHaveAttribute("aria-invalid", "true");
     expect(within(table).getByRole("row", { name: /Load/ }).textContent).toBe(before);
     fireEvent.change(screen.getByLabelText("Load resistance"), { target: { value: "25" } });
     fireEvent.change(screen.getByLabelText("Reference impedance"), { target: { value: "75" } });
     await waitFor(() => expect(within(table).getByRole("row", { name: /Load/ }).textContent).not.toBe(before));
+  });
+
+  it("maps main and component-entry errors to the field that caused them", async () => {
+    render(<SmithChartApp copy={copy} />);
+    for (const [label, invalid] of [["Frequency", "-1"], ["Reference impedance", "0"], ["Load reactance", "invalid"]] as const) {
+      const field = screen.getByLabelText(label);
+      fireEvent.change(field, { target: { value: invalid } });
+      await waitFor(() => expect(field).toHaveAccessibleDescription(copy.invalidInput));
+      fireEvent.change(field, { target: { value: label === "Frequency" ? "1G" : label === "Reference impedance" ? "50" : "0" } });
+      await waitFor(() => expect(field).not.toHaveAttribute("aria-invalid", "true"));
+    }
+
+    fireEvent.change(screen.getByLabelText("Component value"), { target: { value: "invalid" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add component" }));
+    expect(screen.getByLabelText("Component value")).toHaveAccessibleDescription(copy.invalidInput);
+    expect(screen.queryByText(copy.lastValidResultLabel)).not.toBeInTheDocument();
   });
 
   it("retains the physical network when toggling admittance mode", async () => {

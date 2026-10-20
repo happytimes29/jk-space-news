@@ -30,13 +30,26 @@ function Symbol({ step, x, index }: { step: NetworkStep; x: number; index: numbe
   return <ResistorSymbol {...common} />;
 }
 
+function backbonePath(steps: readonly NetworkStep[]): string {
+  let cursor = 55;
+  const segments: string[] = [];
+  const sourceToLoad = steps.map((step, index) => ({ step, x: index === 0 ? 415 : 225 })).sort((left, right) => left.x - right.x);
+  for (const { step, x } of sourceToLoad) {
+    if (step.connection !== "series") continue;
+    segments.push(`M${cursor} 120H${x - 55}`);
+    cursor = x + 55;
+  }
+  segments.push(`M${cursor} 120H585`);
+  return segments.join(" ");
+}
+
 export function MatchingNetworkDiagram({ label, description, ideal, rounded, sourceLabel, loadLabel, idealLabel, roundedLabel, stale = false, staleLabel = "" }: MatchingNetworkDiagramProps) {
   return (
     <EngineeringDiagramFrame label={label} title={label} description={description} viewBox="0 0 640 350" stale={stale} staleLabel={staleLabel} minWidthClassName="min-w-[500px]">
-      <g fill="none" stroke="currentColor" strokeWidth="3"><path d="M55 120H585" /><circle cx="55" cy="120" r="5" fill="var(--color-card)" /><circle cx="585" cy="120" r="5" fill="var(--color-card)" /></g>
+      <g fill="none" stroke="currentColor" strokeWidth="3"><path d={backbonePath(ideal.steps)} data-testid="matching-backbone" /><circle cx="55" cy="120" r="5" fill="var(--color-card)" /><circle cx="585" cy="120" r="5" fill="var(--color-card)" /></g>
       {ideal.steps.map((step, index) => {
-        const x = index === 0 ? 225 : 415;
-        return <g key={step.id} data-testid={`matching-step-${index}`} data-connection={step.connection} data-component={step.component}>
+        const x = index === 0 ? 415 : 225;
+        return <g key={step.id} data-testid={`matching-step-${index}`} data-connection={step.connection} data-component={step.component} data-side={index === 0 ? "load" : "source"}>
           <Symbol step={step} x={x} index={index} />
           {step.connection === "shunt" && <><path d={`M${x} 225V250`} stroke="currentColor" strokeWidth="3" /><GroundSymbol x={x} y={250} testId={`matching-step-${index}-ground`} /></>}
           <g fill="currentColor" fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace" fontSize="13">
