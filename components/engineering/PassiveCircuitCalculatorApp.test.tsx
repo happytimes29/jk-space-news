@@ -6,6 +6,7 @@ const copy: PassiveCircuitCopy = {
   dividerTab: "Divider",
   dividerDiagramLabel: "Voltage divider circuit diagram",
   rcDiagramLabel: "RC low-pass circuit diagram",
+  lcDiagramLabel: "LC resonant tank circuit diagram",
   rcTab: "RC",
   lcTab: "LC",
   rlcTab: "RLC",
@@ -82,7 +83,7 @@ describe("PassiveCircuitCalculatorApp", () => {
     expect(screen.getAllByText(/100 µs/).length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole("tab", { name: "LC" }));
-    expect(await screen.findByText(/1\.59155 GHz/)).toBeInTheDocument();
+    expect((await screen.findAllByText(/1\.59155 GHz/)).length).toBeGreaterThan(0);
   });
 
   it("updates the RC low-pass diagram values while the user types", async () => {
@@ -100,6 +101,22 @@ describe("PassiveCircuitCalculatorApp", () => {
       expect(within(diagram).getByTestId("rc-diagram-r")).toHaveTextContent("2 kΩ");
       expect(within(diagram).getByTestId("rc-diagram-cutoff")).toHaveTextContent("795.775 Hz");
       expect(within(diagram).getByTestId("rc-diagram-time")).toHaveTextContent("200 µs");
+    });
+  });
+
+  it("updates the LC resonant tank diagram values while the user types", async () => {
+    render(<PassiveCircuitCalculatorApp copy={copy} />);
+    fireEvent.click(screen.getByRole("tab", { name: "LC" }));
+
+    const diagram = await screen.findByRole("img", { name: "LC resonant tank circuit diagram" });
+    expect(within(diagram).getByTestId("lc-diagram-l")).toHaveTextContent("10 nH");
+    expect(within(diagram).getByTestId("lc-diagram-c")).toHaveTextContent("1 pF");
+    expect(within(diagram).getByTestId("lc-diagram-resonance")).toHaveTextContent("1.59155 GHz");
+
+    fireEvent.change(screen.getByLabelText("Inductance"), { target: { value: "40n" } });
+    await waitFor(() => {
+      expect(within(diagram).getByTestId("lc-diagram-l")).toHaveTextContent("40 nH");
+      expect(within(diagram).getByTestId("lc-diagram-resonance")).toHaveTextContent("795.775 MHz");
     });
   });
 
