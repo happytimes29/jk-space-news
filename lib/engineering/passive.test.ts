@@ -126,6 +126,8 @@ describe("symmetric attenuator calculations", () => {
     expect(result).toMatchObject({ ok: true });
     if (!result.ok) throw new Error("expected attenuator");
     expect(Object.values(result.value.resistorsOhms).every((value) => Number.isFinite(value) && value > 0)).toBe(true);
+    expect(result.value.inputPowerW).toBe(1);
+    expect(result.value.outputPowerW).toBeCloseTo(10 ** (-0.6), 12);
     expect(result.value.estimatedTotalDissipationW).toBeCloseTo(1 - 10 ** (-6 / 10), 12);
     expect(Object.values(result.value.resistorDissipationW ?? {}).reduce((sum, value) => sum + value, 0)).toBeCloseTo(result.value.estimatedTotalDissipationW!, 12);
   });
@@ -135,15 +137,36 @@ describe("symmetric attenuator calculations", () => {
     expect(result).toMatchObject({ ok: true });
     if (!result.ok) throw new Error("expected attenuator");
     expect(result.value.estimatedTotalDissipationW).toBeUndefined();
+    expect(result.value.inputPowerW).toBeUndefined();
+    expect(result.value.outputPowerW).toBeUndefined();
+  });
+
+  it.each(["tee", "pi"] as const)("accepts zero input power for a %s network", (topology) => {
+    const result = symmetricAttenuator({ topology, attenuationDb: 6, impedanceOhms: 50, inputPowerWatts: 0 });
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) throw new Error("expected attenuator");
+    expect(result.value.inputPowerW).toBe(0);
+    expect(result.value.outputPowerW).toBe(0);
+    expect(result.value.estimatedTotalDissipationW).toBe(0);
+    expect(Object.values(result.value.resistorDissipationW ?? {})).toEqual([0, 0, 0]);
+  });
+
+  it.each(["tee", "pi"] as const)("remains finite for a very small %s attenuation", (topology) => {
+    const result = symmetricAttenuator({ topology, attenuationDb: 0.001, impedanceOhms: 50 });
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) throw new Error("expected attenuator");
+    expect(Object.values(result.value.resistorsOhms).every((value) => Number.isFinite(value) && value > 0)).toBe(true);
   });
 
   it.each([
-    () => symmetricAttenuator({ topology: "tee", attenuationDb: 0, impedanceOhms: 50 }),
-    () => symmetricAttenuator({ topology: "pi", attenuationDb: -1, impedanceOhms: 50 }),
-    () => symmetricAttenuator({ topology: "tee", attenuationDb: 6, impedanceOhms: 0 }),
-    () => symmetricAttenuator({ topology: "pi", attenuationDb: 6, impedanceOhms: Number.NaN }),
-    () => symmetricAttenuator({ topology: "tee", attenuationDb: 6, impedanceOhms: 50, inputPowerWatts: 0 }),
-  ])("rejects invalid attenuator input", (calculate) => {
-    expect(calculate()).toMatchObject({ ok: false });
+    ["attenuationDb", () => symmetricAttenuator({ topology: "tee", attenuationDb: 0, impedanceOhms: 50 })],
+    ["attenuationDb", () => symmetricAttenuator({ topology: "pi", attenuationDb: -1, impedanceOhms: 50 })],
+    ["impedanceOhms", () => symmetricAttenuator({ topology: "tee", attenuationDb: 6, impedanceOhms: 0 })],
+    ["inputPowerWatts", () => symmetricAttenuator({ topology: "tee", attenuationDb: 6, impedanceOhms: 50, inputPowerWatts: -1 })],
+    ["attenuationDb", () => symmetricAttenuator({ topology: "tee", attenuationDb: Number.NaN, impedanceOhms: 50 })],
+    ["impedanceOhms", () => symmetricAttenuator({ topology: "pi", attenuationDb: 6, impedanceOhms: Number.POSITIVE_INFINITY })],
+    ["inputPowerWatts", () => symmetricAttenuator({ topology: "tee", attenuationDb: 6, impedanceOhms: 50, inputPowerWatts: Number.NaN })],
+  ] as const)("reports invalid attenuator input on %s", (field, calculate) => {
+    expect(calculate()).toMatchObject({ ok: false, error: { field } });
   });
 });
