@@ -15,6 +15,8 @@ import { smithPoint, smithReadout, type SmithPoint, type SmithReadout } from "@/
 import type { Complex } from "@/lib/engineering/complex";
 import type { SmithChartMode } from "./smith/smith-grid";
 import type { ESeries } from "@/lib/engineering/standard-values";
+import { MatchingNetworkDiagram } from "./smith/MatchingNetworkDiagram";
+import { DiagramStatusNotice } from "./diagrams/EngineeringDiagramFrame";
 
 export interface SmithChartCopy {
   inputTitle: string;
@@ -51,6 +53,11 @@ export interface SmithChartCopy {
   matchedImpedanceLabel: string;
   residualLabel: string;
   schematicLabel: string;
+  matchingDiagramLabel: string;
+  matchingDiagramDescription: string;
+  sourceLabel: string;
+  loadLabel: string;
+  lastValidResultLabel: string;
   chart: SmithChartLabels;
   readout: SmithReadoutLabels;
 }
@@ -151,6 +158,7 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
   const [error, setError] = useState<string>();
   const [matches, setMatches] = useState<MatchView[]>([]);
   const [preferredSeries, setPreferredSeries] = useState<ESeries>(24);
+  const [isStale, setIsStale] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -171,14 +179,17 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
     const im = parse(reactance);
     if (frequencyHz === undefined || referenceOhms === undefined || re === undefined || im === undefined || frequencyHz <= 0 || referenceOhms <= 0 || re < 0) {
       setError(copy.invalidInput);
+      setIsStale(true);
       return;
     }
     const next = buildVisual({ re, im }, referenceOhms, frequencyHz, history.present, { series: copy.seriesLabel, shunt: copy.shuntLabel });
     if (!next) {
       setError(copy.invalidInput);
+      setIsStale(true);
       return;
     }
     setError(undefined);
+    setIsStale(false);
     setVisual(next);
   }, [copy.invalidInput, copy.seriesLabel, copy.shuntLabel, frequency, history.present, reactance, reference, resistance]);
 
@@ -312,7 +323,8 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
 
       <div className="space-y-6">
         <section ref={chartRef} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-          <SmithChart mode={mode} paths={visual.paths} activePoint={visual.activePoint} targetPoint={visual.targetPoint} labels={copy.chart} />
+          <div data-stale={isStale ? "true" : undefined} className={isStale ? "opacity-55" : undefined}><SmithChart mode={mode} paths={visual.paths} activePoint={visual.activePoint} targetPoint={visual.targetPoint} labels={copy.chart} /></div>
+          <DiagramStatusNotice stale={isStale} label={copy.lastValidResultLabel} />
         </section>
         <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-5"><SmithReadoutTable readout={visual.readout} labels={copy.readout} /></section>
         <div className="flex flex-wrap gap-3">
@@ -330,6 +342,7 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
         <div><strong>{copy.idealLabel}</strong><ol className="mt-1 text-sm">{ideal.steps.map((step) => <li key={step.id}>{stepText(step, copy)}</li>)}</ol></div>
         <div><strong>{copy.roundedLabel}</strong><span className="ml-2 text-xs text-[var(--color-muted)]">{copy.preferredSeriesLabel}: E{preferredSeries}</span><ol className="mt-1 text-sm">{rounded.steps.map((step) => <li key={step.id}>{stepText(step, copy)}</li>)}</ol></div>
         <p className="text-sm"><strong>{copy.schematicLabel}:</strong> {rounded.steps.map((step) => `${step.connection === "series" ? copy.seriesLabel : copy.shuntLabel} ${step.component}`).join(" → ")}</p>
+        <MatchingNetworkDiagram label={`${copy.matchingDiagramLabel} ${ideal.character === "low-pass" ? copy.lowPassLabel : copy.highPassLabel}`} description={copy.matchingDiagramDescription} ideal={ideal} rounded={rounded} sourceLabel={copy.sourceLabel} loadLabel={copy.loadLabel} idealLabel={copy.idealLabel} roundedLabel={copy.roundedLabel} />
         <p className="text-sm"><strong>{copy.matchedImpedanceLabel}:</strong> {complexTextForMatch(rounded.matchedImpedance)} Ω</p>
         <p className="text-sm"><strong>{copy.residualLabel}:</strong> |Γ| = {Number(rounded.residualGammaMagnitude.toPrecision(6))}</p>
         {preview && <SmithChart mode={mode} paths={preview.paths} activePoint={preview.activePoint} targetPoint={preview.targetPoint} labels={copy.chart} size={240} showTable={false} />}

@@ -9,6 +9,7 @@ vi.mock("./smith/export", () => ({ exportSmithChartPng: vi.fn(async () => undefi
 const copy: SmithChartCopy = {
   inputTitle: "Inputs", frequencyLabel: "Frequency", referenceLabel: "Reference impedance", resistanceLabel: "Load resistance", reactanceLabel: "Load reactance", chartModeLabel: "Chart mode", impedanceMode: "Impedance", admittanceMode: "Admittance", connectionLabel: "Connection", seriesLabel: "Series", shuntLabel: "Shunt", componentLabel: "Component", valueLabel: "Component value", addStepLabel: "Add component", undoLabel: "Undo", redoLabel: "Redo", resetLabel: "Reset", solveLabel: "Solve L match", solutionsLabel: "Matching solutions", lowPassLabel: "Low-pass", highPassLabel: "High-pass", idealLabel: "Ideal", roundedLabel: "Preferred-value result", preferredSeriesLabel: "Preferred values", selectSolutionLabel: "Apply solution", exportLabel: "Export PNG", copyUrlLabel: "Copy share URL", invalidInput: "Enter a passive finite load and positive settings.", idealLimitNote: "Ideal single-frequency model.", stepLabel: "Step",
   deleteStepLabel: "Delete", matchedImpedanceLabel: "Matched impedance", residualLabel: "Residual mismatch", schematicLabel: "Topology",
+  matchingDiagramLabel: "Matching network diagram", matchingDiagramDescription: "Ideal and rounded L-match component values.", sourceLabel: "Source", loadLabel: "Load", lastValidResultLabel: "Showing the last valid result.",
   chart: { title: "Smith chart", description: "Single-frequency impedance and matching path", load: "Load", target: "Target", center: "Match", open: "Open", short: "Short", pathTableTitle: "Path values", pointLabel: "Point", startLabel: "Start", endLabel: "End" },
   readout: { table: "RF readout", impedance: "Z", admittance: "Y", gamma: "Gamma", s11: "S11", vswr: "VSWR", returnLoss: "Return loss", mismatchLoss: "Mismatch loss" },
 };
@@ -83,12 +84,25 @@ describe("SmithChartApp", () => {
     expect(screen.getAllByText(/Matched impedance/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Residual mismatch/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Topology/).length).toBeGreaterThan(0);
+    const matchingDiagrams = screen.getAllByRole("img", { name: /Matching network diagram/ });
+    expect(matchingDiagrams).toHaveLength(2);
+    const roundedBefore = within(matchingDiagrams[0]).getByTestId("matching-step-0-rounded").textContent;
     fireEvent.change(screen.getByLabelText("Preferred values"), { target: { value: "96" } });
     expect((await screen.findAllByText(/E96/)).length).toBeGreaterThan(0);
+    await waitFor(() => expect(within(matchingDiagrams[0]).getByTestId("matching-step-0-rounded").textContent).not.toBe(roundedBefore));
     fireEvent.click(screen.getAllByRole("button", { name: "Apply solution" })[0]);
     expect(await screen.findByText(/Step 2/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Export PNG" }));
     await waitFor(() => expect(track).toHaveBeenCalledWith("Engineering Tool Action", { slug: "smith-chart", action: "export_png" }));
+  });
+
+  it("marks the preserved Smith chart as stale for an invalid main input", async () => {
+    render(<SmithChartApp copy={copy} />);
+    const table = screen.getByRole("table", { name: "Path values" });
+    const before = within(table).getByRole("row", { name: /Load/ }).textContent;
+    fireEvent.change(screen.getByLabelText("Load resistance"), { target: { value: "-1" } });
+    expect(await screen.findByRole("status")).toHaveTextContent("Showing the last valid result.");
+    expect(within(table).getByRole("row", { name: /Load/ }).textContent).toBe(before);
   });
 
   it("clears solved matches when the load or frequency changes", async () => {
