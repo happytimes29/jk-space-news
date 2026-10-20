@@ -32,17 +32,18 @@ export function DividerDiagram({ label, vin, rTop, rBottom, vout, load }: Divide
         <g fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="3">
           <path d="M 105 55 H 270 V 74 M 270 150 V 170 M 270 246 V 270 H 105 V 205" />
           <path d="M 270 160 H 435" />
+          <path d="M 435 270 H 270" data-testid="divider-diagram-return" />
           <circle cx="270" cy="160" r="5" fill="var(--color-accent)" stroke="var(--color-accent)" />
           <circle cx="435" cy="160" r="5" fill="var(--color-card)" />
           <circle cx="435" cy="270" r="5" fill="var(--color-card)" />
           <path d="M 84 130 H 126 M 94 144 H 116" />
           <path d="M 105 55 V 130 M 105 144 V 205" />
-          {load && <path d="M 435 160 V 174 M 435 250 V 270 H 270" />}
+          {load && <path d="M 400 160 V 174 M 400 250 V 270" />}
         </g>
 
         <Resistor x={270} y={74} />
         <Resistor x={270} y={170} />
-        {load && <Resistor x={435} y={174} />}
+        {load && <Resistor x={400} y={174} />}
 
         <g fill="currentColor" fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace" fontSize="15">
           <text x="72" y="105" fontWeight="700">+</text>
@@ -58,8 +59,8 @@ export function DividerDiagram({ label, vin, rTop, rBottom, vout, load }: Divide
           <text x="354" y="190" data-testid="divider-diagram-vout">{vout}</text>
 
           {load && <>
-            <text x="458" y="200" fontWeight="700">RL</text>
-            <text x="458" y="221" data-testid="divider-diagram-load">{load}</text>
+            <text x="420" y="200" fontWeight="700">RL</text>
+            <text x="420" y="221" data-testid="divider-diagram-load">{load}</text>
           </>}
         </g>
 

@@ -221,6 +221,7 @@ describe("PassiveCircuitCalculatorApp", () => {
 
     const diagram = await screen.findByRole("img", { name: "Voltage divider circuit diagram" });
     await waitFor(() => {
+      expect(within(diagram).getByTestId("divider-diagram-return")).toBeInTheDocument();
       expect(within(diagram).getByTestId("divider-diagram-vin")).toHaveTextContent("12 V");
       expect(within(diagram).getByTestId("divider-diagram-r1")).toHaveTextContent("10 kΩ");
       expect(within(diagram).getByTestId("divider-diagram-r2")).toHaveTextContent("20 kΩ");
@@ -230,6 +231,9 @@ describe("PassiveCircuitCalculatorApp", () => {
     fireEvent.click(screen.getByLabelText("Include load"));
     expect(await within(diagram).findByTestId("divider-diagram-load")).toHaveTextContent("100 kΩ");
     await waitFor(() => expect(within(diagram).getByTestId("divider-diagram-vout")).toHaveTextContent("7.5 V"));
+
+    fireEvent.change(screen.getByLabelText("Load resistance"), { target: { value: "123456" } });
+    await waitFor(() => expect(within(diagram).getByTestId("divider-diagram-load")).toHaveTextContent("123.456 kΩ"));
   });
 
   it("hydrates direct divider share URLs before emitting default state", async () => {
