@@ -5,6 +5,7 @@ export interface PassiveCircuitCopy {
   dividerDiagramLabel: string;
   rcDiagramLabel: string;
   lcDiagramLabel: string;
+  rlcDiagramLabel: string;
   rcTab: string;
   lcTab: string;
   rlcTab: string;

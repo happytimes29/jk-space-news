@@ -251,6 +251,7 @@
       "dividerDiagramLabel": "分压器电路图",
       "rcDiagramLabel": "RC 低通电路图",
       "lcDiagramLabel": "LC 谐振槽电路图",
+      "rlcDiagramLabel": "RLC 电路图",
       "dividerTab": "分压", "rcTab": "RC", "lcTab": "LC", "rlcTab": "RLC", "reactanceTab": "电抗", "attenuatorTab": "衰减器", "inputTitle": "输入", "resultTitle": "计算结果", "vinLabel": "输入电压", "targetVoutLabel": "目标输出", "seriesLabel": "标准值系列", "enableLoadLabel": "加入负载", "loadLabel": "负载阻抗", "resistanceLabel": "电阻", "capacitanceLabel": "电容", "inductanceLabel": "电感", "frequencyLabel": "频率", "circuitTypeLabel": "电路类型", "seriesCircuitLabel": "串联", "parallelCircuitLabel": "并联", "attenuationLabel": "衰减量", "impedanceLabel": "系统阻抗", "topologyLabel": "拓扑", "teeLabel": "T 型网络", "piLabel": "π 型网络", "cutoffLabel": "截止频率", "timeConstantLabel": "时间常数", "resonanceLabel": "谐振频率", "qualityLabel": "Q 值", "bandwidthLabel": "带宽", "capacitiveReactanceLabel": "容抗", "inductiveReactanceLabel": "感抗", "bestCandidateLabel": "最佳标准值组合", "actualOutputLabel": "实际输出", "errorLabel": "请检查标示的输入值。", "noSolutionLabel": "这组输入没有可用的实际解。", "dividerModeLabel": "分压工作模式", "designLabel": "设计阻值", "evaluateLabel": "验算 R1／R2", "topResistanceLabel": "上臂电阻 R1", "bottomResistanceLabel": "下臂电阻 R2", "toleranceLabel": "电阻容差", "branchCurrentLabel": "分压支路电流", "topPowerLabel": "R1 功耗", "bottomPowerLabel": "R2 功耗", "worstCaseLabel": "最差输出范围", "relativeErrorLabel": "相对误差", "candidateListLabel": "排序候选值", "inputPowerLabel": "输入功率", "totalDissipationLabel": "电阻总功耗", "resistorPowerLabel": "各电阻功耗"
     },
     "rf": {

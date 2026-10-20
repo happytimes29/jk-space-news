@@ -7,6 +7,7 @@ const copy: PassiveCircuitCopy = {
   dividerDiagramLabel: "Voltage divider circuit diagram",
   rcDiagramLabel: "RC low-pass circuit diagram",
   lcDiagramLabel: "LC resonant tank circuit diagram",
+  rlcDiagramLabel: "RLC circuit diagram",
   rcTab: "RC",
   lcTab: "LC",
   rlcTab: "RLC",
@@ -117,6 +118,28 @@ describe("PassiveCircuitCalculatorApp", () => {
     await waitFor(() => {
       expect(within(diagram).getByTestId("lc-diagram-l")).toHaveTextContent("40 nH");
       expect(within(diagram).getByTestId("lc-diagram-resonance")).toHaveTextContent("795.775 MHz");
+    });
+  });
+
+  it("switches the live RLC diagram between series and parallel topologies", async () => {
+    render(<PassiveCircuitCalculatorApp copy={copy} />);
+    fireEvent.click(screen.getByRole("tab", { name: "RLC" }));
+
+    const diagram = await screen.findByRole("img", { name: "RLC circuit diagram" });
+    expect(within(diagram).getByTestId("rlc-diagram-topology")).toHaveTextContent("Series");
+    expect(within(diagram).getByTestId("rlc-diagram-r")).toHaveTextContent("10 Ω");
+    expect(within(diagram).getByTestId("rlc-diagram-l")).toHaveTextContent("10 µH");
+    expect(within(diagram).getByTestId("rlc-diagram-c")).toHaveTextContent("100 nF");
+    expect(within(diagram).getByTestId("rlc-diagram-resonance")).toHaveTextContent("159.155 kHz");
+
+    fireEvent.change(screen.getByLabelText("Resistance"), { target: { value: "20" } });
+    await waitFor(() => expect(within(diagram).getByTestId("rlc-diagram-q")).toHaveTextContent("Q 500 m"));
+
+    fireEvent.change(screen.getByLabelText("Circuit type"), { target: { value: "parallel" } });
+    await waitFor(() => {
+      expect(within(diagram).getByTestId("rlc-diagram-topology")).toHaveTextContent("Parallel");
+      expect(within(diagram).getByTestId("rlc-diagram-q")).toHaveTextContent("Q 2");
+      expect(within(diagram).getByTestId("rlc-diagram-bandwidth")).toHaveTextContent("79.5775 kHz");
     });
   });
 
