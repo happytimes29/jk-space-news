@@ -52,7 +52,7 @@ NEXT_PUBLIC_SITE_URL=https://jk-space.com npm run test:e2e
 At the final integration checkpoint:
 
 - Transmission-line geometry focused suite: 3 files / 20 tests passed.
-- Full Vitest suite: 76 files / 526 tests passed.
+- Full Vitest suite: 76 files / 529 tests passed.
 - Engineering Playwright: 21 passed with one Preview-only check skipped in normal content mode, and 22/22 passed with `CONTENT_PREVIEW=1` for all three locales.
 - Full Playwright suite: 59 passed with the one Preview-only localization check skipped.
 - Production build succeeded and static generation completed 45/45 pages.
@@ -67,7 +67,7 @@ At the final integration checkpoint:
 - Smith SVG/PNG: accessible SVG labels/table, browser PNG download, and a non-white pixel-content assertion passed.
 - Attenuator SVG: direct π hydration, zero input/output power, per-resistor dissipation, and near-zero attenuation labels passed bounds checks.
 - RF SVGs: length/angle/delay propagation, εeff conflicts and recovery, matched/short/open/Γ=j reflection states passed.
-- Smith SVGs: both low-pass and high-pass matching solutions show ideal and E-series component values.
+- Smith SVGs: the main chart shows labeled major scales, minor grid lines, visible numbered network paths, and both low-pass and high-pass matching solutions show ideal and E-series component values with simplified thumbnail grids.
 - Geometry SVGs: Microstrip W/t/h, Stripline W/t/b, CPWG W/t/h/s, live units, Z₀, electrical angle, and invalid-input SI snapshot behavior passed.
 - Share URL restore: Converter, passive, RF, Smith ordered steps, and canonical SI transmission geometry survived reload without hydration errors.
 - Network privacy: browser tests observed no calculation XHR/fetch payload; analytics assertion rejects numeric Smith inputs.

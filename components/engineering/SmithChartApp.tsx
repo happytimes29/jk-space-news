@@ -358,7 +358,7 @@ export function SmithChartApp({ copy }: { copy: SmithChartCopy }) {
         <MatchingNetworkDiagram label={`${copy.matchingDiagramLabel} ${ideal.character === "low-pass" ? copy.lowPassLabel : copy.highPassLabel}`} description={copy.matchingDiagramDescription} ideal={ideal} rounded={rounded} sourceLabel={copy.sourceLabel} loadLabel={copy.loadLabel} idealLabel={copy.idealLabel} roundedLabel={copy.roundedLabel} />
         <p className="text-sm"><strong>{copy.matchedImpedanceLabel}:</strong> {complexTextForMatch(rounded.matchedImpedance)} Ω</p>
         <p className="text-sm"><strong>{copy.residualLabel}:</strong> |Γ| = {Number(rounded.residualGammaMagnitude.toPrecision(6))}</p>
-        {preview && <SmithChart mode={mode} paths={preview.paths} activePoint={preview.activePoint} targetPoint={preview.targetPoint} labels={copy.chart} size={240} showTable={false} />}
+        {preview && <SmithChart mode={mode} paths={preview.paths} activePoint={preview.activePoint} targetPoint={preview.targetPoint} labels={copy.chart} size={240} showTable={false} detail="compact" />}
         <button type="button" onClick={() => applySolution(rounded)} className="rounded-lg bg-[var(--color-accent)] px-4 py-2 font-medium text-white">{copy.selectSolutionLabel}</button>
       </article>; })}</div>
     </section>}

@@ -29,4 +29,28 @@ describe("Smith grid geometry", () => {
       });
     }
   });
+
+  it("adds labeled major curves and fainter minor curves to the detailed grid", () => {
+    const detailed = buildSmithGrid("impedance", "detailed");
+    const compact = buildSmithGrid("impedance", "compact");
+    const detailedPaths = detailed.filter((primitive) => primitive.kind === "path");
+    const compactPaths = compact.filter((primitive) => primitive.kind === "path");
+    const detailedLabels = detailed.filter((primitive) => primitive.kind === "value-label");
+
+    expect(detailedPaths.map(({ id }) => id)).toEqual(expect.arrayContaining([
+      "resistance-0.1",
+      "resistance-10",
+      "reactance-0.1",
+      "reactance--10",
+    ]));
+    expect(detailedPaths.find(({ id }) => id === "resistance-0.1")).toMatchObject({ major: false });
+    expect(detailedPaths.find(({ id }) => id === "resistance-10")).toMatchObject({ major: true });
+    expect(detailedPaths.length).toBeGreaterThan(compactPaths.length);
+    expect(detailedLabels.map(({ id }) => id)).toEqual(expect.arrayContaining([
+      "resistance-label-0.2",
+      "reactance-label-0.2",
+      "reactance-label--0.2",
+    ]));
+    expect(compact.some((primitive) => primitive.kind === "value-label")).toBe(false);
+  });
 });

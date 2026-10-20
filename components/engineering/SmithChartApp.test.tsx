@@ -102,6 +102,11 @@ describe("SmithChartApp", () => {
     expect(screen.getAllByText(/Matched impedance/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Residual mismatch/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Topology/).length).toBeGreaterThan(0);
+    const smithCharts = screen.getAllByRole("img", { name: "Smith chart" });
+    expect(smithCharts).toHaveLength(3);
+    expect(smithCharts[0].querySelector('[data-grid-level="minor"]')).toBeInTheDocument();
+    expect(smithCharts[1].querySelector('[data-grid-level="minor"]')).not.toBeInTheDocument();
+    expect(smithCharts[2].querySelector('[data-grid-level="minor"]')).not.toBeInTheDocument();
     const matchingDiagrams = screen.getAllByRole("img", { name: /Matching network diagram/ });
     expect(matchingDiagrams).toHaveLength(2);
     const roundedBefore = within(matchingDiagrams[0]).getByTestId("matching-step-0-rounded").textContent;

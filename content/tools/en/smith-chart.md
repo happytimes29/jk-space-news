@@ -17,7 +17,7 @@ translatedAt: 2026-10-20
 
 ## Purpose, inputs, and chart conventions
 
-Enter one frequency, reference impedance `Z0`, and load `Z=R+jX`. The tool maps `Γ=(Z-Z0)/(Z+Z0)` onto a Smith chart: the center is a match, the right edge is open, and the left edge is short. An admittance grid is also available. Readouts include Z, Y, Γ, S11, VSWR, return loss, and mismatch loss.
+Enter one frequency, reference impedance `Z0`, and load `Z=R+jX`. The tool maps `Γ=(Z-Z0)/(Z+Z0)` onto a Smith chart: the center is a match, the right edge is open, and the left edge is short. Labeled major scales, minor grid lines, constant-resistance circles, and positive/negative reactance arcs make the position readable; admittance mode shows the corresponding conductance and susceptance grid. Readouts include Z, Y, Γ, S11, VSWR, return loss, and mismatch loss.
 
 The default example is 1 GHz, a 50 Ω system, and a 25+j0 Ω load. Adding ideal series or shunt R, L, and C components keeps a path for every step; undo, redo, and the share URL retain the same physical network.
 
