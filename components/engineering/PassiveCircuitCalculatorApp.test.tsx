@@ -9,6 +9,7 @@ const copy: PassiveCircuitCopy = {
   lcDiagramLabel: "LC resonant tank circuit diagram",
   rlcDiagramLabel: "RLC circuit diagram",
   reactanceDiagramLabel: "Inductive and capacitive reactance diagram",
+  attenuatorDiagramLabel: "Attenuator circuit diagram",
   rcTab: "RC",
   lcTab: "LC",
   rlcTab: "RLC",
@@ -167,14 +168,35 @@ describe("PassiveCircuitCalculatorApp", () => {
     render(<PassiveCircuitCalculatorApp copy={copy} />);
     fireEvent.click(screen.getByRole("tab", { name: "Attenuator" }));
     const result = screen.getByRole("region", { name: "Results" });
-    expect(await within(result).findByText(/T network/)).toBeInTheDocument();
+    expect((await within(result).findAllByText(/T network/)).length).toBeGreaterThan(0);
     expect(within(result).getAllByText(/Ω/).length).toBeGreaterThan(1);
 
     fireEvent.change(screen.getByLabelText("Topology"), { target: { value: "pi" } });
-    expect(await within(result).findByText(/Pi network/)).toBeInTheDocument();
+    expect((await within(result).findAllByText(/Pi network/)).length).toBeGreaterThan(0);
     expect(within(result).getAllByText(/Ω/).every((node) => !node.textContent?.includes("NaN"))).toBe(true);
     expect(within(result).getByText("Total resistor dissipation")).toBeInTheDocument();
     expect(within(result).getByText("Per-resistor dissipation")).toBeInTheDocument();
+  });
+
+  it("switches the live attenuator diagram between tee and pi networks", async () => {
+    render(<PassiveCircuitCalculatorApp copy={copy} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Attenuator" }));
+
+    const diagram = await screen.findByRole("img", { name: "Attenuator circuit diagram" });
+    expect(within(diagram).getByTestId("attenuator-diagram-topology")).toHaveTextContent("T network");
+    expect(within(diagram).getByTestId("attenuator-diagram-attenuation")).toHaveTextContent("6 dB");
+    expect(within(diagram).getByTestId("attenuator-diagram-impedance")).toHaveTextContent("50 Ω");
+    expect(within(diagram).getByTestId("attenuator-diagram-r1")).toHaveTextContent("R1 16.6139 Ω");
+    expect(within(diagram).getByTestId("attenuator-diagram-r2")).toHaveTextContent("R2 66.931 Ω");
+    expect(within(diagram).getByTestId("attenuator-diagram-r3")).toHaveTextContent("R3 16.6139 Ω");
+
+    fireEvent.change(screen.getByLabelText("Topology"), { target: { value: "pi" } });
+    await waitFor(() => {
+      expect(within(diagram).getByTestId("attenuator-diagram-topology")).toHaveTextContent("Pi network");
+      expect(within(diagram).getByTestId("attenuator-diagram-r1")).toHaveTextContent("R1 150.476 Ω");
+      expect(within(diagram).getByTestId("attenuator-diagram-r2")).toHaveTextContent("R2 37.3519 Ω");
+      expect(within(diagram).getByTestId("attenuator-diagram-r3")).toHaveTextContent("R3 150.476 Ω");
+    });
   });
 
   it("evaluates entered divider resistors with current, power, and tolerance range", async () => {
