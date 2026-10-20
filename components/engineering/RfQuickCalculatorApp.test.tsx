@@ -51,6 +51,13 @@ const copy: RfQuickCalculatorCopy = {
   mediumLabel: "Medium",
   freeSpaceLabel: "Free space",
   lastValidResultLabel: "Showing the last valid result.",
+  reflectionDiagramLabel: "Reflection diagram",
+  reflectionDiagramDescription: "Incident and reflected waves at the load.",
+  incidentWaveLabel: "Incident wave",
+  reflectedWaveLabel: "Reflected wave",
+  loadLabel: "Load",
+  zeroReflectionLabel: "No reflected wave",
+  smithChartLinkLabel: "Open in Smith chart",
 };
 
 beforeEach(() => window.history.replaceState({}, "", "/tools/rf-calculator/app"));
@@ -92,7 +99,7 @@ describe("RfQuickCalculatorApp", () => {
 
     fireEvent.change(screen.getByLabelText("Resistance"), { target: { value: "25" } });
     fireEvent.change(screen.getByLabelText("Reactance"), { target: { value: "25" } });
-    await waitFor(() => expect(within(result).getByText(/25 \+ j25 Ω/)).toBeInTheDocument());
+    await waitFor(() => expect(within(result).getAllByText(/25 \+ j25 Ω/).length).toBeGreaterThan(0));
     for (const label of ["Admittance Y", "Reflection coefficient Γ", "S11", "Return loss", "Mismatch loss"]) {
       expect(within(result).getByText(label)).toBeInTheDocument();
     }
@@ -103,10 +110,10 @@ describe("RfQuickCalculatorApp", () => {
     render(<RfQuickCalculatorApp copy={copy} />);
     fireEvent.click(screen.getByRole("tab", { name: "Impedance and reflection" }));
     fireEvent.change(screen.getByLabelText("Convert from RF quantity"), { target: { value: "y" } });
-    expect(await within(screen.getByRole("region", { name: "Results" })).findByText(/50 \+ j0 Ω/)).toBeInTheDocument();
+    expect((await within(screen.getByRole("region", { name: "Results" })).findAllByText(/50 \+ j0 Ω/)).length).toBeGreaterThan(0);
     fireEvent.change(screen.getByLabelText("Convert from RF quantity"), { target: { value: "gamma" } });
     fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "-0.3333333333" } });
-    expect(await within(screen.getByRole("region", { name: "Results" })).findByText(/25 \+ j0 Ω/)).toBeInTheDocument();
+    expect((await within(screen.getByRole("region", { name: "Results" })).findAllByText(/25 \+ j0 Ω/)).length).toBeGreaterThan(0);
     expect(within(screen.getByRole("region", { name: "Results" })).getByText("Normalized z / y")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Reference impedance"), { target: { value: "50R" } });
     await waitFor(() => expect(screen.getByRole("region", { name: "Results" })).not.toHaveTextContent("NaN"));
@@ -163,5 +170,28 @@ describe("RfQuickCalculatorApp", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Showing the last valid result.");
     fireEvent.change(screen.getByLabelText("Velocity factor"), { target: { value: "" } });
     await waitFor(() => expect(diagram).not.toHaveAttribute("data-stale"));
+  });
+
+  it("draws matched, short, open, and imaginary unit-circle reflection states", async () => {
+    render(<RfQuickCalculatorApp copy={copy} smithChartHref="/en/tools/smith-chart/app" />);
+    fireEvent.click(screen.getByRole("tab", { name: "Impedance and reflection" }));
+    const diagram = screen.getByRole("img", { name: "Reflection diagram" });
+    expect(within(diagram).getByTestId("finite-load")).toBeInTheDocument();
+    expect(within(diagram).getByText("No reflected wave")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open in Smith chart" })).toHaveAttribute("href", "/en/tools/smith-chart/app");
+
+    fireEvent.change(screen.getByLabelText("Resistance"), { target: { value: "0" } });
+    await waitFor(() => expect(within(diagram).getByTestId("short-load")).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Convert from RF quantity"), { target: { value: "gamma" } });
+    fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "1" } });
+    await waitFor(() => expect(within(diagram).getByTestId("open-load")).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "0" } });
+    fireEvent.change(screen.getByLabelText("Γ imaginary"), { target: { value: "1" } });
+    await waitFor(() => expect(within(diagram).getByTestId("finite-load")).toBeInTheDocument());
+    expect(within(diagram).queryByTestId("open-load")).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Γ real"), { target: { value: "1.1" } });
+    await waitFor(() => expect(diagram).toHaveAttribute("data-stale", "true"));
+    expect(screen.getByRole("status")).toHaveTextContent("Showing the last valid result.");
   });
 });
