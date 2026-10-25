@@ -1038,6 +1038,124 @@
   font-family: 'Noto Sans TC', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+.engineering-app-page .engineering-app-shell {
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  padding: 1.25rem clamp(1.25rem, 3.5vw, 4.5rem) clamp(2.5rem, 6vw, 5rem);
+}
+
+.engineering-app-page .engineering-app-shell__back,
+.engineering-app-page .pcb-tool-shell__back {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  color: var(--engineering-shell-muted);
+  font: 600 0.68rem/1.5 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+}
+
+.engineering-app-page .engineering-app-shell__back a::before {
+  margin-right: 0.4rem;
+  content: "←";
+}
+
+.engineering-app-page .engineering-app-shell__back a:hover,
+.engineering-app-page .pcb-tool-shell__back:hover {
+  color: #b62d19;
+}
+
+.engineering-app-page .engineering-app-shell__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(16rem, 0.7fr);
+  gap: clamp(2rem, 7vw, 7rem);
+  align-items: end;
+  margin-top: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--engineering-shell-ink);
+}
+
+.engineering-app-page .engineering-app-shell__kicker {
+  color: #b62d19;
+  font: 600 0.66rem/1.5 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.engineering-app-page .engineering-app-shell h1 {
+  max-width: 16ch;
+  margin-top: 0.75rem;
+  font-family: 'Noto Serif TC', 'Iowan Old Style', 'Times New Roman', serif;
+  font-size: clamp(2.4rem, 6vw, 5.5rem);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.engineering-app-page .engineering-app-shell__summary {
+  color: var(--engineering-shell-muted);
+  font-size: 0.96rem;
+  line-height: 1.8;
+}
+
+.engineering-app-page .engineering-app-shell__privacy {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--engineering-shell-rule);
+  color: var(--engineering-shell-muted);
+  font: 500 0.72rem/1.65 'JetBrains Mono', monospace;
+}
+
+.engineering-app-page > .engineering-app {
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  padding: 0 clamp(1rem, 2.5vw, 2.5rem) clamp(3rem, 6vw, 6rem);
+}
+
+.engineering-app-page .pcb-tool-shell {
+  padding-bottom: 2.5rem;
+}
+
+.engineering-app-page .pcb-tool-shell__bar {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--engineering-shell-ink);
+}
+
+.engineering-app-page .pcb-tool-shell__mark {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid var(--engineering-shell-ink);
+  color: #b62d19;
+}
+
+.engineering-app-page .pcb-tool-shell__mark svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.engineering-app-page .pcb-tool-shell h1 {
+  margin-top: 0.35rem;
+  font-size: clamp(2rem, 4vw, 3.75rem);
+}
+
+.engineering-app-page .pcb-tool-shell h1 + p {
+  margin-top: 0.5rem;
+  color: var(--engineering-shell-muted);
+  font-size: 0.82rem;
+}
+
+.engineering-app-page > .pcb-engineering-app {
+  width: 100%;
+  max-width: none;
+  padding: 0 0 4rem;
+}
+
 body:has(.editorial-page),
 body:has(.engineering-app-page) {
   background: #f1efe8;
@@ -1168,6 +1286,18 @@ body:has(.engineering-app-page) .site-footer {
 
   .editorial-page .editorial-not-found nav {
     grid-column: 1;
+  }
+
+  .engineering-app-page .engineering-app-shell__intro {
+    grid-template-columns: 1fr;
+  }
+
+  .engineering-app-page .pcb-tool-shell__bar {
+    grid-template-columns: auto 1fr;
+  }
+
+  .engineering-app-page .pcb-tool-shell__back {
+    grid-column: 1 / -1;
   }
 }
 

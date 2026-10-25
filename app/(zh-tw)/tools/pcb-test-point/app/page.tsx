@@ -102,29 +102,30 @@ export default function PcbTestPointTool() {
   }, [results]);
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#e6edf3]">
-      <header className="border-b border-[#30363d] bg-[#161b22]">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-3">
+    <div className="engineering-app-page pcb-tool-page">
+      <header className="engineering-app-shell pcb-tool-shell">
+        <div className="pcb-tool-shell__bar">
           <Link
             href="/tools/pcb-test-point"
-            className="inline-flex items-center gap-1 text-xs text-[#8b949e] hover:text-[#58a6ff] transition-colors"
+            className="pcb-tool-shell__back"
           >
             <ChevronLeft size={14} />
             返回工具介紹
           </Link>
-          <div className="w-px h-5 bg-[#30363d]" />
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(88,166,255,0.15)", border: "1px solid #1f6feb" }}>
-            <svg className="w-4 h-4 text-[#58a6ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="pcb-tool-shell__mark">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
             </svg>
           </div>
           <div>
-            <h1 className="text-base font-semibold text-[#e6edf3]">PCB Test Point 自動比對工具</h1>
-            <p className="text-xs text-[#8b949e]">OrCAD HTML 報表測試點座標差異分析</p>
+            <p className="engineering-app-shell__kicker">Engineering utility / PCB revision</p>
+            <h1>PCB Test Point 自動比對工具</h1>
+            <p>OrCAD HTML 報表測試點座標差異分析</p>
           </div>
         </div>
       </header>
 
+      <div className="engineering-app pcb-engineering-app min-h-screen bg-[#0d1117] text-[#e6edf3]">
       <main className="max-w-7xl mx-auto px-6 py-8 flex flex-col gap-8">
         <section aria-label="隱私與範例" className="rounded-lg border border-[#30363d] bg-[#161b22] p-5">
           <p className="font-medium">資料不離開瀏覽器</p>
@@ -211,6 +212,7 @@ export default function PcbTestPointTool() {
           </section>
         )}
       </main>
+      </div>
     </div>
   );
 }
