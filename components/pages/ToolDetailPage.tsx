@@ -18,23 +18,34 @@ export async function ToolDetailPage({ locale, slug, visibility }: { locale: Loc
   const dictionary = getDictionary(locale);
   const config = getSiteConfig(locale);
   const relatedProjectAvailable = tool.relatedProject ? getTranslationAvailability("projects", tool.relatedProject, visibility).includes(locale) : false;
+  const hasDetailLinks = Boolean(tool.relatedProject || tool.sampleUrl || tool.repositoryUrl);
   return (
-    <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
-      <JsonLd data={toolJsonLd(tool, locale, config)} />
-      <JsonLd data={breadcrumbJsonLd(locale, [{ name: dictionary.collections.toolsTitle, pathname: "/tools" }, { name: tool.title, pathname: `/tools/${tool.slug}` }], config)} />
-      <nav aria-label={dictionary.content.breadcrumbsLabel}><Link href={localePath(locale, "/tools")} className="text-sm text-blue-600 hover:underline dark:text-blue-400">{dictionary.content.backTools}</Link></nav>
-      <header className="mb-8 mt-8"><StatusBadge status={tool.status} locale={locale} /><h1 className="mt-4 text-3xl font-bold leading-tight">{tool.title}</h1><p className="mt-4 leading-relaxed text-[var(--color-muted)]">{tool.summary}</p><p className="mt-4 text-sm">{dictionary.common.lastUpdated}：<time dateTime={tool.updatedAt}>{tool.updatedAt.slice(0, 10)}</time></p>
-        <dl className="my-6 space-y-3 rounded-xl border border-[var(--color-border)] p-5 text-sm"><div><dt className="font-semibold">{dictionary.content.privacyLabel}</dt><dd>{tool.privacy}</dd></div><div><dt className="font-semibold">{dictionary.content.inputFormats}</dt><dd>{tool.inputTypes.join("、")}</dd></div><div><dt className="font-semibold">{dictionary.content.outputResults}</dt><dd>{tool.outputTypes.join("、")}</dd></div></dl>
-        {tool.appUrl && <div className="space-y-2"><OpenToolLink slug={tool.slug} href={tool.appUrl} locale={locale} localized={tool.localizedApp}>{dictionary.content.openTool}</OpenToolLink>{locale !== "zh-TW" && !tool.localizedApp && <p className="text-xs text-[var(--color-muted)]">{dictionary.content.originalToolNotice}</p>}</div>}
-      </header>
-      {tool.coverImage && <div className="relative mb-10 aspect-video overflow-hidden rounded-xl border border-[var(--color-border)]"><Image src={tool.coverImage} alt={`${tool.title}${dictionary.content.imageAltSuffix}`} fill className="object-cover" priority /></div>}
-      <div className="prose"><MDXRenderer source={tool.content} /></div>
-      <footer className="mt-10 flex flex-wrap gap-5 border-t border-[var(--color-border)] pt-6 text-sm text-blue-600 dark:text-blue-400">
-        {tool.relatedProject && <Link href={relatedProjectAvailable ? localePath(locale, `/projects/${tool.relatedProject}`) : `/projects/${tool.relatedProject}`} className="hover:underline">{dictionary.content.relatedProject}{!relatedProjectAvailable && locale !== "zh-TW" ? ` (${dictionary.content.traditionalOriginal})` : ""}</Link>}
-        {tool.sampleUrl && <a href={tool.sampleUrl} className="hover:underline">{dictionary.content.sampleDownload}</a>}
-        {tool.repositoryUrl && <a href={tool.repositoryUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">{dictionary.content.sourceCode}</a>}
-        <Link href={localePath(locale, "/contact")} className="hover:underline">{dictionary.content.toolFeedback}</Link>
-      </footer>
+    <article className="editorial-page editorial-detail editorial-tool-detail">
+      <div className="editorial-page__shell">
+        <JsonLd data={toolJsonLd(tool, locale, config)} />
+        <JsonLd data={breadcrumbJsonLd(locale, [{ name: dictionary.collections.toolsTitle, pathname: "/tools" }, { name: tool.title, pathname: `/tools/${tool.slug}` }], config)} />
+        <nav aria-label={dictionary.content.breadcrumbsLabel} className="editorial-breadcrumb"><Link href={localePath(locale, "/tools")}>{dictionary.content.backTools}</Link></nav>
+        <header className="editorial-detail-hero">
+          <div className="editorial-detail-hero__main">
+            <div className="editorial-detail-hero__labels"><StatusBadge status={tool.status} locale={locale} /></div>
+            <h1>{tool.title}</h1>
+            <p className="editorial-detail-hero__summary">{tool.summary}</p>
+            {tool.appUrl && <div className="editorial-detail-hero__action"><OpenToolLink slug={tool.slug} href={tool.appUrl} locale={locale} localized={tool.localizedApp}>{dictionary.content.openTool}</OpenToolLink>{locale !== "zh-TW" && !tool.localizedApp && <p>{dictionary.content.originalToolNotice}</p>}</div>}
+          </div>
+          <aside className="editorial-detail-hero__aside">
+            <p className="editorial-detail-date">{dictionary.common.lastUpdated}：<time dateTime={tool.updatedAt}>{tool.updatedAt.slice(0, 10)}</time></p>
+            <dl className="editorial-detail-facts"><div><dt>{dictionary.content.privacyLabel}</dt><dd>{tool.privacy}</dd></div><div><dt>{dictionary.content.inputFormats}</dt><dd>{tool.inputTypes.join("、")}</dd></div><div><dt>{dictionary.content.outputResults}</dt><dd>{tool.outputTypes.join("、")}</dd></div></dl>
+          </aside>
+        </header>
+        {tool.coverImage && <figure className="editorial-detail__cover"><Image src={tool.coverImage} alt={`${tool.title}${dictionary.content.imageAltSuffix}`} fill sizes="(max-width: 768px) 100vw, 1280px" className="object-cover" priority /></figure>}
+        <div className="editorial-prose prose"><MDXRenderer source={tool.content} /></div>
+        <footer className={hasDetailLinks ? "editorial-detail-links" : "editorial-detail-feedback"}>
+          {tool.relatedProject && <Link href={relatedProjectAvailable ? localePath(locale, `/projects/${tool.relatedProject}`) : `/projects/${tool.relatedProject}`}>{dictionary.content.relatedProject}{!relatedProjectAvailable && locale !== "zh-TW" ? ` (${dictionary.content.traditionalOriginal})` : ""}</Link>}
+          {tool.sampleUrl && <a href={tool.sampleUrl}>{dictionary.content.sampleDownload}</a>}
+          {tool.repositoryUrl && <a href={tool.repositoryUrl} target="_blank" rel="noopener noreferrer">{dictionary.content.sourceCode}</a>}
+          <Link href={localePath(locale, "/contact")}>{dictionary.content.toolFeedback}</Link>
+        </footer>
+      </div>
     </article>
   );
 }

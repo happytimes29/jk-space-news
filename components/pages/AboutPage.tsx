@@ -4,6 +4,7 @@ import { contentVisibility, getTranslationAvailability } from "@/lib/content/tra
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/lib/i18n/locales";
 import { getEnabledContactLinks, getSiteConfig } from "@/lib/site-config";
+import { EditorialSectionHeading } from "@/components/editorial/EditorialSectionHeading";
 
 const linkClass = "text-[var(--color-accent)] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4";
 
@@ -33,48 +34,34 @@ export function AboutPage({ locale, featuredProjectAvailable }: { locale: Locale
   ];
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-16 text-[var(--color-text)] sm:px-6 lg:px-8">
-      <header className="mb-12 border-b border-[var(--color-border)] pb-10">
-        <p className="mb-3 font-mono text-xs text-[var(--color-accent)]">{config.name} / {copy.kicker}</p>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{copy.title}</h1>
-        <p className="mt-5 max-w-2xl text-balance text-lg leading-relaxed">{config.tagline}</p>
-      </header>
-      <div className="space-y-12">
-        <section aria-labelledby="about-intro">
-          <h2 id="about-intro" className="text-xl font-semibold">{copy.introTitle}</h2>
-          <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">{copy.introOne}</p>
-          <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-            {copy.introTwoBefore} <Link href={localePath(featuredProjectLocale, featuredProjectPath)} className={linkClass}>{featuredProjectLabel}</Link> {copy.introTwoAfter}
-          </p>
+    <div className="editorial-page editorial-utility editorial-about">
+      <div className="editorial-page__shell">
+        <header className="editorial-utility-hero">
+          <p className="editorial-page__kicker">{config.name} / {copy.kicker}</p>
+          <h1>{copy.title}</h1>
+          <p className="editorial-utility-hero__tagline">{config.tagline}</p>
+        </header>
+        <section aria-labelledby="about-intro" className="editorial-about-intro">
+          <h2 id="about-intro">{copy.introTitle}</h2>
+          <div><p>{copy.introOne}</p><p>{copy.introTwoBefore} <Link href={localePath(featuredProjectLocale, featuredProjectPath)} className={linkClass}>{featuredProjectLabel}</Link> {copy.introTwoAfter}</p></div>
         </section>
-        <section aria-labelledby="about-expertise">
-          <h2 id="about-expertise" className="text-xl font-semibold">{copy.expertiseTitle}</h2>
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {expertise.map(([title, text]) => <article key={title} className="rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] p-5"><h3 className="font-semibold">{title}</h3><p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">{text}</p></article>)}
-          </div>
+        <section aria-label={copy.expertiseTitle}>
+          <EditorialSectionHeading index="01" title={copy.expertiseTitle} />
+          <div className="editorial-expertise-grid">{expertise.map(([title, text], index) => <article key={title}><span aria-hidden="true">0{index + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
         </section>
-        <section aria-labelledby="about-method">
-          <h2 id="about-method" className="text-xl font-semibold">{copy.methodTitle}</h2>
-          <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm leading-7 text-[var(--color-muted)]">
-            {[copy.methodOne, copy.methodTwo, copy.methodThree].map((method) => <li key={method}>{method}</li>)}
-          </ol>
+        <section aria-label={copy.methodTitle}>
+          <EditorialSectionHeading index="02" title={copy.methodTitle} />
+          <ol className="editorial-method-list">{[copy.methodOne, copy.methodTwo, copy.methodThree].map((method, index) => <li key={method}><span aria-hidden="true">0{index + 1}</span><p>{method}</p></li>)}</ol>
         </section>
-        <section aria-labelledby="about-timeline">
-          <h2 id="about-timeline" className="text-xl font-semibold">{copy.timelineTitle}</h2>
-          <ol className="mt-5 space-y-6 border-l border-[var(--color-border)] pl-5">
-            {timeline.map(([title, text]) => <li key={title}><h3 className="font-semibold">{title}</h3><p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">{text}</p></li>)}
-          </ol>
+        <section aria-label={copy.timelineTitle}>
+          <EditorialSectionHeading index="03" title={copy.timelineTitle} />
+          <ol className="editorial-timeline">{timeline.map(([title, text], index) => <li key={title}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><h3>{title}</h3><p>{text}</p></li>)}</ol>
         </section>
-        <section aria-labelledby="about-focus">
-          <h2 id="about-focus" className="text-xl font-semibold">{copy.focusTitle}</h2>
-          <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">{copy.focusText}</p>
-          <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 text-sm">
-            <Link href={localePath(locale, "/projects")} className={linkClass}>{dictionary.common.viewProjects}</Link>
-            <Link href={localePath(locale, "/tools")} className={linkClass}>{dictionary.common.useTools}</Link>
-            <Link href={localePath(locale, "/contact")} className={linkClass}>{dictionary.common.contactMe}</Link>
-          </div>
+        <section aria-label={copy.focusTitle}>
+          <EditorialSectionHeading index="04" title={copy.focusTitle} />
+          <div className="editorial-focus-copy"><p>{copy.focusText}</p><div className="editorial-inline-actions"><Link href={localePath(locale, "/projects")}>{dictionary.common.viewProjects}</Link><Link href={localePath(locale, "/tools")}>{dictionary.common.useTools}</Link><Link href={localePath(locale, "/contact")}>{dictionary.common.contactMe}</Link></div></div>
         </section>
-        {config.contacts.length > 0 && <section aria-labelledby="about-links"><h2 id="about-links" className="mb-5 text-xl font-semibold">{copy.externalLinksTitle}</h2><ContactLinks links={getEnabledContactLinks(config)} /></section>}
+        {config.contacts.length > 0 && <section aria-label={copy.externalLinksTitle}><EditorialSectionHeading index="05" title={copy.externalLinksTitle} /><ContactLinks links={getEnabledContactLinks(config)} /></section>}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ vi.mock("@vercel/analytics", () => ({ track: vi.fn() }));
 it("opens an internal app in the same tab and emits only its public slug", () => {
   render(<OpenToolLink slug="pcb-test-point" href="/tools/pcb-test-point/app" locale="zh-TW">開啟工具</OpenToolLink>);
   const link = screen.getByRole("link", { name: "開啟工具" });
+  expect(link).toHaveClass("editorial-tool-cta");
   // Keep jsdom from navigating while preserving the component click handler.
   link.addEventListener("click", (event) => event.preventDefault());
   fireEvent.click(link);

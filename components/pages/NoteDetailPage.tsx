@@ -25,20 +25,22 @@ export async function NoteDetailPage({ locale, slug, visibility }: { locale: Loc
   const config = getSiteConfig(locale);
   const commentary = note.type === "commentary" ? parseCommentaryContent(note.content, note.slug) : undefined;
   return (
-    <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
-      <JsonLd data={articleJsonLd(note, locale, config)} />
-      <JsonLd data={breadcrumbJsonLd(locale, [{ name: dictionary.collections.notesTitle, pathname: "/notes" }, { name: note.title, pathname: `/notes/${note.slug}` }], config)} />
-      <nav aria-label={dictionary.content.breadcrumbsLabel} className="mb-8 text-sm"><Link href={localePath(locale, "/notes")} className="text-blue-700 underline underline-offset-4 dark:text-blue-300">{dictionary.content.backNotes}</Link></nav>
-      <header className="mb-8 space-y-5 border-b border-[#d4d4d8] pb-8 dark:border-[#303036]"><p className="text-sm text-blue-700 dark:text-blue-300">{noteTypeLabels(locale)[note.type]}</p><h1 className="break-words text-3xl font-bold leading-tight sm:text-4xl">{note.title}</h1><p className="leading-8 text-[#55555b] dark:text-[#a1a1aa]">{note.summary}</p>
-        <dl className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#55555b] dark:text-[#a1a1aa]"><div><dt>{dictionary.content.author}</dt><dd>{note.author}</dd></div><div><dt>{dictionary.content.publishedDate}</dt><dd><time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.common.lastUpdated}</dt><dd><time dateTime={note.updatedAt}>{note.updatedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.content.readingTime}</dt><dd>{note.readingTime} {dictionary.common.minutes}</dd></div></dl>
-        {note.tags.length > 0 && <ul aria-label={dictionary.collections.noteTagLabel} className="flex flex-wrap gap-2 text-xs">{note.tags.map((tag) => <li key={tag} className="rounded border border-[#d4d4d8] px-2 py-1 dark:border-[#303036]">{tag}</li>)}</ul>}
-      </header>
-      {note.type === "commentary" && <SourceDisclosure note={note} locale={locale} />}
-      <div className="prose max-w-none break-words dark:prose-invert">{commentary ? <><section aria-labelledby="event-summary"><h2 id="event-summary">{dictionary.content.eventSummary}</h2><MDXRenderer source={commentary.summary} /></section><section aria-labelledby="my-opinion"><h2 id="my-opinion">{dictionary.content.myOpinion}</h2><MDXRenderer source={commentary.opinion} /></section></> : <MDXRenderer source={note.content} />}</div>
-      {!!(note.relatedProjects?.length || note.relatedTools?.length) && <aside aria-label={dictionary.content.relatedTitle} className="mt-10 space-y-4 border-t border-[#d4d4d8] pt-6 dark:border-[#303036]"><h2 className="text-xl font-semibold">{dictionary.content.relatedTitle}</h2><ul className="space-y-3 break-words text-sm">
-        {note.relatedProjects?.map((relatedSlug) => { const href = relatedTarget("projects", relatedSlug, locale, visibility); const fallback = locale !== "zh-TW" && !href.startsWith(localePath(locale, "/")); return <li key={`project-${relatedSlug}`}><Link href={href} className="text-blue-700 underline underline-offset-4 dark:text-blue-300">{dictionary.content.relatedProject}: {relatedSlug}{fallback ? ` (${dictionary.content.traditionalOriginal})` : ""}</Link></li>; })}
-        {note.relatedTools?.map((relatedSlug) => { const href = relatedTarget("tools", relatedSlug, locale, visibility); const fallback = locale !== "zh-TW" && !href.startsWith(localePath(locale, "/")); return <li key={`tool-${relatedSlug}`}><Link href={href} className="text-blue-700 underline underline-offset-4 dark:text-blue-300">{dictionary.content.relatedTool}: {relatedSlug}{fallback ? ` (${dictionary.content.traditionalOriginal})` : ""}</Link></li>; })}
-      </ul></aside>}
+    <article className="editorial-page editorial-detail editorial-note-detail">
+      <div className="editorial-page__shell editorial-reading-shell">
+        <JsonLd data={articleJsonLd(note, locale, config)} />
+        <JsonLd data={breadcrumbJsonLd(locale, [{ name: dictionary.collections.notesTitle, pathname: "/notes" }, { name: note.title, pathname: `/notes/${note.slug}` }], config)} />
+        <nav aria-label={dictionary.content.breadcrumbsLabel} className="editorial-breadcrumb"><Link href={localePath(locale, "/notes")}>{dictionary.content.backNotes}</Link></nav>
+        <header className="editorial-note-hero"><p className="editorial-page__kicker">{noteTypeLabels(locale)[note.type]}</p><h1>{note.title}</h1><p className="editorial-detail-hero__summary">{note.summary}</p>
+          <dl className="editorial-note-meta"><div><dt>{dictionary.content.author}</dt><dd>{note.author}</dd></div><div><dt>{dictionary.content.publishedDate}</dt><dd><time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.common.lastUpdated}</dt><dd><time dateTime={note.updatedAt}>{note.updatedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.content.readingTime}</dt><dd>{note.readingTime} {dictionary.common.minutes}</dd></div></dl>
+          {note.tags.length > 0 && <ul aria-label={dictionary.collections.noteTagLabel} className="editorial-tag-list">{note.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>}
+        </header>
+        {note.type === "commentary" && <SourceDisclosure note={note} locale={locale} />}
+        <div className="editorial-prose prose max-w-none break-words">{commentary ? <><section aria-labelledby="event-summary"><h2 id="event-summary">{dictionary.content.eventSummary}</h2><MDXRenderer source={commentary.summary} /></section><section aria-labelledby="my-opinion"><h2 id="my-opinion">{dictionary.content.myOpinion}</h2><MDXRenderer source={commentary.opinion} /></section></> : <MDXRenderer source={note.content} />}</div>
+        {!!(note.relatedProjects?.length || note.relatedTools?.length) && <aside aria-label={dictionary.content.relatedTitle} className="editorial-related"><h2>{dictionary.content.relatedTitle}</h2><ul>
+          {note.relatedProjects?.map((relatedSlug) => { const href = relatedTarget("projects", relatedSlug, locale, visibility); const fallback = locale !== "zh-TW" && !href.startsWith(localePath(locale, "/")); return <li key={`project-${relatedSlug}`}><Link href={href}>{dictionary.content.relatedProject}: {relatedSlug}{fallback ? ` (${dictionary.content.traditionalOriginal})` : ""}</Link></li>; })}
+          {note.relatedTools?.map((relatedSlug) => { const href = relatedTarget("tools", relatedSlug, locale, visibility); const fallback = locale !== "zh-TW" && !href.startsWith(localePath(locale, "/")); return <li key={`tool-${relatedSlug}`}><Link href={href}>{dictionary.content.relatedTool}: {relatedSlug}{fallback ? ` (${dictionary.content.traditionalOriginal})` : ""}</Link></li>; })}
+        </ul></aside>}
+      </div>
     </article>
   );
 }

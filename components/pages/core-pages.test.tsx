@@ -8,9 +8,9 @@ import { NotFoundPage } from "./NotFoundPage";
 import type { Locale } from "@/lib/i18n/locales";
 
 describe.each([
-  ["zh-TW", "把工程上的麻煩事，做成好用的工具。", "/projects"],
-  ["zh-CN", "把工程中的麻烦事，做成好用的工具。", "/zh-cn/projects"],
-  ["en", "Turn difficult engineering work into useful tools.", "/en/projects"],
+  ["zh-TW", "把問題，做成工具。", "/projects"],
+  ["zh-CN", "把问题，做成工具。", "/zh-cn/projects"],
+  ["en", "Turn problems into tools.", "/en/projects"],
 ] as const)("%s core pages", (locale, tagline, projectsHref) => {
   it("renders a complete localized home with locale-preserving next steps", async () => {
     const { container } = render(await HomePage({ locale }));
@@ -32,6 +32,8 @@ describe.each([
     ];
     for (const page of pages) {
       const { container, unmount } = render(page);
+      expect(container.firstElementChild).toHaveClass("editorial-page", "editorial-utility");
+      expect(container.querySelectorAll("h1")).toHaveLength(1);
       expect(container.querySelector("h1")).not.toBeEmptyDOMElement();
       expect(container.querySelectorAll("section").length).toBeGreaterThan(0);
       if (locale === "en") expect(container).not.toHaveTextContent(/關於我|聯絡我|隱私權政策|頁面不存在/);

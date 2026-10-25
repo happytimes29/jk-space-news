@@ -5,7 +5,7 @@ describe("shared JK Space identity", () => {
   it("provides the identity contract used across pages", () => {
     expect(siteConfig.name).toBe("JK Space");
     expect(siteConfig.title).toBe("JK Space — 個人工程實驗室");
-    expect(siteConfig.tagline).toBe("把工程上的麻煩事，做成好用的工具。");
+    expect(siteConfig.tagline).toBe("把問題，做成工具。");
     expect(siteConfig.description).toBe("硬體研發、AI 自動化、工程工具與技術觀點。");
   });
 

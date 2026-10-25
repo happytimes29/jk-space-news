@@ -11,7 +11,8 @@ const note: CommentaryNote = {
 };
 
 it("distinguishes the original source and event date from the author's commentary", () => {
-  render(<SourceDisclosure note={note} locale="zh-TW" />);
+  const { container } = render(<SourceDisclosure note={note} locale="zh-TW" />);
+  expect(container.firstElementChild).toHaveClass("editorial-source-disclosure");
   expect(screen.getByRole("link", { name: "工程週刊的原始報導" })).toHaveAttribute("href", "https://example.com/report?topic=pcb");
   expect(screen.getByText("2026-10-12")).toHaveAttribute("datetime", "2026-10-12T00:00:00.000Z");
   expect(screen.getByText(/事件或原文發布日期/)).toBeVisible();

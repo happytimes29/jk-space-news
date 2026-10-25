@@ -12,16 +12,17 @@ export interface EngineeringToolShellProps {
 
 export function EngineeringToolShell({ title, description, backHref, backLabel, privacy, application }: EngineeringToolShellProps) {
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-      <nav aria-label={backLabel}>
-        <Link href={backHref} className="text-sm text-blue-600 hover:underline dark:text-blue-400">← {backLabel}</Link>
-      </nav>
-      <header className="mt-6 max-w-3xl">
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-        <p className="mt-3 leading-7 text-[var(--color-muted)]">{description}</p>
-        <p className="mt-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-sm text-[var(--color-muted)]">{privacy}</p>
-      </header>
-      <section className="mt-8" aria-label={title}>{application}</section>
+    <main className="engineering-app-page">
+      <div className="engineering-app-shell">
+        <nav aria-label={backLabel} className="engineering-app-shell__back">
+          <Link href={backHref}>{backLabel}</Link>
+        </nav>
+        <header className="engineering-app-shell__intro">
+          <div><p className="engineering-app-shell__kicker">Engineering utility / Local first</p><h1>{title}</h1></div>
+          <div><p className="engineering-app-shell__summary">{description}</p><p className="engineering-app-shell__privacy">{privacy}</p></div>
+        </header>
+      </div>
+      <section className="engineering-app" aria-label={title}>{application}</section>
     </main>
   );
 }

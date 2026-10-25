@@ -10,7 +10,7 @@ export function StatusBadge({ status, locale }: { status: ProjectStatus | ToolSt
     available: copy.available, experimental: copy.experimental, maintenance: copy.maintenance,
   };
   return (
-    <span className="inline-flex rounded-full border border-blue-300 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
+    <span className="editorial-status">
       {labels[status]}
     </span>
   );

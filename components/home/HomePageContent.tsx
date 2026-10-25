@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { selectHomeContent } from "@/lib/home";
 import type { NowItem } from "@/lib/now";
 import { getSiteConfig } from "@/lib/site-config";
@@ -8,76 +9,201 @@ import { localePath, type Locale } from "@/lib/i18n/locales";
 import { noteTypeLabels } from "@/app/notes/notes-view";
 import { ContentMeta } from "@/components/content/ContentMeta";
 import { StatusBadge } from "@/components/content/StatusBadge";
-import { FocusAreas } from "./FocusAreas";
-import { FeaturedTool } from "./FeaturedTool";
-import { NowCard } from "./NowCard";
 
 type Props = ReturnType<typeof selectHomeContent> & { now: NowItem; locale: Locale; dictionary: SiteDictionary };
 
 export function HomePageContent({ featuredProjects, featuredTool, recentNotes, now, locale, dictionary }: Props) {
   const config = getSiteConfig(locale);
   const localizedNoteTypes = noteTypeLabels(locale);
+  const areas = [
+    { number: "01", title: dictionary.home.focusHardwareTitle, summary: dictionary.home.focusHardwareText, href: "/projects?area=hardware" },
+    { number: "02", title: dictionary.home.focusAutomationTitle, summary: dictionary.home.focusAutomationText, href: "/projects?area=automation" },
+    { number: "03", title: dictionary.home.focusProductTitle, summary: dictionary.home.focusProductText, href: "/projects?area=product" },
+  ];
+
   return (
-    <div className="bg-zinc-50 text-zinc-900 dark:bg-[#0c0e12] dark:text-zinc-100">
-      <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
-        <section aria-labelledby="hero-title" className="relative -mx-4 mb-12 border-b border-zinc-300 px-4 py-12 dark:border-zinc-700 sm:-mx-6 sm:mb-16 sm:px-6 sm:py-20 lg:-mx-8 lg:px-8" style={{ backgroundImage: "linear-gradient(rgba(126,160,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(126,160,255,0.07) 1px, transparent 1px)", backgroundSize: "40px 40px" }}>
-          <p className="mb-5 font-mono text-sm tracking-widest text-blue-700 dark:text-blue-300">{config.name}</p>
-          <p className="mb-5 max-w-2xl text-sm leading-7 text-zinc-600 dark:text-zinc-400">{dictionary.home.eyebrow}</p>
-          <h1 id="hero-title" className="max-w-4xl text-balance text-3xl font-semibold leading-[1.35] tracking-tight sm:text-5xl lg:text-6xl">{config.tagline}</h1>
-          <p className="mt-6 max-w-xl text-sm leading-7 text-zinc-600 dark:text-zinc-400">{dictionary.home.intro}</p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link href={localePath(locale, "/projects")} className="inline-flex items-center gap-3 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700">{dictionary.common.viewProjects}<ArrowRight aria-hidden="true" size={16} /></Link>
-            <Link href={localePath(locale, "/tools")} className="inline-flex items-center rounded-lg border border-zinc-400 bg-white px-5 py-3 text-sm font-medium hover:border-blue-500 dark:border-zinc-600 dark:bg-[#11151b]">{dictionary.common.useTools}</Link>
+    <div className="editorial-home">
+      <div className="editorial-shell">
+        <section aria-labelledby="hero-title" className="editorial-hero">
+          <div className="editorial-kicker">
+            <span>JK SPACE / ENGINEERING FIELD NOTES</span>
+            <span>TAIPEI · {now.updatedAt.slice(0, 4)}</span>
           </div>
+          <div className="editorial-hero__grid">
+            <div className="editorial-hero__copy">
+              <p className="editorial-index">ISSUE 01 — INDEPENDENT ENGINEERING</p>
+              <h1 id="hero-title">{config.tagline}</h1>
+              <p className="editorial-eyebrow">{dictionary.home.eyebrow}</p>
+            </div>
+            <div className="editorial-hero__aside">
+              <p>{dictionary.home.intro}</p>
+              <div className="editorial-actions">
+                <Link href={localePath(locale, "/tools")}>
+                  {dictionary.common.useTools}<ArrowRight aria-hidden="true" size={17} />
+                </Link>
+                <Link href={localePath(locale, "/projects")}>
+                  {dictionary.common.viewProjects}<ArrowUpRight aria-hidden="true" size={17} />
+                </Link>
+              </div>
+            </div>
+          </div>
+          {featuredTool?.coverImage ? (
+            <figure className="editorial-hero__feature">
+              <div className="editorial-hero__image">
+                <Image
+                  src={featuredTool.coverImage}
+                  alt={`${featuredTool.title}${dictionary.home.toolImageAltSuffix}`}
+                  width={1191}
+                  height={730}
+                  priority
+                  sizes="(max-width: 899px) 100vw, 88vw"
+                  className="editorial-hero__image-primary"
+                />
+                <Image
+                  src="/images/pcb-tool-2.png"
+                  alt=""
+                  width={1191}
+                  height={844}
+                  sizes="(max-width: 640px) 42vw, 28vw"
+                  className="editorial-hero__image-detail"
+                />
+                <span aria-hidden="true">01</span>
+              </div>
+              <figcaption>
+                <span>SELECTED WORK / DIGITAL TOOL</span>
+                <strong>{featuredTool.title}</strong>
+                <span>{dictionary.home.toolCaption}</span>
+              </figcaption>
+            </figure>
+          ) : (
+            <div className="editorial-hero__feature editorial-hero__feature--type" aria-hidden="true">
+              <span>TOOLS</span><span>PROJECTS</span><span>NOTES</span>
+            </div>
+          )}
         </section>
 
-        <div className="space-y-14 sm:space-y-20">
-          <FocusAreas locale={locale} dictionary={dictionary} />
-          <FeaturedTool tool={featuredTool} locale={locale} dictionary={dictionary} />
-          <section aria-labelledby="projects-title" className="space-y-6">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <h2 id="projects-title" className="text-2xl font-semibold tracking-tight">{dictionary.home.featuredProjectsTitle}</h2>
-              <Link href={localePath(locale, "/projects")} className="text-sm text-blue-700 underline underline-offset-4 dark:text-blue-300">{dictionary.common.allProjects}</Link>
+        <div className="editorial-sections">
+          <section aria-labelledby="tool-title" className="editorial-tool">
+            <div className="editorial-section-head">
+              <span>01 / SELECTED WORK</span>
+              <h2 id="tool-title">{dictionary.home.featuredToolTitle}</h2>
             </div>
-            <div className="grid gap-5 md:grid-cols-2">
-              {featuredProjects.map((project) => (
-                <article key={project.slug} aria-label={project.title} className="min-w-0 space-y-5 rounded-2xl border border-zinc-300 bg-white p-5 sm:p-7 dark:border-zinc-700 dark:bg-[#11151b]">
-                  <StatusBadge status={project.status} locale={locale} />
-                  <h3 className="text-xl font-semibold leading-snug"><Link href={localePath(locale, `/projects/${project.slug}`)} className="hover:text-blue-600 dark:hover:text-blue-300">{project.title}</Link></h3>
-                  <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">{project.summary}</p>
-                  <ContentMeta locale={locale} role={project.role} updatedAt={project.updatedAt} />
-                  {project.outcome && <p className="border-t border-zinc-300 pt-4 text-sm leading-7 dark:border-zinc-700">{dictionary.common.outcome}：{project.outcome}</p>}
+            {featuredTool ? (
+              <div className="editorial-tool__grid">
+                <div className="editorial-tool__copy">
+                  <p className="editorial-label">BROWSER TOOL · LOCAL FIRST</p>
+                  <h3>{featuredTool.title}</h3>
+                  <StatusBadge status={featuredTool.status} locale={locale} />
+                  <p>{featuredTool.summary}</p>
+                  <dl>
+                    <div><dt>{dictionary.home.toolAudienceLabel}</dt><dd>{dictionary.home.toolAudience}</dd></div>
+                    <div><dt>PRIVACY</dt><dd>{featuredTool.privacy}</dd></div>
+                  </dl>
+                  <div className="editorial-inline-links">
+                    {featuredTool.appUrl && (
+                      <Link href={featuredTool.localizedApp ? localePath(locale, featuredTool.appUrl) : featuredTool.appUrl}>
+                        {dictionary.home.toolUseNow}<ArrowRight aria-hidden="true" size={16} />
+                      </Link>
+                    )}
+                    <Link href={localePath(locale, `/tools/${featuredTool.slug}`)}>
+                      {dictionary.home.toolDetails}<ArrowUpRight aria-hidden="true" size={16} />
+                    </Link>
+                  </div>
+                </div>
+                {featuredTool.coverImage && (
+                  <figure className="editorial-tool__visual">
+                    <Image src={featuredTool.coverImage} alt={`${featuredTool.title}${dictionary.home.toolImageAltSuffix}`} width={1191} height={730} sizes="(max-width: 899px) 100vw, 62vw" />
+                    <figcaption><span>FIG. 01</span>{dictionary.home.toolCaption}</figcaption>
+                  </figure>
+                )}
+              </div>
+            ) : <p>{dictionary.home.toolEmpty}</p>}
+          </section>
+
+          <section aria-labelledby="focus-title" className="editorial-focus">
+            <div className="editorial-section-head">
+              <span>02 / PRACTICE</span>
+              <h2 id="focus-title">{dictionary.home.focusTitle}</h2>
+            </div>
+            <div className="editorial-focus__grid">
+              {areas.map((area) => (
+                <Link key={area.href} href={localePath(locale, area.href)} className="editorial-focus__item">
+                  <span>{area.number}</span>
+                  <h3>{area.title}</h3>
+                  <p>{area.summary}</p>
+                  <ArrowUpRight aria-hidden="true" size={18} />
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section aria-labelledby="projects-title" className="editorial-projects">
+            <div className="editorial-section-head">
+              <span>03 / PROJECT INDEX</span>
+              <h2 id="projects-title">{dictionary.home.featuredProjectsTitle}</h2>
+              <Link href={localePath(locale, "/projects")}>{dictionary.common.allProjects}<ArrowUpRight aria-hidden="true" size={16} /></Link>
+            </div>
+            <div className="editorial-projects__list">
+              {featuredProjects.map((project, index) => (
+                <article key={project.slug} aria-label={project.title} className="editorial-project">
+                  <span className="editorial-project__number">{String(index + 1).padStart(2, "0")}</span>
+                  <div>
+                    <h3><Link href={localePath(locale, `/projects/${project.slug}`)}>{project.title}</Link></h3>
+                    <p>{project.summary}</p>
+                  </div>
+                  <div className="editorial-project__meta">
+                    <StatusBadge status={project.status} locale={locale} />
+                    <ContentMeta locale={locale} role={project.role} updatedAt={project.updatedAt} />
+                    {project.outcome && <p><span>{dictionary.common.outcome}：</span>{project.outcome}</p>}
+                  </div>
                 </article>
               ))}
             </div>
           </section>
 
-          <section aria-labelledby="notes-title" className="space-y-6">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <h2 id="notes-title" className="text-2xl font-semibold tracking-tight">{dictionary.home.recentNotesTitle}</h2>
-              <Link href={localePath(locale, "/notes")} className="text-sm text-blue-700 underline underline-offset-4 dark:text-blue-300">{dictionary.common.allNotes}</Link>
-            </div>
-            {recentNotes.length === 0 ? <p className="text-sm text-zinc-600 dark:text-zinc-400">{dictionary.home.notesEmpty}</p> : (
-              <div className="divide-y divide-zinc-300 dark:divide-zinc-700">
-                {recentNotes.map((note) => (
-                  <article key={note.slug} aria-label={note.title} className="space-y-3 py-5 first:pt-0">
-                    <div className="flex flex-wrap gap-4 text-xs text-zinc-600 dark:text-zinc-400">
-                      <span>{localizedNoteTypes[note.type]}</span>
-                      <time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time>
-                      <span>{note.readingTime} {dictionary.common.minutes}</span>
-                    </div>
-                    <h3 className="text-lg font-semibold"><Link href={localePath(locale, `/notes/${encodeURIComponent(note.slug)}`)} className="hover:text-blue-600 dark:hover:text-blue-300">{note.title}</Link></h3>
-                    <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">{note.summary}</p>
-                  </article>
-                ))}
+          <div className="editorial-reading-grid">
+            <section aria-labelledby="notes-title" className="editorial-notes">
+              <div className="editorial-section-head">
+                <span>04 / FIELD NOTES</span>
+                <h2 id="notes-title">{dictionary.home.recentNotesTitle}</h2>
+                <Link href={localePath(locale, "/notes")}>{dictionary.common.allNotes}<ArrowUpRight aria-hidden="true" size={16} /></Link>
               </div>
-            )}
-          </section>
-          <NowCard now={now} dictionary={dictionary} />
-          <section aria-labelledby="collaboration-title" className="max-w-2xl space-y-5">
-            <h2 id="collaboration-title" className="text-2xl font-semibold tracking-tight">{dictionary.home.collaborationTitle}</h2>
-            <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">{dictionary.home.collaborationText}</p>
-            <Link href={localePath(locale, "/contact")} className="inline-flex items-center gap-3 rounded-lg border border-zinc-400 px-5 py-3 text-sm font-medium hover:border-blue-500 dark:border-zinc-600">{dictionary.common.contactMe}<ArrowRight aria-hidden="true" size={16} /></Link>
+              {recentNotes.length === 0 ? <p>{dictionary.home.notesEmpty}</p> : (
+                <div className="editorial-notes__list">
+                  {recentNotes.map((note, index) => (
+                    <article key={note.slug} aria-label={note.title}>
+                      <span className="editorial-note-number">N.{String(index + 1).padStart(2, "0")}</span>
+                      <div className="editorial-note-meta">
+                        <span>{localizedNoteTypes[note.type]}</span>
+                        <time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time>
+                        <span>{note.readingTime} {dictionary.common.minutes}</span>
+                      </div>
+                      <h3><Link href={localePath(locale, `/notes/${encodeURIComponent(note.slug)}`)}>{note.title}</Link></h3>
+                      <p>{note.summary}</p>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+            <section aria-labelledby="now-title" className="editorial-now">
+              <span>05 / CURRENTLY</span>
+              <h2 id="now-title">{dictionary.home.nowTitle}</h2>
+              <p className="editorial-now__date">{dictionary.home.nowUpdatedLabel} <time dateTime={now.updatedAt}>{now.updatedAt.slice(0, 10)}</time></p>
+              <p className="editorial-now__copy">{now.content.trim()}</p>
+            </section>
+          </div>
+
+          <section aria-labelledby="collaboration-title" className="editorial-contact">
+            <span>06 / OPEN BRIEF</span>
+            <div className="editorial-contact__grid">
+              <h2 id="collaboration-title">{dictionary.home.collaborationTitle}</h2>
+              <div>
+                <p>{dictionary.home.collaborationText}</p>
+                <Link href={localePath(locale, "/contact")}>
+                  {dictionary.common.contactMe}<ArrowRight aria-hidden="true" size={18} />
+                </Link>
+              </div>
+            </div>
           </section>
         </div>
       </div>
