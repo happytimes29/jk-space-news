@@ -57,6 +57,15 @@ export function HomePageContent({ featuredProjects, featuredTool, recentNotes, n
                   height={730}
                   priority
                   sizes="(max-width: 899px) 100vw, 88vw"
+                  className="editorial-hero__image-primary"
+                />
+                <Image
+                  src="/images/pcb-tool-2.png"
+                  alt=""
+                  width={1191}
+                  height={844}
+                  sizes="(max-width: 640px) 42vw, 28vw"
+                  className="editorial-hero__image-detail"
                 />
                 <span aria-hidden="true">01</span>
               </div>

@@ -14,6 +14,10 @@ describe("personal engineering lab homepage", () => {
     expect(screen.getByRole("link", { name: "查看專案" })).toHaveAttribute("href", "/projects");
     expect(screen.getByRole("link", { name: "使用工具" })).toHaveAttribute("href", "/tools");
     expect(container).not.toHaveTextContent(/最新情報|查看全部趨勢|JK Space News/);
+    const hero = screen.getByRole("region", { name: "把問題，做成工具。" });
+    expect(within(hero).getByRole("img", { name: /PCB 測試點自動比對工具/ })).toHaveAttribute("src", expect.stringContaining("pcb-tool-1.png"));
+    expect(hero.querySelector('img[alt=""]')).toHaveAttribute("src", expect.stringContaining("pcb-tool-2.png"));
+    expect(within(hero).queryByRole("img", { name: "Engineering signal study" })).not.toBeInTheDocument();
   });
 
   // Catches demoting the usable tools behind portfolio browsing in the primary hero journey.
