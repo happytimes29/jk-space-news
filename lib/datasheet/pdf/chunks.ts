@@ -85,8 +85,9 @@ function queryTerms(query: RetrievalQuery): string[] {
   const terms = new Set<string>();
   if (query.purpose === "identity") {
     ["ordering information", "ordering code", "part number"].forEach((term) => terms.add(term));
+  } else {
+    COMPONENT_TERMS[query.componentKind].forEach((term) => terms.add(term));
   }
-  COMPONENT_TERMS[query.componentKind].forEach((term) => terms.add(term));
   query.fields?.forEach((field) => {
     terms.add(field.replaceAll("_", " ").toLowerCase());
     FIELD_ALIASES[field]?.forEach((term) => terms.add(term));
