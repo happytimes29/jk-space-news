@@ -1,0 +1,178 @@
+.editorial-page {
+  --editorial-ink: #131312;
+  --editorial-paper: #f1efe8;
+  --editorial-paper-deep: #e6e2d8;
+  --editorial-muted: #65635e;
+  --editorial-rule: #8e8a80;
+  --editorial-accent: #b62d19;
+  min-height: 70svh;
+  overflow: clip;
+  background: var(--editorial-paper);
+  color: var(--editorial-ink);
+}
+
+.editorial-collection {
+  padding-block: clamp(3.5rem, 8vw, 8rem);
+}
+
+.editorial-detail {
+  padding-block: clamp(2.5rem, 6vw, 6rem);
+}
+
+.editorial-utility {
+  padding-block: clamp(3.5rem, 8vw, 8rem);
+}
+
+.editorial-page__shell {
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 3.5vw, 4.5rem);
+}
+
+.editorial-page__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(15rem, 0.75fr);
+  gap: clamp(2rem, 7vw, 7rem);
+  align-items: end;
+  padding-bottom: clamp(2.5rem, 6vw, 5rem);
+  border-bottom: 1px solid var(--editorial-ink);
+}
+
+.editorial-page__kicker,
+.editorial-index,
+.editorial-meta-label {
+  font: 600 0.68rem/1.5 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.editorial-page__kicker,
+.editorial-index {
+  color: var(--editorial-accent);
+}
+
+.editorial-page h1,
+.editorial-page h2,
+.editorial-page h3 {
+  text-wrap: balance;
+}
+
+.editorial-page h1 {
+  max-width: 13ch;
+  margin-top: 1.25rem;
+  font-family: 'Noto Serif TC', 'Iowan Old Style', 'Times New Roman', serif;
+  font-size: clamp(3rem, 8vw, 7.5rem);
+  font-weight: 500;
+  line-height: 0.96;
+  letter-spacing: -0.055em;
+}
+
+.editorial-page__lede {
+  max-width: 38rem;
+  font-size: clamp(1rem, 1.7vw, 1.2rem);
+  line-height: 1.85;
+  color: var(--editorial-muted);
+}
+
+.editorial-section-heading {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding-block: 1.25rem;
+  border-bottom: 1px solid var(--editorial-rule);
+}
+
+.editorial-section-heading h2 {
+  font-family: 'Noto Serif TC', 'Iowan Old Style', 'Times New Roman', serif;
+  font-size: clamp(1.75rem, 4vw, 3.75rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.editorial-section-heading__action {
+  font: 600 0.72rem/1.5 'JetBrains Mono', monospace;
+  color: var(--editorial-ink);
+  text-underline-offset: 0.3rem;
+}
+
+.editorial-page a {
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.editorial-page a:focus-visible,
+.engineering-app-page a:focus-visible {
+  outline: 2px solid var(--editorial-accent, var(--color-accent));
+  outline-offset: 4px;
+}
+
+.engineering-app-page {
+  --engineering-shell-paper: #f1efe8;
+  --engineering-shell-ink: #131312;
+  --engineering-shell-muted: #65635e;
+  --engineering-shell-rule: #b7b2a7;
+  min-height: 70svh;
+  background: var(--engineering-shell-paper);
+  color: var(--engineering-shell-ink);
+}
+
+.engineering-app {
+  isolation: isolate;
+  color: var(--color-text);
+  font-family: 'Noto Sans TC', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body:has(.editorial-page),
+body:has(.engineering-app-page) {
+  background: #f1efe8;
+}
+
+body:has(.editorial-page) .site-header,
+body:has(.engineering-app-page) .site-header {
+  background: rgba(241, 239, 232, 0.96);
+  --color-text: #131312;
+  --color-muted: #65635e;
+  --color-border: #b7b2a7;
+  --color-card: #f1efe8;
+  --color-card-hover: #e6e2d8;
+  --color-accent: #b62d19;
+  backdrop-filter: none;
+}
+
+body:has(.editorial-page) .site-footer,
+body:has(.engineering-app-page) .site-footer {
+  margin-top: 0;
+  background: #131312;
+  --color-text: #f1efe8;
+  --color-muted: #aaa69c;
+  --color-border: #3a3935;
+  --color-card: #24231f;
+  --color-accent: #ef6044;
+}
+
+@media (max-width: 767px) {
+  .editorial-page__intro {
+    grid-template-columns: 1fr;
+  }
+
+  .editorial-section-heading {
+    grid-template-columns: 2rem minmax(0, 1fr);
+  }
+
+  .editorial-section-heading__action {
+    grid-column: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editorial-page *,
+  .editorial-page *::before,
+  .editorial-page *::after,
+  .engineering-app-page > * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

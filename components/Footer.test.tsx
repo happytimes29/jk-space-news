@@ -10,6 +10,7 @@ const props = { locale: "en" as const, dictionary: getDictionary("en"), config: 
 describe("Footer", () => {
   it("shows the new brand, tagline, trust pages, and real contact destinations", () => {
     const { container } = render(<Footer {...props} />);
+    expect(container.firstElementChild).toHaveClass("site-footer");
     expect(container).not.toHaveTextContent("JK Space News");
     expect(screen.getByRole("link", { name: "JK Space" })).toHaveAttribute("href", "/en");
     expect(screen.getByText("Turn problems into tools.")).toBeInTheDocument();
