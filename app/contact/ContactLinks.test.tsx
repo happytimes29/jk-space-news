@@ -4,7 +4,6 @@ import ContactPage from "@/app/(zh-tw)/contact/page";
 import { ContactLinks } from "./ContactLinks";
 
 describe("contact page", () => {
-  // Catches reintroducing unconfigured contacts or non-actionable channel cards.
   it("offers only the enabled contact destinations as working links", () => {
     render(<ContactPage />);
 
@@ -17,26 +16,24 @@ describe("contact page", () => {
 
   it("does not expose the legacy fake email address", () => {
     const { container } = render(<ContactPage />);
-
     expect(container).not.toHaveTextContent(["jk", "example.com"].join("@"));
   });
 });
 
 describe("ContactLinks", () => {
-  // Catches rendering empty contact cards when all channels are disabled.
   it("renders nothing when no contact links are enabled", () => {
     const { container } = render(<ContactLinks links={[]} />);
-
     expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 
-  // Catches hardcoded destinations and unsafe external tab navigation.
-  it("renders supplied GitHub and Telegram links with safe external navigation", () => {
-    render(<ContactLinks links={[
+  it("renders supplied GitHub and Telegram links with the editorial index and safe navigation", () => {
+    const { container } = render(<ContactLinks links={[
       { label: "Source code", href: "https://github.com/happytimes29", kind: "github" },
       { label: "Message JK", href: "https://t.me/JK_Sapce", kind: "telegram" },
     ]} />);
 
+    expect(container.firstElementChild).toHaveClass("editorial-contact-links");
     for (const [label, href] of [
       ["Source code", "https://github.com/happytimes29"],
       ["Message JK", "https://t.me/JK_Sapce"],

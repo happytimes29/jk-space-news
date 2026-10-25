@@ -32,6 +32,8 @@ describe.each([
     ];
     for (const page of pages) {
       const { container, unmount } = render(page);
+      expect(container.firstElementChild).toHaveClass("editorial-page", "editorial-utility");
+      expect(container.querySelectorAll("h1")).toHaveLength(1);
       expect(container.querySelector("h1")).not.toBeEmptyDOMElement();
       expect(container.querySelectorAll("section").length).toBeGreaterThan(0);
       if (locale === "en") expect(container).not.toHaveTextContent(/關於我|聯絡我|隱私權政策|頁面不存在/);
