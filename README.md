@@ -2,7 +2,7 @@
 
 把工程上的麻煩事，做成好用的工具。
 
-Next.js App Router、React、TypeScript 與 Tailwind CSS 建立的繁體中文作品站。專案、工具、原創筆記與近況由 Git 管理的 Markdown／MDX 產生；PCB 工具在瀏覽器內解析使用者檔案，沒有上傳 API。
+Next.js App Router、React、TypeScript 與 Tailwind CSS 建立的繁體中文作品站。專案、工具、原創筆記與近況由 Git 管理的 Markdown／MDX 產生；PCB 工具在瀏覽器內解析使用者檔案。Datasheet 工作台同樣在本機解析 PDF，但會把相關文字與使用者自備的 API Key 經一次性 Relay 傳給所選模型，細節與維運限制見下方文件。
 
 ## 本機環境
 
@@ -55,6 +55,8 @@ npm run audit
 | `e2e/` | 瀏覽器使用流程驗證 |
 
 完整欄位、可用範例與內容驗證見 [內容編寫](docs/content-authoring.md)。上線後的定位、流量、內容維護驗證見 [60 天檢查表](docs/post-launch-validation.md)。
+
+Datasheet 工程工作台只接受公開、有文字層的元件 PDF；第一版支援 MLCC 與屏蔽型功率電感，不支援 OCR 或曲線數值量測。Relay 的供應商白名單、請求限制、隱私稽核、部署檢查與緊急停用程序見 [Datasheet Workbench operations](docs/datasheet-workbench-operations.md)。
 
 ## Git 內容發布與部署
 

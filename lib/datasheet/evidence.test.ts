@@ -1,0 +1,171 @@
+import { describe, expect, it } from "vitest";
+import { mlccRecord } from "@/tests/fixtures/datasheets/mlcc-record";
+import type { DocumentChunk } from "./pdf/types";
+import { verifyEvidence } from "./evidence";
+
+function fixture() {
+  const envelope = structuredClone(mlccRecord);
+  envelope.document.fileName = "GRM188R71H104KA93D.pdf";
+  envelope.part.specifications = [envelope.part.specifications[0]];
+  envelope.part.specifications[0].evidence = [{
+    documentId: "fixture-mlcc",
+    page: 2,
+    section: "Specifications",
+    quote: "GRM188R71H104KA93D Capacitance: 0.1 µF",
+    chunkHash: "c".repeat(64),
+  }];
+  const chunks: DocumentChunk[] = [{
+    id: "fixture-mlcc:p2:c1",
+    documentId: "fixture-mlcc",
+    page: 2,
+    section: "Specifications",
+    text: "GRM188R71H104KA93D Capacitance: 0.1 µF at 1 kHz.",
+    chunkHash: "c".repeat(64),
+  }];
+  return { envelope, chunks };
+}
+
+describe("verifyEvidence", () => {
+  it("accepts_a_quote_that_matches_the_supplied_page_and_chunk", () => {
+    const { envelope, chunks } = fixture();
+
+    const result = verifyEvidence(envelope, chunks);
+
+    expect(result.ok).toBe(true);
+    expect(result.issues).toEqual([]);
+    expect(result.envelope.part.specifications[0].status).toBe("extracted");
+  });
+
+  it.each([
+    ["unknown_chunk", { chunkHash: "d".repeat(64) }],
+    ["page_mismatch", { page: 9 }],
+    ["document_mismatch", { documentId: "another-document" }],
+    ["quote_mismatch", { quote: "Capacitance: 9.9 µF" }],
+  ])("rejects_%s_and_marks_the_field_ambiguous", (code, evidenceChange) => {
+    const { envelope, chunks } = fixture();
+    Object.assign(envelope.part.specifications[0].evidence[0], evidenceChange);
+
+    const result = verifyEvidence(envelope, chunks);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toEqual(expect.arrayContaining([expect.objectContaining({ field: "capacitance", code })]));
+    expect(result.envelope.part.specifications[0].status).toBe("ambiguous");
+  });
+
+  it("rejects_duplicate_values_for_the_same_field", () => {
+    const { envelope, chunks } = fixture();
+    const duplicate = structuredClone(envelope.part.specifications[0]);
+    duplicate.rawValue = "0.22 µF";
+    envelope.part.specifications.push(duplicate);
+
+    const result = verifyEvidence(envelope, chunks);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual({ field: "capacitance", code: "duplicate_field" });
+    expect(result.envelope.part.specifications.map(({ status }) => status)).toEqual(["ambiguous", "ambiguous"]);
+  });
+
+  it("does_not_allow_a_model_declared_conflict_into_the_comparison_engine", () => {
+    const { envelope, chunks } = fixture();
+    envelope.part.specifications[0].status = "conflicting";
+
+    const result = verifyEvidence(envelope, chunks);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual({ field: "capacitance", code: "conflicting_value" });
+    expect(result.envelope.part.specifications[0].status).toBe("ambiguous");
+  });
+
+  it("rejects_a_normalized_number_not_supported_by_the_quoted_raw_value", () => {
+    const { envelope, chunks } = fixture();
+    envelope.part.specifications[0].rawValue = "0.1 µF";
+    envelope.part.specifications[0].normalized = { typical: 5e-4, unit: "F" };
+
+    const result = verifyEvidence(envelope, chunks);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual({ field: "capacitance", code: "value_mismatch" });
+    expect(result.envelope.part.specifications[0].normalized).toBeUndefined();
+  });
+
+  it("rejects_a_value_even_when_the_quote_exists_but_supports_a_different_number", () => {
+    const { envelope, chunks } = fixture();
+    chunks[0].text += " GRM188R71H104KA93D Alternate capacitance: 0.22 µF.";
+    envelope.part.specifications[0].evidence[0].quote = "GRM188R71H104KA93D Alternate capacitance: 0.22 µF";
+
+    const result = verifyEvidence(envelope, chunks);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual({ field: "capacitance", code: "value_mismatch" });
+    expect(result.envelope.part.specifications[0].status).toBe("ambiguous");
+  });
+
+  it("binds_the_value_to_the_named_field_clause_not_another_voltage_in_the_quote", () => {
+    const { envelope, chunks } = fixture();
+    const value = envelope.part.specifications[0];
+    value.field = "rated_voltage";
+    value.rawValue = "50 V";
+    value.normalized = { max: 50, unit: "V" };
+    value.evidence[0].quote = "GRM188R71H104KA93D Rated voltage 16 V; test voltage 50 V";
+    chunks[0].text = value.evidence[0].quote;
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "rated_voltage", code: "value_mismatch" });
+  });
+
+  it("does_not_use_a_fixed_absolute_tolerance_for_tiny_si_values", () => {
+    const { envelope, chunks } = fixture();
+    const value = envelope.part.specifications[0];
+    value.rawValue = "1 pF";
+    value.normalized = { typical: 1e-12, unit: "F" };
+    value.evidence[0].quote = "GRM188R71H104KA93D capacitance: 0.1 pF";
+    chunks[0].text = value.evidence[0].quote;
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "capacitance", code: "value_mismatch" });
+  });
+
+  it("requires_each_specification_to_be_scoped_to_the_selected_ordering_code", () => {
+    const { envelope, chunks } = fixture();
+    envelope.document.fileName = "family.pdf";
+    envelope.part.specifications[0].evidence[0].quote = "Capacitance: 0.1 µF";
+    chunks[0].text = "Electrical specifications Capacitance: 0.1 µF.";
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "capacitance", code: "ordering_code_scope_missing" });
+  });
+
+  it("does_not_trust_model_supplied_table_metadata_to_relabel_a_test_value", () => {
+    const { envelope, chunks } = fixture();
+    const value = envelope.part.specifications[0];
+    value.field = "rated_voltage";
+    value.rawValue = "50 V";
+    value.normalized = { max: 50, unit: "V" };
+    value.evidence[0].table = "Rated voltage";
+    value.evidence[0].quote = "GRM188R71H104KA93D Test voltage 50 V";
+    chunks[0].text = value.evidence[0].quote;
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "rated_voltage", code: "ordering_code_scope_missing" });
+  });
+
+  it("does_not_scope_a_value_to_an_ordering_code_elsewhere_in_the_same_chunk", () => {
+    const { envelope, chunks } = fixture();
+    const value = envelope.part.specifications[0];
+    value.field = "rated_voltage";
+    value.rawValue = "50 V";
+    value.normalized = { max: 50, unit: "V" };
+    value.evidence[0].quote = "OTHER-PART Rated voltage 50 V";
+    chunks[0].text = `GRM188R71H104KA93D Rated voltage 16 V; ${value.evidence[0].quote}`;
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "rated_voltage", code: "ordering_code_scope_missing" });
+  });
+
+  it("does_not_combine_ordering_code_scope_from_one_clause_with_a_value_from_another", () => {
+    const { envelope, chunks } = fixture();
+    const value = envelope.part.specifications[0];
+    value.field = "rated_voltage";
+    value.rawValue = "50 V";
+    value.normalized = { max: 50, unit: "V" };
+    value.evidence[0].quote = "GRM188R71H104KA93D Rated voltage; OTHER-PART Rated voltage 50 V";
+    chunks[0].text = value.evidence[0].quote;
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "rated_voltage", code: "value_mismatch" });
+  });
+});

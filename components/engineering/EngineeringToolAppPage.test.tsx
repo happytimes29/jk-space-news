@@ -17,6 +17,7 @@ it("renders a reviewed localized application in preview", async () => {
   expect(container.querySelector(".engineering-app")).toBeInTheDocument();
   expect(screen.getByRole("heading", { level: 1, name: "Engineering Unit and RF Power Converter" })).toBeInTheDocument();
   expect(screen.getByRole("link", { name: /Back to tool overview/ })).toHaveAttribute("href", "/en/tools/engineering-converter");
+  expect(screen.getByText("All values are calculated in the browser and are not sent to a server.")).toBeInTheDocument();
 });
 
 it("renders an application exactly once inside the isolated engineering boundary", () => {

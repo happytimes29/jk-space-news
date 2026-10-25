@@ -15,7 +15,17 @@ describe("localized dictionaries", () => {
       const tools = getDictionary(locale).engineeringTools;
       expect(Object.keys(tools)).toEqual(Object.keys(traditional.engineeringTools));
       expect(JSON.stringify(tools)).not.toContain('""');
+      expect(tools.datasheet).toMatchObject({
+        publicPdfOnly: expect.any(String),
+        relayDisclosure: expect.any(String),
+        quickMode: expect.any(String),
+        replacementMode: expect.any(String),
+        supportedTypes: expect.any(String),
+        v1Limits: expect.any(String),
+      });
     }
+    expect(traditional.engineeringTools.datasheet.quickMode).toBe("快速讀懂 Datasheet");
+    expect(traditional.engineeringTools.datasheet.replacementMode).toBe("替代料評估");
   });
 
   it.each([

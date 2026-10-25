@@ -1201,6 +1201,141 @@ body:has(.engineering-app-page) .site-footer {
   --color-accent: #ef6044;
 }
 
+/* Datasheet Workbench: editorial shell with a denser engineering surface. */
+.datasheet-workbench {
+  max-width: 90rem;
+  margin: 0 auto;
+  color: var(--editorial-ink, var(--color-text));
+}
+
+.datasheet-workbench button,
+.datasheet-workbench input,
+.datasheet-workbench select {
+  min-height: 44px;
+  border: 1px solid var(--editorial-rule, var(--color-border));
+  border-radius: 0;
+  background: var(--editorial-paper, var(--color-card));
+  color: inherit;
+}
+
+.datasheet-workbench button {
+  padding: 0.65rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.datasheet-workbench button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.datasheet-workbench :focus-visible {
+  outline: 2px solid var(--editorial-accent);
+  outline-offset: 3px;
+}
+
+.datasheet-mode-switcher {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--editorial-rule);
+}
+
+.datasheet-mode-switcher button[aria-selected="true"] {
+  background: var(--editorial-ink);
+  color: var(--editorial-paper);
+}
+
+.datasheet-provider-panel,
+.datasheet-dropzone,
+.datasheet-conditions,
+.datasheet-replacement-workspace,
+.datasheet-quick-read {
+  padding: clamp(1rem, 2vw, 2rem);
+  border: 1px solid var(--editorial-rule);
+  background: color-mix(in srgb, var(--editorial-paper) 94%, transparent);
+}
+
+.datasheet-document-grid,
+.datasheet-form-grid,
+.datasheet-comparison-sides {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.datasheet-form-grid label,
+.datasheet-condition,
+.datasheet-replacement-switches {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.datasheet-condition {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--editorial-rule);
+}
+
+.datasheet-primary-actions,
+.datasheet-provider-actions,
+.datasheet-report-export {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+
+.datasheet-comparison-matrix {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.datasheet-comparison-row {
+  min-width: 42rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--editorial-rule);
+}
+
+.datasheet-comparison-row > header,
+.datasheet-verdict {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.datasheet-comparison-status,
+.datasheet-verdict__label {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 700;
+}
+
+.datasheet-evidence blockquote {
+  margin: 0.75rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--editorial-accent);
+}
+
+.datasheet-pdf-page {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-top: 1rem;
+}
+
+@media print {
+  .datasheet-provider-panel,
+  .datasheet-primary-actions,
+  .datasheet-report-export,
+  .datasheet-mode-switcher {
+    display: none !important;
+  }
+
+  .datasheet-comparison-matrix {
+    overflow: visible;
+  }
+}
+
 @media (max-width: 767px) {
   .editorial-page__intro {
     grid-template-columns: 1fr;
@@ -1316,6 +1451,16 @@ body:has(.engineering-app-page) .site-footer {
   .engineering-app-page .pcb-tool-shell__back {
     grid-column: 1 / -1;
   }
+
+  .datasheet-document-grid,
+  .datasheet-form-grid,
+  .datasheet-comparison-sides {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .datasheet-mode-switcher {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1327,5 +1472,10 @@ body:has(.engineering-app-page) .site-footer {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .datasheet-workbench * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

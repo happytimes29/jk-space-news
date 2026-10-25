@@ -68,19 +68,36 @@ describe("tools", () => {
   });
 
   it("loads the real browser-only PCB tool and selects the available tool", async () => {
-    expect(await getAllTools()).toHaveLength(6);
+    expect(await getAllTools()).toHaveLength(7);
     expect(await getFeaturedTool()).toMatchObject({ slug: "pcb-test-point", status: "available", privacy: "所有使用者檔案只在瀏覽器內解析，不上傳伺服器。", inputTypes: ["OrCAD HTML", "DXF", "Target List"], outputTypes: ["差異表", "2D 座標圖", "CSV"] });
     expect(await getToolBySlug("pcb-test-point")).toMatchObject({ appUrl: "/tools/pcb-test-point/app" });
+    expect(await getToolBySlug("datasheet-workbench")).toMatchObject({
+      status: "experimental",
+      localizedApp: true,
+      appUrl: "/tools/datasheet-workbench/app",
+      relatedProject: "datasheet-workbench",
+    });
     expect(await getToolBySlug("missing")).toBeNull();
   });
 
   it("loads reviewed engineering translations only in preview", () => {
     for (const locale of ["zh-CN", "en"] as const) {
-      expect(loadTools(undefined, { locale, visibility: "production" }).map(({ slug }) => slug)).toEqual(["pcb-test-point"]);
+      expect(loadTools(undefined, { locale, visibility: "production" }).map(({ slug }) => slug).sort()).toEqual(["datasheet-workbench", "pcb-test-point"]);
       expect(loadTools(undefined, { locale, visibility: "preview" }).map(({ slug }) => slug).sort()).toEqual([
-        "engineering-converter", "passive-circuit-calculator", "pcb-test-point", "rf-calculator", "smith-chart", "transmission-line",
+        "datasheet-workbench", "engineering-converter", "passive-circuit-calculator", "pcb-test-point", "rf-calculator", "smith-chart", "transmission-line",
       ]);
     }
-    expect(loadTools(undefined, { locale: "zh-TW", visibility: "production" }).filter(({ localizedApp }) => localizedApp)).toHaveLength(5);
+    expect(loadTools(undefined, { locale: "zh-TW", visibility: "production" }).filter(({ localizedApp }) => localizedApp)).toHaveLength(6);
+  });
+
+  it("publishes_three_language_datasheet_disclosures_and_v1_limits", () => {
+    for (const locale of ["zh-TW", "zh-CN", "en"] as const) {
+      const tool = loadTools(undefined, { locale, visibility: "production" }).find(({ slug }) => slug === "datasheet-workbench");
+      expect(tool?.content).toMatch(/PDF/);
+      expect(tool?.content).toMatch(/API|密钥|金鑰|Key/i);
+      expect(tool?.content).toMatch(/MLCC/);
+      expect(tool?.content).toMatch(/电感|電感|inductor/i);
+      expect(tool?.content).toMatch(/OCR|扫描|掃描/i);
+    }
   });
 });

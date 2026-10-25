@@ -67,6 +67,17 @@ describe("final editorial review contracts", () => {
 });
 
 describe("editorial stylesheet boundaries", () => {
+  it("gives_the_datasheet_workspace_dense_responsive_accessible_controls", () => {
+    expect(declarations(".datasheet-workbench")).toMatchObject({ "max-width": "90rem", margin: "0 auto" });
+    expect(declarations(".datasheet-workbench button")["min-height"]).toBe("44px");
+    expect(declarations(".datasheet-workbench :focus-visible").outline).toBe("2px solid var(--editorial-accent)");
+    expect(declarations(".datasheet-comparison-matrix")["overflow-x"]).toBe("auto");
+    expect(declarations(".datasheet-document-grid", true)["grid-template-columns"]).toBe("minmax(0, 1fr)");
+    const stylesheet = fs.readFileSync(stylesheetPath, "utf8");
+    expect(stylesheet).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(stylesheet).toContain("@media print");
+  });
+
   it("defines every content and engineering isolation boundary", () => {
     expect(fs.existsSync(stylesheetPath)).toBe(true);
     if (!fs.existsSync(stylesheetPath)) return;

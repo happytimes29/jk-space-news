@@ -1,0 +1,257 @@
+import { describe, expect, it } from "vitest";
+import { inductorRecord } from "@/tests/fixtures/datasheets/inductor-record";
+import { mlccRecord } from "@/tests/fixtures/datasheets/mlcc-record";
+import type { ExtractionEnvelope, SpecificationValue, WorkConditions } from "./types";
+import { compareSpecification, evaluateReplacement } from "./replacement";
+
+function clone<T>(value: T): T {
+  return structuredClone(value);
+}
+
+function specification(record: ExtractionEnvelope, field: string): SpecificationValue {
+  const value = record.part.specifications.find((item) => item.field === field);
+  if (!value) throw new Error(`Missing fixture field ${field}`);
+  return value;
+}
+
+const mlccConditions: WorkConditions = {
+  componentKind: "mlcc",
+  pcbChangeAllowed: false,
+  requirements: [
+    { field: "capacitance", rawValue: "0.1 µF", normalized: { typical: 1e-7, unit: "F" }, priority: "mandatory" },
+    { field: "rated_voltage", rawValue: "25 V", normalized: { typical: 25, unit: "V" }, priority: "mandatory" },
+    { field: "test_frequency", rawValue: "100 kHz", normalized: { typical: 100_000, unit: "Hz" }, priority: "mandatory" },
+    { field: "ripple_current", rawValue: "1 A", normalized: { typical: 1, unit: "A" }, priority: "mandatory" },
+    { field: "operating_temperature", rawValue: "-40 °C to 85 °C", normalized: { min: -40, max: 85, unit: "°C" }, priority: "mandatory" },
+    { field: "dielectric", rawValue: "X7R", priority: "mandatory" },
+    { field: "dimensions", rawValue: "1.6 × 0.8 mm", priority: "mandatory" },
+  ],
+};
+
+function replacementInput(overrides: Partial<Parameters<typeof evaluateReplacement>[0]> = {}) {
+  const input = {
+    original: clone(mlccRecord),
+    candidate: clone(mlccRecord),
+    conditions: clone(mlccConditions),
+    footprintCompatible: true,
+    externalChangesRequired: false,
+    processChangesRequired: false,
+    ...overrides,
+  };
+  const addOperating = (record: ExtractionEnvelope) => {
+    record.part.specifications.push({
+      field: "test_frequency", rawValue: "100 kHz", normalized: { typical: 100_000, unit: "Hz" }, category: "operating",
+      conditions: [], evidence: [{ documentId: "fixture-mlcc", page: 3, quote: "test_frequency: 100 kHz", chunkHash: "f".repeat(64) }], status: "extracted",
+    });
+    record.part.specifications.push({
+      field: "ripple_current", rawValue: "1 A", normalized: { max: 1, unit: "A" }, category: "absolute-maximum",
+      conditions: [], evidence: [{ documentId: "fixture-mlcc", page: 3, quote: "ripple_current: 1 A", chunkHash: "r".repeat(64) }], status: "extracted",
+    });
+  };
+  addOperating(input.original);
+  addOperating(input.candidate);
+  return input;
+}
+
+describe("evaluateReplacement", () => {
+  it("returns_direct_replacement_only_when_all_mandatory_ratings_and_footprint_pass", () => {
+    const report = evaluateReplacement(replacementInput());
+
+    expect(report.verdict).toBe("direct-replacement");
+    expect(report.reasonCodes).toEqual([]);
+    expect(report.comparisons.every(({ status }) => status === "pass")).toBe(true);
+  });
+
+  it("returns_conditional_for_a_permitted_preference_difference", () => {
+    const input = replacementInput();
+    input.conditions.requirements.push({
+      field: "esr",
+      rawValue: "20 mΩ preferred",
+      normalized: { max: 0.02, unit: "Ω" },
+      priority: "preference",
+    });
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("conditional");
+    expect(report.reasonCodes).toContain("preference_evidence_missing: esr");
+  });
+
+  it("returns_not_recommended_when_candidate_voltage_is_below_the_working_requirement", () => {
+    const input = replacementInput();
+    specification(input.candidate, "rated_voltage").normalized = { max: 16, unit: "V" };
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("not-recommended");
+    expect(report.reasonCodes).toContain("requirement_not_met: rated_voltage");
+  });
+
+  it("never_treats_a_typical_only_rating_as_a_guaranteed_limit", () => {
+    const input = replacementInput();
+    const voltage = specification(input.candidate, "rated_voltage");
+    voltage.category = "typical";
+    voltage.normalized = { typical: 50, unit: "V" };
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("guaranteed_limit_missing: rated_voltage");
+  });
+
+  it("never_treats_typical_only_ripple_current_as_a_guaranteed_limit", () => {
+    const input = replacementInput();
+    const ripple = specification(input.candidate, "ripple_current");
+    ripple.rawValue = "1 A";
+    ripple.category = "typical";
+    ripple.normalized = { typical: 1, unit: "A" };
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("guaranteed_limit_missing: ripple_current");
+  });
+
+  it("fails_closed_when_work_condition_ranges_are_reversed", () => {
+    const input = replacementInput();
+    input.conditions.requirements[1] = { field: "rated_voltage", rawValue: "500 to 25 V", normalized: { min: 500, max: 25, unit: "V" }, priority: "mandatory" };
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("invalid_work_conditions");
+  });
+
+  it("returns_not_recommended_when_the_footprint_is_not_compatible", () => {
+    const report = evaluateReplacement(replacementInput({ footprintCompatible: false }));
+
+    expect(report.verdict).toBe("not-recommended");
+    expect(report.reasonCodes).toContain("footprint_incompatible");
+  });
+
+  it("returns_insufficient_evidence_when_a_mandatory_value_has_no_source", () => {
+    const input = replacementInput();
+    const voltage = specification(input.candidate, "rated_voltage");
+    voltage.status = "missing";
+    voltage.evidence = [];
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("candidate_evidence_missing: rated_voltage");
+  });
+
+  it("returns_insufficient_evidence_when_test_conditions_are_not_comparable", () => {
+    const input = replacementInput();
+    specification(input.original, "capacitance").conditions = ["1 kHz, 1 Vrms"];
+    specification(input.candidate, "capacitance").conditions = ["120 Hz, 0.5 Vrms"];
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("test_conditions_mismatch: capacitance");
+  });
+
+  it("returns_insufficient_evidence_for_curve_only_dc_bias_data", () => {
+    const input = replacementInput();
+    input.conditions.requirements.push({ field: "dc_bias", rawValue: "retain at least 80%", priority: "mandatory" });
+    input.original.part.specifications.push({
+      field: "dc_bias",
+      rawValue: "See curve",
+      conditions: ["25 VDC"],
+      evidence: [{ documentId: "fixture-mlcc", page: 4, quote: "DC bias characteristics", chunkHash: "4".repeat(64) }],
+      status: "extracted",
+      manualReview: true,
+    });
+    input.candidate.part.specifications.push(clone(input.original.part.specifications.at(-1)!));
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("manual_curve_review_required: dc_bias");
+  });
+
+  it("automatically_includes_curve_only_fields_present_in_either_datasheet", () => {
+    const input = replacementInput();
+    const curve = {
+      field: "dc_bias",
+      rawValue: "See curve",
+      conditions: ["25 VDC"],
+      evidence: [{ documentId: "fixture-mlcc", page: 4, quote: "DC bias characteristics", chunkHash: "4".repeat(64) }],
+      status: "extracted" as const,
+      manualReview: true,
+    };
+    input.original.part.specifications.push(curve);
+    input.candidate.part.specifications.push(structuredClone(curve));
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("manual_curve_review_required: dc_bias");
+  });
+
+  it("returns_insufficient_evidence_until_both_exact_ordering_codes_are_selected", () => {
+    const input = replacementInput();
+    input.candidate.selectedOrderingCode = undefined;
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("ordering_code_required");
+  });
+
+  it("preserves_the_requested_field_when_both_datasheets_lack_it", () => {
+    const input = replacementInput();
+    input.original.part.specifications = input.original.part.specifications.filter(({ field }) => field === "capacitance");
+    input.candidate.part.specifications = input.candidate.part.specifications.filter(({ field }) => field === "capacitance");
+
+    const report = evaluateReplacement(input);
+
+    expect(report.comparisons.map(({ field }) => field)).not.toContain("unknown");
+    expect(new Set(report.comparisons.map(({ field }) => field)).size).toBe(report.comparisons.length);
+    expect(report.comparisons).toEqual(expect.arrayContaining([expect.objectContaining({ field: "rated_voltage" })]));
+  });
+
+  it("treats_different_inductor_saturation_definitions_as_insufficient_evidence", () => {
+    const original = clone(inductorRecord);
+    const candidate = clone(inductorRecord);
+    const rms = {
+      field: "rms_current", rawValue: "2 A", normalized: { max: 2, unit: "A" }, category: "absolute-maximum" as const,
+      conditions: [], evidence: [{ documentId: "fixture-inductor", page: 2, quote: "rms_current: 2 A", chunkHash: "a".repeat(64) }], status: "extracted" as const,
+    };
+    original.part.specifications.push(rms);
+    candidate.part.specifications.push(clone(rms));
+    specification(original, "saturation_current").conditions = ["30% inductance drop"];
+    specification(candidate, "saturation_current").conditions = ["10% inductance drop"];
+    const conditions: WorkConditions = {
+      componentKind: "shielded-power-inductor",
+      pcbChangeAllowed: false,
+      requirements: [
+        { field: "inductance", rawValue: "4.7 µH", normalized: { typical: 4.7e-6, unit: "H" }, priority: "mandatory" },
+        { field: "rms_current", rawValue: "2 A", normalized: { typical: 2, unit: "A" }, priority: "mandatory" },
+        { field: "saturation_current", rawValue: "2 A", normalized: { typical: 2, unit: "A" }, priority: "mandatory" },
+        { field: "test_frequency", rawValue: "100 kHz", normalized: { typical: 100_000, unit: "Hz" }, priority: "mandatory" },
+        { field: "operating_temperature", rawValue: "-40 to 85 °C", normalized: { min: -40, max: 85, unit: "°C" }, priority: "mandatory" },
+        { field: "dcr", rawValue: "80 mΩ", normalized: { typical: 0.08, unit: "Ω" }, priority: "mandatory" },
+        { field: "dimensions", rawValue: "4.0 × 4.0 mm", priority: "mandatory" },
+      ],
+    };
+
+    const report = evaluateReplacement({ original, candidate, conditions, footprintCompatible: true });
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("test_conditions_mismatch: saturation_current");
+  });
+});
+
+describe("compareSpecification", () => {
+  it("keeps_both_sources_on_a_passing_comparison", () => {
+    const original = specification(mlccRecord, "rated_voltage");
+    const candidate = clone(original);
+    const row = compareSpecification(original, candidate, mlccConditions.requirements[1]);
+
+    expect(row.status).toBe("pass");
+    expect(row.original?.evidence[0].documentId).toBe("fixture-mlcc");
+    expect(row.candidate?.evidence[0].documentId).toBe("fixture-mlcc");
+  });
+});
