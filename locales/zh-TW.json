@@ -244,6 +244,14 @@
   },
   "engineeringTools": {
     "shell": { "backLabel": "返回工具介紹", "privacy": "所有計算只在此瀏覽器執行，不會上傳輸入值。結果為理想模型的工程估算。" },
+    "datasheet": {
+      "quickMode": "快速讀懂 Datasheet",
+      "replacementMode": "替代料評估",
+      "publicPdfOnly": "僅限公開的元件 Datasheet PDF，請勿上傳機密文件。",
+      "relayDisclosure": "API Key 只在本次請求經 JK Space Relay 轉送，不會儲存。",
+      "supportedTypes": "第一版支援 MLCC 陶瓷電容與屏蔽型功率電感。",
+      "v1Limits": "第一版不支援 OCR、掃描 PDF、圖表數值量測或其他元件類型。"
+    },
     "converter": {
       "generalTab": "一般單位", "rfTab": "RF 功率", "valueLabel": "數值", "fromUnitLabel": "輸入單位", "toUnitLabel": "輸出單位", "impedanceLabel": "系統阻抗", "resultTitle": "計算結果", "canonicalValueLabel": "SI 基準值", "convertedValueLabel": "換算值", "powerLabel": "功率", "voltageLabel": "電壓", "currentLabel": "電流", "resetLabel": "重設範例", "invalidNumber": "請輸入有效的工程數值。", "invalidImpedance": "阻抗必須是正數。", "incompatibleUnits": "請選擇相同物理量的單位。", "formatLabel": "輸出格式", "decimalFormat": "一般小數", "scientificFormat": "科學記號", "engineeringFormat": "工程記號", "spiceFormat": "SPICE"
     },

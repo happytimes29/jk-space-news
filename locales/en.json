@@ -244,6 +244,14 @@
   },
   "engineeringTools": {
     "shell": { "backLabel": "Back to tool overview", "privacy": "All calculations run in this browser. Input values are not uploaded. Results are ideal-model engineering estimates." },
+    "datasheet": {
+      "quickMode": "Quick-read Datasheet",
+      "replacementMode": "Replacement evaluation",
+      "publicPdfOnly": "Public component Datasheet PDFs only. Do not upload confidential documents.",
+      "relayDisclosure": "Your API key is relayed for this request only and is never stored by JK Space.",
+      "supportedTypes": "Version one supports MLCC ceramic capacitors and shielded power inductors.",
+      "v1Limits": "Version one does not support OCR, scanned PDFs, chart measurement, or other component types."
+    },
     "converter": {
       "generalTab": "General units", "rfTab": "RF power", "valueLabel": "Value", "fromUnitLabel": "From unit", "toUnitLabel": "To unit", "impedanceLabel": "System impedance", "resultTitle": "Results", "canonicalValueLabel": "Canonical SI", "convertedValueLabel": "Converted value", "powerLabel": "Power", "voltageLabel": "Voltage", "currentLabel": "Current", "resetLabel": "Reset example", "invalidNumber": "Enter a valid engineering number.", "invalidImpedance": "Impedance must be positive.", "incompatibleUnits": "Choose units for the same quantity.", "formatLabel": "Output format", "decimalFormat": "Decimal", "scientificFormat": "Scientific", "engineeringFormat": "Engineering", "spiceFormat": "SPICE"
     },

@@ -58,14 +58,26 @@ describe("projects", () => {
     expect(() => loadProjects(dir)).toThrow(new RegExp(`invalid\\.md.*${field}`));
   });
 
-  it("loads only the two real projects and selects explicit featured projects", async () => {
+  it("loads the real projects and selects explicit featured projects", async () => {
     const all = await getAllProjects();
-    expect(all).toHaveLength(2);
-    expect(all.map((item) => item.slug).sort()).toEqual(["jk-space-news-automation", "pcb-test-point-comparison"]);
+    expect(all).toHaveLength(3);
+    expect(all.map((item) => item.slug).sort()).toEqual(["datasheet-workbench", "jk-space-news-automation", "pcb-test-point-comparison"]);
     expect(await getProjectBySlug("pcb-test-point-comparison")).toMatchObject({ year: 2026, status: "maintained", areas: ["hardware", "product"], role: "設計與實作", featured: true });
     expect(await getProjectBySlug("jk-space-news-automation")).toMatchObject({ status: "archived" });
+    expect(await getProjectBySlug("datasheet-workbench")).toMatchObject({ status: "maintained", relatedTools: ["datasheet-workbench"] });
     expect((await getFeaturedProjects()).map((item) => item.slug)).toEqual(["jk-space-news-automation", "pcb-test-point-comparison"]);
     expect(await getFeaturedProjects(1)).toHaveLength(1);
     expect(await getProjectBySlug("missing")).toBeNull();
+  });
+
+  it("documents_the_datasheet_evidence_architecture_in_three_languages", () => {
+    for (const locale of ["zh-TW", "zh-CN", "en"] as const) {
+      const project = loadProjects(undefined, { locale, visibility: "production" }).find(({ slug }) => slug === "datasheet-workbench");
+      expect(project?.content).toMatch(/AI/);
+      expect(project?.content).toMatch(/evidence|證據|证据/i);
+      expect(project?.content).toMatch(/deterministic|確定性|确定性/i);
+      expect(project?.content).toMatch(/API|密钥|金鑰|Key/i);
+      expect(project?.content).toMatch(/accuracy|準確率|准确率/i);
+    }
   });
 });
