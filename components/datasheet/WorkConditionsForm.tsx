@@ -2,7 +2,8 @@
 
 import type { ChangeEvent } from "react";
 import type { ComponentKind, RequirementPriority, WorkConditions, WorkRequirement } from "@/lib/datasheet/types";
-import { normalizeQuantity, type QuantityDimension } from "@/lib/datasheet/units";
+import type { QuantityDimension } from "@/lib/datasheet/units";
+import { parseConditionQuantity } from "@/lib/datasheet/work-conditions";
 
 interface ConditionField {
   field: string;
@@ -46,16 +47,7 @@ export function emptyConditionDraft(): ConditionDraft {
 
 function parseNormalized(rawValue: string, dimension?: QuantityDimension): WorkRequirement["normalized"] {
   if (!dimension) return undefined;
-  const unit = rawValue.match(/(pF|nF|[µμu]F|F|nH|[µμu]H|mH|H|mΩ|Ω|Hz|kHz|MHz|GHz|mA|A|mV|V|°C|µm|mm|cm|m)\s*$/)?.[1];
-  const numbers = rawValue.match(/[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi)?.map(Number) ?? [];
-  if (!unit || numbers.length === 0) return undefined;
-  const input = numbers.length >= 2
-    ? { rawValue, dimension, unit, min: numbers[0], max: numbers[1] }
-    : { rawValue, dimension, unit, typical: numbers[0] };
-  const result = normalizeQuantity(input);
-  if (!result.ok) return undefined;
-  const { min, typical, max } = result.value;
-  return { ...(min === undefined ? {} : { min }), ...(typical === undefined ? {} : { typical }), ...(max === undefined ? {} : { max }), unit: result.value.unit };
+  return parseConditionQuantity(rawValue, dimension);
 }
 
 export function buildWorkConditions(kind: ComponentKind, draft: ConditionDraft): WorkConditions {
@@ -78,7 +70,8 @@ export function conditionDraftIssues(kind: ComponentKind, draft: ConditionDraft)
   return FIELDS[kind].flatMap((definition) => {
     const rawValue = draft.values[definition.field]?.trim() ?? "";
     if (definition.required && !rawValue) return [`${definition.field}: required`];
-    if (rawValue && definition.dimension && !parseNormalized(rawValue, definition.dimension)) return [`${definition.field}: invalid quantity`];
+    const normalized = rawValue && definition.dimension ? parseNormalized(rawValue, definition.dimension) : undefined;
+    if (rawValue && definition.dimension && !normalized) return [`${definition.field}: invalid quantity`];
     return [];
   });
 }

@@ -72,7 +72,7 @@ describe("workbenchReducer", () => {
     expect(afterLateParse.documents.original?.parsed).toBeUndefined();
 
     state = workbenchReducer(state, { type: "document/parsed", slot: "original", file: newFile, parsed: newParsed, chunks: [] });
-    state = workbenchReducer(state, { type: "document/kind", slot: "original", componentKind: "mlcc" });
+    state = workbenchReducer(state, { type: "document/kind", slot: "original", componentKind: "shielded-power-inductor" });
     const afterLateOptions = workbenchReducer(state, { type: "document/options", slot: "original", documentId: oldParsed.sha256, options: [], componentKind: "mlcc" });
     expect(afterLateOptions.documents.original?.options).toBeUndefined();
 

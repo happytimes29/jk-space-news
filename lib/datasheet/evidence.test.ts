@@ -5,6 +5,7 @@ import { verifyEvidence } from "./evidence";
 
 function fixture() {
   const envelope = structuredClone(mlccRecord);
+  envelope.document.fileName = "GRM188R71H104KA93D.pdf";
   envelope.part.specifications = [envelope.part.specifications[0]];
   envelope.part.specifications[0].evidence = [{
     documentId: "fixture-mlcc",
@@ -18,7 +19,7 @@ function fixture() {
     documentId: "fixture-mlcc",
     page: 2,
     section: "Specifications",
-    text: "Electrical specifications Capacitance: 0.1 µF at 1 kHz.",
+    text: "GRM188R71H104KA93D Electrical specifications Capacitance: 0.1 µF at 1 kHz.",
     chunkHash: "c".repeat(64),
   }];
   return { envelope, chunks };
@@ -97,5 +98,36 @@ describe("verifyEvidence", () => {
     expect(result.ok).toBe(false);
     expect(result.issues).toContainEqual({ field: "capacitance", code: "value_mismatch" });
     expect(result.envelope.part.specifications[0].status).toBe("ambiguous");
+  });
+
+  it("binds_the_value_to_the_named_field_clause_not_another_voltage_in_the_quote", () => {
+    const { envelope, chunks } = fixture();
+    const value = envelope.part.specifications[0];
+    value.field = "rated_voltage";
+    value.rawValue = "50 V";
+    value.normalized = { max: 50, unit: "V" };
+    value.evidence[0].quote = "Rated voltage 16 V; test voltage 50 V";
+    chunks[0].text = `GRM188R71H104KA93D ${value.evidence[0].quote}`;
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "rated_voltage", code: "value_mismatch" });
+  });
+
+  it("does_not_use_a_fixed_absolute_tolerance_for_tiny_si_values", () => {
+    const { envelope, chunks } = fixture();
+    const value = envelope.part.specifications[0];
+    value.rawValue = "1 pF";
+    value.normalized = { typical: 1e-12, unit: "F" };
+    value.evidence[0].quote = "capacitance: 0.1 pF";
+    chunks[0].text = `GRM188R71H104KA93D ${value.evidence[0].quote}`;
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "capacitance", code: "value_mismatch" });
+  });
+
+  it("requires_each_specification_to_be_scoped_to_the_selected_ordering_code", () => {
+    const { envelope, chunks } = fixture();
+    envelope.document.fileName = "family.pdf";
+    chunks[0].text = "Electrical specifications Capacitance: 0.1 µF.";
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "capacitance", code: "ordering_code_scope_missing" });
   });
 });

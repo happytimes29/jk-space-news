@@ -300,7 +300,10 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
               abortActiveRun(stateRef.current);
               dispatch({ type: "document/remove", slot });
             }}
-            onKind={(componentKind) => dispatch({ type: "document/kind", slot, componentKind })}
+            onKind={(componentKind) => {
+              abortActiveRun(stateRef.current);
+              dispatch({ type: "document/kind", slot, componentKind });
+            }}
           />
           {state.documents[slot]?.options && <label>{copy.selectOrderingCode}
             <select value={state.documents[slot]?.selectedOrderingCode ?? ""} onChange={(event) => dispatch({ type: "document/ordering-code", slot, orderingCode: event.target.value })}>

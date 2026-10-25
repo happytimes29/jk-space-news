@@ -49,6 +49,8 @@ npx playwright test tests/datasheet-workbench.e2e.ts
 
 Verify `/tools/datasheet-workbench/app`, `/zh-cn/tools/datasheet-workbench/app`, and `/en/tools/datasheet-workbench/app`; confirm the Node Relay route exists in the build output. Use the E2E mock for routine verification. A real-provider smoke test requires the operator's own disposable key and a public Datasheet, and must not be recorded.
 
+The reproducible public-PDF safety corpus, artifact hashes, and current fail-closed table limitation are recorded in `docs/datasheet-workbench-golden-corpus.md`. Update that record when a manufacturer replaces a source PDF; do not silently bless a new hash.
+
 ## Incident response and kill switch
 
 For suspected credential exposure, runaway cost, provider abuse, SSRF regression, or sensitive content in logs:

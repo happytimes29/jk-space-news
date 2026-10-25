@@ -115,8 +115,8 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
     }
     case "document/options": {
       const current = state.documents[action.slot];
-      if (!current || current.parsed?.sha256 !== action.documentId) return state;
-      return { ...state, documents: { ...state.documents, [action.slot]: { ...current, options: action.options, componentKind: action.componentKind } } };
+      if (!current || current.parsed?.sha256 !== action.documentId || current.componentKind !== action.componentKind) return state;
+      return { ...state, documents: { ...state.documents, [action.slot]: { ...current, options: action.options } } };
     }
     case "document/ordering-code": {
       const current = state.documents[action.slot];

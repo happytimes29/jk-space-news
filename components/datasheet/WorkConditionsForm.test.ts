@@ -11,4 +11,19 @@ describe("work condition validation", () => {
     const conditions = buildWorkConditions("mlcc", draft);
     expect(conditions.requirements[0].normalized).toEqual({ typical: 1_000, unit: "V" });
   });
+
+  it("rejects_reversed_ranges_and_trailing_unparsed_text", () => {
+    const complete: ConditionDraft = {
+      values: {
+        capacitance: "0.1 µF", rated_voltage: "25 V", test_frequency: "100 kHz",
+        ripple_current: "1 A", operating_temperature: "-40 to 85 °C",
+        dielectric: "X7R", dimensions: "1.6 × 0.8 mm",
+      },
+      priorities: {},
+    };
+
+    expect(conditionDraftIssues("mlcc", { ...complete, values: { ...complete.values, rated_voltage: "500 to 25 V" } })).toContain("rated_voltage: invalid quantity");
+    expect(conditionDraftIssues("mlcc", { ...complete, values: { ...complete.values, operating_temperature: "85 to -40 °C" } })).toContain("operating_temperature: invalid quantity");
+    expect(conditionDraftIssues("mlcc", { ...complete, values: { ...complete.values, rated_voltage: "25 V maybe" } })).toContain("rated_voltage: invalid quantity");
+  });
 });

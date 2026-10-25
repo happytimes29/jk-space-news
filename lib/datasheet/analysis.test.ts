@@ -39,7 +39,7 @@ const specificationChunk: DocumentChunk = {
   documentId: "doc-mlcc",
   page: 3,
   section: "Specifications",
-  text: "capacitance: 0.1 µF; tolerance: ±10%; rated_voltage: 50 V; dielectric: X7R; operating_temperature: -55 °C to 125 °C; dimensions: 1.6 × 0.8 mm; termination: Ni/Sn",
+  text: "GRM188R71H104KA93D capacitance: 0.1 µF; tolerance: ±10%; rated_voltage: 50 V; dielectric: X7R; operating_temperature: -55 °C to 125 °C; dimensions: 1.6 × 0.8 mm; termination: Ni/Sn",
   chunkHash: "3".repeat(64),
 };
 const chunks = [irrelevant, identity, specificationChunk];
@@ -90,6 +90,12 @@ describe("discoverPartOptions", () => {
 
     await expect(discoverPartOptions({ document, chunks, componentKind: "mlcc", transport })).rejects.toMatchObject({ code: "ORDERING_CODE_DISCOVERY_FAILED" });
   });
+
+  it("does_not_accept_a_substring_of_a_longer_ordering_code", async () => {
+    const transport = sequenceTransport([{ options: [{ orderingCode: "GRM188R71H104KA93", manufacturer: "Murata", componentKind: "mlcc" }] }]);
+
+    await expect(discoverPartOptions({ document, chunks, componentKind: "mlcc", transport })).rejects.toMatchObject({ code: "ORDERING_CODE_DISCOVERY_FAILED" });
+  });
 });
 
 describe("analyzeDatasheet", () => {
@@ -104,6 +110,13 @@ describe("analyzeDatasheet", () => {
     const transport = vi.fn() as unknown as ModelTransport;
 
     await expect(analyzeDatasheet({ document, chunks, componentKind: "mlcc", selectedOrderingCode: "" }, transport)).rejects.toMatchObject({ code: "ORDERING_CODE_REQUIRED" });
+    expect(transport).not.toHaveBeenCalled();
+  });
+
+  it("rejects_a_selected_ordering_code_that_is_only_a_substring", async () => {
+    const transport = vi.fn() as unknown as ModelTransport;
+
+    await expect(analyzeDatasheet({ document, chunks, componentKind: "mlcc", selectedOrderingCode: "GRM188R71H104KA93" }, transport)).rejects.toMatchObject({ code: "ORDERING_CODE_REQUIRED" });
     expect(transport).not.toHaveBeenCalled();
   });
 
@@ -151,6 +164,14 @@ describe("analyzeDatasheet", () => {
 describe("compareDatasheets", () => {
   it("delegates_the_final_verdict_to_the_deterministic_engine", async () => {
     const original = { envelope: sourcedEnvelope(), evidenceIssues: [], usedChunks: [specificationChunk] };
+    original.envelope.part.specifications.push({
+      field: "test_frequency", rawValue: "100 kHz", normalized: { typical: 100_000, unit: "Hz" }, category: "operating", conditions: [],
+      evidence: [{ documentId: "doc-mlcc", page: 3, quote: "test_frequency: 100 kHz", chunkHash: specificationChunk.chunkHash }], status: "extracted",
+    });
+    original.envelope.part.specifications.push({
+      field: "ripple_current", rawValue: "1 A", normalized: { max: 1, unit: "A" }, category: "absolute-maximum", conditions: [],
+      evidence: [{ documentId: "doc-mlcc", page: 3, quote: "ripple_current: 1 A", chunkHash: specificationChunk.chunkHash }], status: "extracted",
+    });
     const candidate = structuredClone(original);
 
     const report = await compareDatasheets({
@@ -159,7 +180,15 @@ describe("compareDatasheets", () => {
       conditions: {
         componentKind: "mlcc",
         pcbChangeAllowed: false,
-        requirements: [{ field: "rated_voltage", rawValue: "25 V", normalized: { typical: 25, unit: "V" }, priority: "mandatory" }],
+        requirements: [
+          { field: "capacitance", rawValue: "0.1 µF", normalized: { typical: 1e-7, unit: "F" }, priority: "mandatory" },
+          { field: "rated_voltage", rawValue: "25 V", normalized: { typical: 25, unit: "V" }, priority: "mandatory" },
+          { field: "test_frequency", rawValue: "100 kHz", normalized: { typical: 100_000, unit: "Hz" }, priority: "mandatory" },
+          { field: "ripple_current", rawValue: "1 A", normalized: { typical: 1, unit: "A" }, priority: "mandatory" },
+          { field: "operating_temperature", rawValue: "-40 to 85 °C", normalized: { min: -40, max: 85, unit: "°C" }, priority: "mandatory" },
+          { field: "dielectric", rawValue: "X7R", priority: "mandatory" },
+          { field: "dimensions", rawValue: "1.6 × 0.8 mm", priority: "mandatory" },
+        ],
       },
       footprintCompatible: true,
     });

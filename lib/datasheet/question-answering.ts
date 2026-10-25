@@ -19,6 +19,11 @@ function normalize(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
+function numericTokens(value: string): string[] {
+  const pattern = /[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?\s*(?:pF|nF|[µμu]F|F|nH|[µμu]H|mH|H|mΩ|Ω|Hz|kHz|MHz|GHz|mA|A|mV|V|°C|%)(?![A-Za-zµμΩ])/gi;
+  return [...value.matchAll(pattern)].map(([token]) => token.toLowerCase().replaceAll("μ", "µ").replace(/^([^a-z]*?)u(?=[fhm])/i, "$1µ").replace(/\s+/g, ""));
+}
+
 function verifiedChunks(result: AnalysisResult): DocumentChunk[] {
   const evidence = result.envelope.part.specifications
     .filter(({ status }) => status === "extracted")
@@ -51,10 +56,18 @@ function parseGroundedResponse(value: unknown, chunks: readonly DocumentChunk[])
       chunkHash: chunk.chunkHash,
     });
   }
-  const factualSegments = source.answer.match(/[^.!?。！？]+[.!?。！？]?(?:\s*\[\d+\])*/g) ?? [];
+  const decimalSafeAnswer = source.answer.replace(/(?<=\d)\.(?=\d)/g, "∯");
+  const factualSegments = decimalSafeAnswer.match(/[^.!?。！？]+[.!?。！？]?(?:\s*\[\d+\])*/g) ?? [];
   if (factualSegments.some((segment) => /[\p{L}\p{N}]/u.test(segment) && !/\[\d+\]/.test(segment))) return null;
   const markers = [...source.answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]));
   if (markers.some((marker) => marker < 1 || marker > citations.length)) return null;
+  for (const segment of factualSegments) {
+    const claim = segment.replaceAll("∯", ".");
+    const claimNumbers = numericTokens(claim);
+    const citedIndexes = [...segment.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]) - 1);
+    const citedNumbers = citedIndexes.flatMap((index) => numericTokens(citations[index]?.quote ?? ""));
+    if (claimNumbers.some((token) => !citedNumbers.includes(token))) return null;
+  }
   return { status: "grounded", answer: source.answer, citations };
 }
 
@@ -69,6 +82,7 @@ export async function askDatasheet(
   if (!question.trim() || chunks.length === 0) return insufficient;
   const prompt = [
     "Answer only from the supplied verified datasheet chunks.",
+    `Answer language: ${options.locale ?? "zh-TW"}.`,
     "Every factual sentence must end with citation markers [1], [2], matching the citations array order.",
     "If the chunks do not answer the question, return an empty citations array instead of guessing.",
     "Return JSON: {\"answer\":string,\"citations\":[{\"chunkHash\":string,\"page\":number,\"quote\":string}]}",

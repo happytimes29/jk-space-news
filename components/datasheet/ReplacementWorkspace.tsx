@@ -88,7 +88,8 @@ export function ReplacementWorkspace({ locale, original, candidate, originalFile
   const [footprintCompatible, setFootprintCompatible] = useState(false);
   const [externalChangesRequired, setExternalChangesRequired] = useState(false);
   const [processChangesRequired, setProcessChangesRequired] = useState(false);
-  const [report, setReport] = useState<ReplacementReport>();
+  const [reportState, setReportState] = useState<{ report: ReplacementReport; original: AnalysisResult; candidate: AnalysisResult }>();
+  const report = reportState?.original === original && reportState.candidate === candidate ? reportState.report : undefined;
   const sameKind = original.envelope.componentKind === candidate.envelope.componentKind;
   const exactCodes = Boolean(original.envelope.selectedOrderingCode && candidate.envelope.selectedOrderingCode);
   const conditions = useMemo(
@@ -108,25 +109,26 @@ export function ReplacementWorkspace({ locale, original, candidate, originalFile
 
   const evaluate = async () => {
     if (conditionIssues.length > 0) return;
-    setReport(await compareDatasheets({
+    const nextReport = await compareDatasheets({
       original,
       candidate,
       conditions,
       footprintCompatible,
       externalChangesRequired,
       processChangesRequired,
-    }));
+    });
+    setReportState({ report: nextReport, original, candidate });
   };
   const activeRows = report?.comparisons ?? baseline.comparisons;
   const blockers = report?.comparisons.filter(({ status }) => status === "fail" || status === "insufficient-evidence") ?? [];
   const risks = report?.comparisons.filter(({ status }) => status === "soft-difference") ?? [];
 
   return <section className="datasheet-replacement-workspace">
-    <WorkConditionsForm kind={original.envelope.componentKind} draft={draft} onChange={(next) => { setDraft(next); setReport(undefined); }} />
+    <WorkConditionsForm kind={original.envelope.componentKind} draft={draft} onChange={(next) => { setDraft(next); setReportState(undefined); }} />
     <fieldset className="datasheet-replacement-switches">
-      <label><input type="checkbox" checked={footprintCompatible} onChange={(event) => { setFootprintCompatible(event.target.checked); setReport(undefined); }} /> {copy.footprint}</label>
-      <label><input type="checkbox" checked={externalChangesRequired} onChange={(event) => { setExternalChangesRequired(event.target.checked); setReport(undefined); }} /> {copy.external}</label>
-      <label><input type="checkbox" checked={processChangesRequired} onChange={(event) => { setProcessChangesRequired(event.target.checked); setReport(undefined); }} /> {copy.process}</label>
+      <label><input type="checkbox" checked={footprintCompatible} onChange={(event) => { setFootprintCompatible(event.target.checked); setReportState(undefined); }} /> {copy.footprint}</label>
+      <label><input type="checkbox" checked={externalChangesRequired} onChange={(event) => { setExternalChangesRequired(event.target.checked); setReportState(undefined); }} /> {copy.external}</label>
+      <label><input type="checkbox" checked={processChangesRequired} onChange={(event) => { setProcessChangesRequired(event.target.checked); setReportState(undefined); }} /> {copy.process}</label>
     </fieldset>
     {conditionIssues.length > 0 && conditions.requirements.length > 0 && <p role="alert">Complete or correct all required work conditions.</p>}
     <button type="button" disabled={conditionIssues.length > 0} onClick={() => void evaluate()}>{copy.evaluate}</button>

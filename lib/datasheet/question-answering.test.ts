@@ -115,4 +115,25 @@ describe("askDatasheet", () => {
     expect(receivedSignal).toBe(controller.signal);
     expect(answer.answer).toBe("The document does not contain enough evidence.");
   });
+
+  it("accepts_a_grounded_sentence_containing_a_decimal_number", async () => {
+    const analysis = result();
+    analysis.usedChunks[0].text = "Rated voltage is 2.5 V under the stated operating conditions.";
+    analysis.envelope.part.specifications[0].evidence[0].quote = "Rated voltage is 2.5 V";
+    const send = transport({
+      answer: "Rated voltage is 2.5 V.[1]",
+      citations: [{ chunkHash: "v".repeat(64), page: 2, quote: "Rated voltage is 2.5 V" }],
+    });
+
+    expect((await askDatasheet("What is the rating?", analysis, send, { locale: "en" })).status).toBe("grounded");
+  });
+
+  it("rejects_a_numeric_claim_not_present_in_its_cited_quote", async () => {
+    const send = transport({
+      answer: "Rated voltage is 500 V.[1]",
+      citations: [{ chunkHash: "v".repeat(64), page: 2, quote: "Rated voltage is 50 V" }],
+    });
+
+    expect((await askDatasheet("What is the rating?", result(), send, { locale: "en" })).status).toBe("insufficient-evidence");
+  });
 });

@@ -40,13 +40,13 @@ export function PdfDropzone({ slot, document, copy, disabled, onSelect, onRemove
         <strong>{document.file.name}</strong>
         {document.parsed && <p>{copy.estimate(document.parsed.pageCount, characters, calls)}</p>}
         {document.parsed && <label>{copy.componentType}
-          <select value={document.componentKind ?? ""} onChange={(event) => onKind(event.target.value as NonNullable<WorkbenchDocument["componentKind"]>)}>
+          <select disabled={disabled} value={document.componentKind ?? ""} onChange={(event) => onKind(event.target.value as NonNullable<WorkbenchDocument["componentKind"]>)}>
             <option value="">{copy.chooseType}</option>
             <option value="mlcc">{copy.mlcc}</option>
             <option value="shielded-power-inductor">{copy.inductor}</option>
           </select>
         </label>}
-        <button type="button" onClick={onRemove}>{copy.remove}</button>
+        <button type="button" disabled={disabled} onClick={onRemove}>{copy.remove}</button>
       </div>}
     </section>
   );

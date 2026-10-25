@@ -7,6 +7,7 @@ import type {
   WorkConditions,
   WorkRequirement,
 } from "./types";
+import { workConditionsAreValid } from "./work-conditions";
 
 export interface ReplacementInput {
   original: ExtractionEnvelope;
@@ -48,7 +49,7 @@ function requirementPasses(candidate: SpecificationValue, requirement: WorkRequi
   if (!requirement.normalized) return candidate.rawValue === requirement.rawValue;
   if (!candidate.normalized || candidate.normalized.unit !== requirement.normalized.unit) return false;
 
-  if (["rated_voltage", "rated_current", "rms_current", "saturation_current"].includes(requirement.field)) {
+  if (["rated_voltage", "rated_current", "rms_current", "saturation_current", "ripple_current"].includes(requirement.field)) {
     const available = representative(candidate, "max");
     const needed = requirementNumber(requirement, "typical");
     return available !== undefined && needed !== undefined && available >= needed;
@@ -72,7 +73,7 @@ function requirementPasses(candidate: SpecificationValue, requirement: WorkRequi
   return available !== undefined && needed !== undefined && available === needed;
 }
 
-const GUARANTEED_MAX_FIELDS = new Set(["rated_voltage", "rated_current", "rms_current", "saturation_current", "dcr", "esr"]);
+const GUARANTEED_MAX_FIELDS = new Set(["rated_voltage", "rated_current", "rms_current", "saturation_current", "ripple_current", "dcr", "esr"]);
 
 function hasGuaranteedLimit(candidate: SpecificationValue, field: string): boolean {
   if (!GUARANTEED_MAX_FIELDS.has(field)) return true;
@@ -81,7 +82,7 @@ function hasGuaranteedLimit(candidate: SpecificationValue, field: string): boole
 
 function baselinePasses(original: SpecificationValue, candidate: SpecificationValue): boolean {
   if (original.normalized && candidate.normalized && original.normalized.unit === candidate.normalized.unit) {
-    if (["rated_voltage", "rated_current", "rms_current", "saturation_current"].includes(original.field)) {
+    if (["rated_voltage", "rated_current", "rms_current", "saturation_current", "ripple_current"].includes(original.field)) {
       const left = representative(original, "max");
       const right = representative(candidate, "max");
       return left !== undefined && right !== undefined && right >= left;
@@ -154,6 +155,7 @@ export function evaluateReplacement(input: ReplacementInput): ReplacementReport 
   if (input.original.componentKind !== input.candidate.componentKind || input.conditions.componentKind !== input.original.componentKind) {
     addReason("component_kind_mismatch");
   }
+  if (!workConditionsAreValid(input.conditions)) addReason("invalid_work_conditions");
   if (!input.footprintCompatible) addReason("footprint_incompatible");
   if (input.externalChangesRequired) addReason("external_change_required");
   if (input.processChangesRequired) addReason("process_change_required");
@@ -181,6 +183,7 @@ export function evaluateReplacement(input: ReplacementInput): ReplacementReport 
     || reason.startsWith("requirement_not_met:"));
   const hasInsufficientEvidence = reasonCodes.some((reason) =>
     reason === "ordering_code_required"
+    || reason === "invalid_work_conditions"
     || reason.startsWith("original_evidence_missing:")
     || reason.startsWith("candidate_evidence_missing:")
     || reason.startsWith("guaranteed_limit_missing:")

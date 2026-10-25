@@ -107,6 +107,21 @@ describe("ReplacementWorkspace", () => {
     expect(download.mock.calls[1][1]).toContain('"schemaVersion": 1');
     expect(JSON.stringify(download.mock.calls)).not.toContain("apiKey");
   });
+
+  it("does_not_show_or_export_a_report_computed_for_previous_analysis_props", async () => {
+    const first = withOperatingSpecifications(true);
+    const { rerender } = render(<ReplacementWorkspace locale="en" original={first.original} candidate={first.candidate} />);
+    completeMlccConditions();
+    fireEvent.click(screen.getByRole("button", { name: "Evaluate replacement" }));
+    expect(await screen.findByRole("heading", { name: "Replacement verdict" })).toBeInTheDocument();
+
+    const next = withOperatingSpecifications(true);
+    next.candidate.envelope.part.manufacturer = "New analysis result";
+    rerender(<ReplacementWorkspace locale="en" original={next.original} candidate={next.candidate} />);
+
+    expect(screen.queryByRole("heading", { name: "Replacement verdict" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Download Markdown" })).not.toBeInTheDocument();
+  });
 });
 
 describe("VerdictBanner", () => {

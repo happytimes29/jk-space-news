@@ -9,6 +9,7 @@ export type EvidenceIssueCode =
   | "evidence_missing"
   | "page_mismatch"
   | "quote_mismatch"
+  | "ordering_code_scope_missing"
   | "value_mismatch"
   | "unknown_chunk";
 
@@ -44,7 +45,7 @@ const FIELD_DIMENSIONS: Readonly<Record<string, QuantityDimension>> = {
 const DIMENSION_UNITS: Readonly<Record<QuantityDimension, string>> = {
   capacitance: "pF|nF|[µμu]F|F",
   inductance: "nH|[µμu]H|mH|H",
-  voltage: "mV|V",
+  voltage: "mV|V(?:dc)?",
   current: "mA|A",
   resistance: "mΩ|Ω",
   frequency: "Hz|kHz|MHz|GHz",
@@ -57,12 +58,12 @@ function dimensionValues(text: string, dimension: QuantityDimension): number[] {
   const numberPattern = "[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:e[-+]?\\d+)?";
   const values: number[] = [];
   for (const match of text.matchAll(new RegExp(`(${numberPattern})\\s*(${unitPattern})(?![A-Za-zµμΩ])`, "gi"))) {
-    const result = normalizeQuantity({ rawValue: match[0], dimension, unit: match[2], typical: Number(match[1]) });
+    const result = normalizeQuantity({ rawValue: match[0], dimension, unit: match[2].replace(/dc$/i, ""), typical: Number(match[1]) });
     if (result.ok && result.value.typical !== undefined) values.push(result.value.typical);
   }
   for (const match of text.matchAll(new RegExp(`(${numberPattern})\\s*(?:to|–|—|~)\\s*(${numberPattern})\\s*(${unitPattern})(?![A-Za-zµμΩ])`, "gi"))) {
     for (const raw of [match[1], match[2]]) {
-      const result = normalizeQuantity({ rawValue: match[0], dimension, unit: match[3], typical: Number(raw) });
+      const result = normalizeQuantity({ rawValue: match[0], dimension, unit: match[3].replace(/dc$/i, ""), typical: Number(raw) });
       if (result.ok && result.value.typical !== undefined) values.push(result.value.typical);
     }
   }
@@ -70,22 +71,60 @@ function dimensionValues(text: string, dimension: QuantityDimension): number[] {
 }
 
 function closeToAny(value: number, candidates: readonly number[]): boolean {
-  return candidates.some((expected) => Math.abs(value - expected) <= Math.max(1e-12, Math.abs(expected) * 1e-9));
+  return candidates.some((expected) => {
+    const scale = Math.max(Math.abs(value), Math.abs(expected));
+    const tolerance = scale === 0 ? Number.EPSILON * 16 : scale * 1e-9;
+    return Math.abs(value - expected) <= tolerance;
+  });
+}
+
+const FIELD_ALIASES: Readonly<Record<string, readonly string[]>> = {
+  capacitance: ["capacitance"], rated_voltage: ["rated voltage", "voltage rating", "working voltage"],
+  inductance: ["inductance"], test_frequency: ["test frequency", "frequency"],
+  rated_current: ["rated current", "current rating"], rms_current: ["rms current"],
+  saturation_current: ["saturation current"], ripple_current: ["ripple current"],
+  dcr: ["dcr", "dc resistance"], esr: ["esr", "equivalent series resistance"],
+  operating_temperature: ["operating temperature", "temperature range"],
+};
+
+function normalizedWords(value: string): string {
+  return value.toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function fieldBoundQuotes(specification: SpecificationValue): string[] {
+  const aliases = FIELD_ALIASES[specification.field] ?? [specification.field.replaceAll("_", " ")];
+  return specification.evidence.flatMap(({ quote, table }) => {
+    if (table && aliases.some((alias) => normalizedWords(table).includes(alias))) return [quote];
+    return quote.split(/[;\n]+/).filter((clause) => aliases.some((alias) => normalizedWords(clause).includes(alias)));
+  });
+}
+
+function containsExactToken(text: string, token: string): boolean {
+  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?:^|[^A-Za-z0-9])${escaped}(?:$|[^A-Za-z0-9])`, "i").test(text);
 }
 
 function valueIsBoundToRawAndEvidence(specification: SpecificationValue): boolean {
   if (!specification.normalized) return true;
   const dimension = FIELD_DIMENSIONS[specification.field];
   if (!dimension) return true;
-  const actual = [specification.normalized.min, specification.normalized.typical, specification.normalized.max].filter((value): value is number => value !== undefined);
-  const rawValues = dimensionValues(specification.rawValue, dimension);
-  const evidenceValues = specification.evidence.flatMap(({ quote }) => dimensionValues(quote, dimension));
+  const unique = (values: readonly number[]) => values.filter((value, index) => values.findIndex((other) => closeToAny(value, [other])) === index);
+  const actual = unique([specification.normalized.min, specification.normalized.typical, specification.normalized.max].filter((value): value is number => value !== undefined));
+  const rawValues = unique(dimensionValues(specification.rawValue, dimension));
+  const evidenceValues = unique(fieldBoundQuotes(specification).flatMap((quote) => dimensionValues(quote, dimension)));
   return actual.length > 0
+    && rawValues.length === actual.length
+    && evidenceValues.length === actual.length
     && actual.every((value) => closeToAny(value, rawValues))
     && actual.every((value) => closeToAny(value, evidenceValues));
 }
 
-function verifySpecification(specification: SpecificationValue, chunks: readonly DocumentChunk[], issues: EvidenceIssue[]): void {
+function verifySpecification(
+  specification: SpecificationValue,
+  chunks: readonly DocumentChunk[],
+  issues: EvidenceIssue[],
+  orderingCode: string | undefined,
+): void {
   if (specification.status === "conflicting") {
     addIssue(issues, { field: specification.field, code: "conflicting_value" });
     specification.status = "ambiguous";
@@ -108,6 +147,16 @@ function verifySpecification(specification: SpecificationValue, chunks: readonly
       specification.status = "ambiguous";
     }
   });
+  if (specification.status === "extracted" && orderingCode) {
+    const scoped = specification.evidence.some((evidence) => {
+      const chunk = chunks.find(({ chunkHash }) => chunkHash === evidence.chunkHash);
+      return containsExactToken(evidence.quote, orderingCode) || Boolean(chunk && containsExactToken(chunk.text, orderingCode));
+    });
+    if (!scoped) {
+      addIssue(issues, { field: specification.field, code: "ordering_code_scope_missing" });
+      specification.status = "ambiguous";
+    }
+  }
   if (specification.status === "extracted" && !valueIsBoundToRawAndEvidence(specification)) {
     addIssue(issues, { field: specification.field, code: "value_mismatch" });
     specification.status = "ambiguous";
@@ -126,7 +175,7 @@ export function verifyEvidence(envelope: ExtractionEnvelope, chunks: readonly Do
       addIssue(issues, { field: specification.field, code: "duplicate_field" });
       specification.status = "ambiguous";
     }
-    verifySpecification(specification, chunks, issues);
+    verifySpecification(specification, chunks, issues, verified.selectedOrderingCode);
   }
 
   return { ok: issues.length === 0, envelope: verified, issues };

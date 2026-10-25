@@ -73,7 +73,10 @@ async function readLimitedBody(request: Request): Promise<string> {
 
 async function readLimitedJson(response: Response): Promise<unknown> {
   const declaredLength = response.headers.get("content-length");
-  if (declaredLength && Number(declaredLength) > MAX_RESPONSE_BYTES) throw new RelayRouteError("provider_response_too_large", 502);
+  if (declaredLength && Number(declaredLength) > MAX_RESPONSE_BYTES) {
+    await response.body?.cancel();
+    throw new RelayRouteError("provider_response_too_large", 502);
+  }
   if (!response.body) throw new RelayRouteError("invalid_provider_response", 502);
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
@@ -147,9 +150,15 @@ async function fetchWithValidatedRedirects(
   for (let redirects = 0; ; redirects += 1) {
     const validated = await validateRelayTarget({ url: currentUrl.href, provider }, resolver);
     const dispatcher = fetcher ? undefined : new Agent({ connect: { lookup: createPinnedLookup(validated.addresses) } });
-    const response = fetcher
-      ? await fetcher(currentUrl, { ...init, redirect: "manual" })
-      : await undiciFetch(currentUrl, { ...init, redirect: "manual", dispatcher } as Parameters<typeof undiciFetch>[1]) as unknown as Response;
+    let response: Response;
+    try {
+      response = fetcher
+        ? await fetcher(currentUrl, { ...init, redirect: "manual" })
+        : await undiciFetch(currentUrl, { ...init, redirect: "manual", dispatcher } as Parameters<typeof undiciFetch>[1]) as unknown as Response;
+    } catch (error) {
+      await dispatcher?.close();
+      throw error;
+    }
     if (response.status < 300 || response.status >= 400) return { response, close: async () => { await dispatcher?.close(); } };
     await response.body?.cancel();
     await dispatcher?.close();
