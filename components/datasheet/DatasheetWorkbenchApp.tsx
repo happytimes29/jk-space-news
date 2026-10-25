@@ -10,6 +10,7 @@ import { ModeSwitcher } from "./ModeSwitcher";
 import { PdfDropzone, type PdfDropzoneCopy } from "./PdfDropzone";
 import { ProviderSetup, type ProviderSetupCopy } from "./ProviderSetup";
 import { QuickReadWorkspace } from "./QuickReadWorkspace";
+import { ReplacementWorkspace } from "./ReplacementWorkspace";
 import {
   abortActiveRun,
   initialWorkbenchState,
@@ -218,8 +219,12 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
 
   const requiredSlots: DocumentSlot[] = state.mode === "quick-read" ? ["original"] : ["original", "candidate"];
   const readyDocuments = requiredSlots.every((slot) => state.documents[slot]?.parsed && state.documents[slot]?.chunks && state.documents[slot]?.componentKind);
+  const replacementKindsMatch = state.mode !== "replacement"
+    || !state.documents.original?.componentKind
+    || !state.documents.candidate?.componentKind
+    || state.documents.original.componentKind === state.documents.candidate.componentKind;
   const needsDiscovery = requiredSlots.some((slot) => !state.documents[slot]?.options);
-  const canAnalyze = state.providerConnection === "connected" && readyDocuments && !state.activeRun;
+  const canAnalyze = state.providerConnection === "connected" && readyDocuments && replacementKindsMatch && !state.activeRun;
 
   const analyze = async () => {
     const { id, controller } = startRun();
@@ -302,6 +307,7 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
           </label>}
         </div>)}
       </div>
+      {!replacementKindsMatch && <p role="alert">Both PDFs must use the same supported component type.</p>}
       {state.error && <p role="alert">{state.error}</p>}
       {state.stage && statusLabels[state.stage] && <p role="status">{statusLabels[state.stage]}</p>}
       <div className="datasheet-primary-actions">
@@ -322,6 +328,15 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
           result={state.documents.original.analysis}
           transport={relayTransport}
           file={state.documents.original.file}
+        />
+      )}
+      {state.mode === "replacement" && state.documents.original?.analysis && state.documents.candidate?.analysis && (
+        <ReplacementWorkspace
+          locale={locale}
+          original={state.documents.original.analysis}
+          candidate={state.documents.candidate.analysis}
+          originalFile={state.documents.original.file}
+          candidateFile={state.documents.candidate.file}
         />
       )}
     </div>

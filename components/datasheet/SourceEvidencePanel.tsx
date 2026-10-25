@@ -42,14 +42,15 @@ function PdfPageCanvas({ file, pageNumber }: { file: File; pageNumber: number })
   return <canvas ref={canvasRef} className="datasheet-pdf-page" aria-label={`PDF page ${pageNumber}`} />;
 }
 
-export function SourceEvidencePanel({ locale, evidence, file, onOpenPage }: {
+export function SourceEvidencePanel({ locale, evidence, file, onOpenPage, defaultOpen = false }: {
   locale: Locale;
   evidence: readonly SourceEvidence[];
   file?: File;
   onOpenPage?: (page: number) => void;
+  defaultOpen?: boolean;
 }) {
   const labels = LABELS[locale];
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [previewPage, setPreviewPage] = useState<number>();
   if (evidence.length === 0) return null;
   return (
