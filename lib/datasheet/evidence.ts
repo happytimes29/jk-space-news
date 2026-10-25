@@ -102,14 +102,16 @@ function containsExactToken(text: string, token: string): boolean {
   return new RegExp(`(?:^|[^A-Za-z0-9_-])${escaped}(?:$|[^A-Za-z0-9_-])`, "i").test(text);
 }
 
-function valueIsBoundToRawAndEvidence(specification: SpecificationValue): boolean {
+function valueIsBoundToRawAndEvidence(specification: SpecificationValue, orderingCode: string | undefined): boolean {
   if (!specification.normalized) return true;
   const dimension = FIELD_DIMENSIONS[specification.field];
   if (!dimension) return true;
   const unique = (values: readonly number[]) => values.filter((value, index) => values.findIndex((other) => closeToAny(value, [other])) === index);
   const actual = unique([specification.normalized.min, specification.normalized.typical, specification.normalized.max].filter((value): value is number => value !== undefined));
   const rawValues = unique(dimensionValues(specification.rawValue, dimension));
-  const evidenceValues = unique(fieldBoundQuotes(specification).flatMap((quote) => dimensionValues(quote, dimension)));
+  const boundClauses = fieldBoundQuotes(specification)
+    .filter((clause) => !orderingCode || containsExactToken(clause, orderingCode));
+  const evidenceValues = unique(boundClauses.flatMap((quote) => dimensionValues(quote, dimension)));
   return actual.length > 0
     && rawValues.length === actual.length
     && evidenceValues.length === actual.length
@@ -152,7 +154,7 @@ function verifySpecification(
       specification.status = "ambiguous";
     }
   }
-  if (specification.status === "extracted" && !valueIsBoundToRawAndEvidence(specification)) {
+  if (specification.status === "extracted" && !valueIsBoundToRawAndEvidence(specification, orderingCode)) {
     addIssue(issues, { field: specification.field, code: "value_mismatch" });
     specification.status = "ambiguous";
     specification.normalized = undefined;

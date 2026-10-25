@@ -156,4 +156,16 @@ describe("verifyEvidence", () => {
 
     expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "rated_voltage", code: "ordering_code_scope_missing" });
   });
+
+  it("does_not_combine_ordering_code_scope_from_one_clause_with_a_value_from_another", () => {
+    const { envelope, chunks } = fixture();
+    const value = envelope.part.specifications[0];
+    value.field = "rated_voltage";
+    value.rawValue = "50 V";
+    value.normalized = { max: 50, unit: "V" };
+    value.evidence[0].quote = "GRM188R71H104KA93D Rated voltage; OTHER-PART Rated voltage 50 V";
+    chunks[0].text = value.evidence[0].quote;
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "rated_voltage", code: "value_mismatch" });
+  });
 });
