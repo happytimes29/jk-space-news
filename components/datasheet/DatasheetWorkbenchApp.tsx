@@ -9,6 +9,7 @@ import type { Locale } from "@/lib/i18n/locales";
 import { ModeSwitcher } from "./ModeSwitcher";
 import { PdfDropzone, type PdfDropzoneCopy } from "./PdfDropzone";
 import { ProviderSetup, type ProviderSetupCopy } from "./ProviderSetup";
+import { QuickReadWorkspace } from "./QuickReadWorkspace";
 import {
   abortActiveRun,
   initialWorkbenchState,
@@ -315,6 +316,14 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
           dispatch({ type: "privacy/clear" });
         }}>{copy.clear}</button>
       </div>
+      {state.result?.kind === "quick-read" && state.documents.original?.analysis && (
+        <QuickReadWorkspace
+          locale={locale}
+          result={state.documents.original.analysis}
+          transport={relayTransport}
+          file={state.documents.original.file}
+        />
+      )}
     </div>
   );
 }

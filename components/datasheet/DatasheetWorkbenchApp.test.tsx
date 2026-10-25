@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { ParsedPdf, DocumentChunk } from "@/lib/datasheet/pdf/types";
+import { mlccRecord } from "@/tests/fixtures/datasheets/mlcc-record";
 import { DatasheetWorkbenchApp, type WorkbenchServices } from "./DatasheetWorkbenchApp";
 
 const parsed: ParsedPdf = {
@@ -95,5 +96,29 @@ describe("DatasheetWorkbenchApp", () => {
 
     expect(screen.getByLabelText("API key")).toHaveValue("");
     expect(screen.queryByText(/2 pages/)).not.toBeInTheDocument();
+  });
+
+  it("renders_the_quick_read_workspace_after_a_sourced_analysis", async () => {
+    const envelope = structuredClone(mlccRecord);
+    const fetcher = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const request = JSON.parse(String(init?.body)) as { operation: string };
+      if (request.operation === "connect") return new Response(JSON.stringify({ data: { ok: true } }), { status: 200 });
+      if (request.operation === "discover") return new Response(JSON.stringify({ data: { options: [{ orderingCode: "GRM188R71H104KA93D", manufacturer: "Fixture Components", componentKind: "mlcc" }] } }), { status: 200 });
+      return new Response(JSON.stringify({ data: envelope }), { status: 200 });
+    });
+    render(<DatasheetWorkbenchApp locale="en" services={services(fetcher)} />);
+    await uploadValidPdf();
+    fireEvent.change(screen.getByLabelText("Component type"), { target: { value: "mlcc" } });
+    fireEvent.change(screen.getByLabelText("Model"), { target: { value: "model" } });
+    fireEvent.change(screen.getByLabelText("API key"), { target: { value: "key" } });
+    fireEvent.click(screen.getByRole("button", { name: "Test connection" }));
+    await screen.findByText("Connection verified");
+    fireEvent.click(screen.getByRole("button", { name: "Find exact part numbers" }));
+    const ordering = await screen.findByLabelText("Exact Ordering Code");
+    fireEvent.change(ordering, { target: { value: "GRM188R71H104KA93D" } });
+    fireEvent.click(screen.getByRole("button", { name: "Analyze datasheet" }));
+
+    expect(await screen.findByRole("heading", { name: "GRM188R71H104KA93D" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Engineering Q&A" })).toBeInTheDocument();
   });
 });
