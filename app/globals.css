@@ -293,7 +293,7 @@ body:has(.editorial-home) {
   --color-text: #131312;
   --color-muted: #65635e;
   --color-border: #bbb7ad;
-  --color-accent: #cf3a20;
+  --color-accent: #b62d19;
   background: #f1efe8;
 }
 
@@ -331,7 +331,7 @@ body:has(.editorial-home) footer {
   --editorial-paper: #f1efe8;
   --editorial-muted: #65635e;
   --editorial-rule: #8e8a80;
-  --editorial-accent: #cf3a20;
+  --editorial-accent: #b62d19;
   overflow: hidden;
   background:
     linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(19, 19, 18, 0.035) 50%, transparent calc(50% + 0.5px)),
@@ -452,6 +452,10 @@ body:has(.editorial-home) footer {
 .editorial-contact a:hover {
   gap: 0.85rem;
   color: var(--editorial-accent);
+}
+
+.editorial-actions a:first-child:hover {
+  color: #ff8a72;
 }
 
 .editorial-sections > section,
@@ -1045,7 +1049,7 @@ body:has(.editorial-home) header kbd {
 .editorial-focus__item:nth-child(2) p { color: #aaa69c; }
 .editorial-focus__item:nth-child(3) { background: #df4a2e; color: #11110f; }
 .editorial-focus__item:nth-child(3) > span { color: #11110f; }
-.editorial-focus__item:nth-child(3) p { color: #3f221a; }
+.editorial-focus__item:nth-child(3) p { color: #18110f; }
 
 .editorial-focus__item h3 {
   margin-top: clamp(3rem, 6vw, 6rem);
