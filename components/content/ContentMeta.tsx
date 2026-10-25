@@ -11,7 +11,7 @@ interface Props {
 export function ContentMeta({ locale, role, year, updatedAt }: Props) {
   const copy = getDictionary(locale).common;
   return (
-    <dl className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#55555b] dark:text-[#a1a1aa]">
+    <dl className="editorial-content-meta">
       {role && <div><dt className="font-medium">{copy.role}</dt><dd>{role}</dd></div>}
       {year && <div><dt className="font-medium">{copy.year}</dt><dd>{year}</dd></div>}
       <div><dt className="font-medium">{copy.lastUpdated}</dt><dd><time dateTime={updatedAt}>{updatedAt.slice(0, 10)}</time></dd></div>

@@ -3,7 +3,6 @@ import { getAllNotes, type NoteType } from "@/lib/notes";
 import { contentVisibility } from "@/lib/content/translations";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { localePath, type Locale } from "@/lib/i18n/locales";
-import { ContentCard } from "@/components/content/ContentCard";
 import { NoteFilter } from "@/components/notes/NoteFilter";
 import { filterNotes, noteTypeLabels } from "@/app/notes/notes-view";
 
@@ -18,15 +17,23 @@ export async function NotesPage({ locale, searchParams }: Props) {
   const allNotes = await getAllNotes({ locale, visibility: contentVisibility() });
   const notes = filterNotes(allNotes, type);
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="mb-8 space-y-4"><h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{copy.notesTitle}</h1><p className="max-w-2xl leading-7 text-[#55555b] dark:text-[#a1a1aa]">{copy.notesDescription}</p></header>
-      <NoteFilter type={type} locale={locale} labels={labels} />
-      {notes.length ? <div className="grid gap-6 md:grid-cols-2">{notes.map((note) => (
-        <ContentCard key={note.slug} href={localePath(locale, `/notes/${encodeURIComponent(note.slug)}`)} title={note.title} summary={note.summary}>
-          <p className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-[#55555b] dark:text-[#a1a1aa]"><span>{labels[note.type]}</span><time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time><span>{note.readingTime} {dictionary.common.minutes}</span></p>
-          {note.tags.length > 0 && <ul aria-label={copy.noteTagLabel} className="flex flex-wrap gap-2 text-xs text-[#55555b] dark:text-[#a1a1aa]">{note.tags.map((tag) => <li key={tag} className="rounded border border-[#d4d4d8] px-2 py-1 dark:border-[#303036]">{tag}</li>)}</ul>}
-        </ContentCard>
-      ))}</div> : <div className="space-y-4 rounded-xl border border-[#d4d4d8] p-6 dark:border-[#303036]"><p>{allNotes.length === 0 ? copy.notesEmpty : copy.notesNoMatch}</p>{allNotes.length > 0 && <Link href={localePath(locale, "/notes")} className="text-blue-700 underline underline-offset-4 dark:text-blue-300">{copy.notesViewAll}</Link>}</div>}
+    <div className="editorial-page editorial-collection">
+      <div className="editorial-page__shell">
+        <header className="editorial-page__intro">
+          <div><p className="editorial-page__kicker">03 / {dictionary.navigation.notes}</p><h1>{copy.notesTitle}</h1></div>
+          <p className="editorial-page__lede">{copy.notesDescription}</p>
+        </header>
+        <NoteFilter type={type} locale={locale} labels={labels} />
+        {notes.length ? <div className="editorial-notes-index">{notes.map((note, index) => (
+          <article key={note.slug} aria-label={note.title} className="editorial-note-row">
+            <span className="editorial-note-row__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+            <p className="editorial-note-row__meta"><span>{labels[note.type]}</span><time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time><span>{note.readingTime} {dictionary.common.minutes}</span></p>
+            <h2><Link href={localePath(locale, `/notes/${encodeURIComponent(note.slug)}`)}>{note.title}</Link></h2>
+            <p className="editorial-note-row__summary">{note.summary}</p>
+            {note.tags.length > 0 && <ul aria-label={copy.noteTagLabel} className="editorial-tag-list">{note.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>}
+          </article>
+        ))}</div> : <div className="editorial-empty"><p>{allNotes.length === 0 ? copy.notesEmpty : copy.notesNoMatch}</p>{allNotes.length > 0 && <Link href={localePath(locale, "/notes")}>{copy.notesViewAll}</Link>}</div>}
+      </div>
     </div>
   );
 }
