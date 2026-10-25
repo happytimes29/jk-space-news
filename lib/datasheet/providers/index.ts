@@ -13,7 +13,8 @@ export function getProviderAdapter(kind: ProviderKind): ProviderAdapter {
   return ADAPTERS[kind];
 }
 
-export function sanitizeUpstreamError(provider: ProviderKind, status: number, _body: unknown): SanitizedProviderError {
+export function sanitizeUpstreamError(provider: ProviderKind, status: number, body: unknown): SanitizedProviderError {
+  void body;
   return {
     code: "provider_error",
     provider,

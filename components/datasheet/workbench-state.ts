@@ -12,7 +12,7 @@ export interface ProviderConfiguration {
   apiKey: string;
 }
 
-export interface ProviderPreferences extends Omit<ProviderConfiguration, "apiKey"> {}
+export type ProviderPreferences = Omit<ProviderConfiguration, "apiKey">;
 
 export interface WorkbenchDocument {
   file: File;

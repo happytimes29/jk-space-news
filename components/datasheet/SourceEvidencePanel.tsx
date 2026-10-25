@@ -33,7 +33,10 @@ function PdfPageCanvas({ file, pageNumber }: { file: File; pageNumber: number })
       canvas.width = Math.ceil(viewport.width);
       canvas.height = Math.ceil(viewport.height);
       await page.render({ canvas, canvasContext: context, viewport }).promise;
-    })();
+    })().catch(() => {
+      // Switching modes or pages destroys the PDF.js task. That expected abort
+      // must not become an unhandled browser rejection.
+    });
     return () => {
       cancelled = true;
       void destroy?.();

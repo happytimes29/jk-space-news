@@ -129,6 +129,18 @@ describe("evaluateReplacement", () => {
     expect(report.reasonCodes).toContain("ordering_code_required");
   });
 
+  it("preserves_the_requested_field_when_both_datasheets_lack_it", () => {
+    const input = replacementInput();
+    input.original.part.specifications = input.original.part.specifications.filter(({ field }) => field === "capacitance");
+    input.candidate.part.specifications = input.candidate.part.specifications.filter(({ field }) => field === "capacitance");
+
+    const report = evaluateReplacement(input);
+
+    expect(report.comparisons.map(({ field }) => field)).not.toContain("unknown");
+    expect(new Set(report.comparisons.map(({ field }) => field)).size).toBe(report.comparisons.length);
+    expect(report.comparisons).toEqual(expect.arrayContaining([expect.objectContaining({ field: "rated_voltage" })]));
+  });
+
   it("treats_different_inductor_saturation_definitions_as_insufficient_evidence", () => {
     const original = clone(inductorRecord);
     const candidate = clone(inductorRecord);

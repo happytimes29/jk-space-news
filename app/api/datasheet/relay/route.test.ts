@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { HostResolver } from "@/lib/datasheet/relay-security";
-import { createRelayHandler } from "./route";
+import { createRelayHandler } from "@/lib/datasheet/relay-handler";
 
 const publicResolver: HostResolver = async () => [{ address: "93.184.216.34", family: 4 }];
 

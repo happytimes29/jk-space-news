@@ -99,8 +99,9 @@ export function compareSpecification(
   original: SpecificationValue | undefined,
   candidate: SpecificationValue | undefined,
   requirement?: WorkRequirement,
+  fieldHint?: string,
 ): ComparisonRow {
-  const field = requirement?.field ?? original?.field ?? candidate?.field ?? "unknown";
+  const field = requirement?.field ?? original?.field ?? candidate?.field ?? fieldHint ?? "unknown";
   const priority = requirement?.priority ?? "mandatory";
   if (!hasVerifiedEvidence(original)) {
     return { field, status: priority === "preference" ? "soft-difference" : "insufficient-evidence", reasonCode: `${priority === "preference" ? "preference" : "original"}_evidence_missing`, original, candidate, requirement };
@@ -156,7 +157,7 @@ export function evaluateReplacement(input: ReplacementInput): ReplacementReport 
     const original = input.original.part.specifications.find((item) => item.field === field);
     const candidate = input.candidate.part.specifications.find((item) => item.field === field);
     const requirement = input.conditions.requirements.find((item) => item.field === field);
-    const row = compareSpecification(original, candidate, requirement);
+    const row = compareSpecification(original, candidate, requirement, field);
     comparisons.push(row);
     addReason(withField(row.reasonCode, field));
   }
