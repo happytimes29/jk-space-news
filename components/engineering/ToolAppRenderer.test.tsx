@@ -11,6 +11,12 @@ it("selects applications from the static registered map", () => {
   expect(screen.getByRole("tab", { name: "Propagation" })).toBeInTheDocument();
 });
 
+it("renders the localized datasheet workbench from the registry", () => {
+  render(<ToolAppRenderer slug="datasheet-workbench" locale="en" />);
+  expect(screen.getByRole("tab", { name: "Quick read" })).toBeInTheDocument();
+  expect(screen.getByRole("tab", { name: "Replacement check" })).toBeInTheDocument();
+});
+
 it.each([
   ["zh-TW", "/tools/smith-chart/app"],
   ["zh-CN", "/zh-cn/tools/smith-chart/app"],

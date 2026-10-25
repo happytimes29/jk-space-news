@@ -1,4 +1,5 @@
 export const ENGINEERING_TOOL_SLUGS = [
+  "datasheet-workbench",
   "engineering-converter",
   "passive-circuit-calculator",
   "rf-calculator",
@@ -15,6 +16,11 @@ export interface EngineeringToolDefinition {
 }
 
 const DEFINITIONS: Record<EngineeringToolSlug, EngineeringToolDefinition> = {
+  "datasheet-workbench": {
+    slug: "datasheet-workbench",
+    logicalAppPath: "/tools/datasheet-workbench/app",
+    stateKeys: [],
+  },
   "engineering-converter": {
     slug: "engineering-converter",
     logicalAppPath: "/tools/engineering-converter/app",

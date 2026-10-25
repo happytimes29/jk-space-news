@@ -8,6 +8,7 @@ import {
 describe("engineering tool registry", () => {
   it("registers the available engineering application slugs", () => {
     expect(ENGINEERING_TOOL_SLUGS).toEqual([
+      "datasheet-workbench",
       "engineering-converter",
       "passive-circuit-calculator",
       "rf-calculator",

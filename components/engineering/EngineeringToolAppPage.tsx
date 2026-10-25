@@ -17,7 +17,7 @@ export async function EngineeringToolAppPage({ locale, slug, visibility }: { loc
     description={tool.summary}
     backHref={localePath(locale, `/tools/${tool.slug}`)}
     backLabel={shell.backLabel}
-    privacy={shell.privacy}
+    privacy={tool.privacy}
     application={<ToolAppRenderer slug={definition.slug} locale={locale} />}
   />;
 }
