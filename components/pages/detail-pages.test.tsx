@@ -4,8 +4,9 @@ import path from "node:path";
 import { renderToReadableStream } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ProjectDetailPage } from "./ProjectDetailPage";
+import { ToolDetailPage } from "./ToolDetailPage";
 import { NoteDetailPage } from "./NoteDetailPage";
-import { fixtureDirectory, noteData, projectData, writeContent, writeTranslation } from "@/lib/content/test-fixtures";
+import { fixtureDirectory, noteData, projectData, toolData, writeContent, writeTranslation } from "@/lib/content/test-fixtures";
 import { generateStaticParams as projectStaticParams } from "@/app/[locale]/projects/[slug]/page";
 
 const { notFound } = vi.hoisted(() => ({ notFound: vi.fn(() => { throw new Error("NEXT_NOT_FOUND"); }) }));
@@ -38,11 +39,38 @@ describe("localized detail pages", () => {
     writeContent(projects, "test-project.md", projectData);
     writeTranslation(projects, "en", "test-project.md", projectTranslation("test-project", "published"), "## Result\n\nEnglish engineering body.\n\n![English interface](/images/example.png)");
     const markup = await html(await ProjectDetailPage({ locale: "en", slug: "test-project", visibility: "production" }));
+    expect(markup).toContain('class="editorial-page editorial-detail');
+    expect(markup.match(/<h1/g)).toHaveLength(1);
     expect(markup).toContain("English project");
     expect(markup).toContain("English engineering body.");
     expect(markup).toContain('alt="English interface"');
     expect(markup).toContain('href="/en/projects"');
     expect(markup).not.toContain("測試專案");
+    expect(markup).not.toContain("editorial-detail__cover");
+  });
+
+  it("renders an editorial tool detail with its real image, app action, and no absent optional links", async () => {
+    const tools = path.join(root, "content/tools");
+    writeContent(tools, "test-tool.md", toolData);
+    writeTranslation(tools, "en", "test-tool.md", {
+      ...toolData,
+      title: "English tool",
+      summary: "English tool summary",
+      privacy: "Processed locally.",
+      coverImage: "/images/tool-preview.png",
+      locale: "en",
+      translationOf: "test-tool",
+      translationStatus: "published",
+      translatedAt: "2026-10-19",
+    }, "## Workflow\n\nTool body.");
+
+    const markup = await html(await ToolDetailPage({ locale: "en", slug: "test-tool", visibility: "production" }));
+    expect(markup).toContain('class="editorial-page editorial-detail');
+    expect(markup.match(/<h1/g)).toHaveLength(1);
+    expect(markup).toContain('href="/en/tools"');
+    expect(markup).toContain('href="/tools/test-tool/app"');
+    expect(markup).toContain('alt="English tool interface"');
+    expect(markup).not.toContain("editorial-detail-links");
   });
 
   it.each([
@@ -77,6 +105,8 @@ describe("localized detail pages", () => {
     writeTranslation(notes, "en", "linked-note.md", { ...noteData, slug: "linked-note", title: "Linked note", relatedProjects: ["source-only"], locale: "en", translationOf: "linked-note", translationStatus: "published", translatedAt: "2026-10-19" }, "English note body.");
 
     let markup = await html(await NoteDetailPage({ locale: "en", slug: "linked-note", visibility: "production" }));
+    expect(markup).toContain('class="editorial-page editorial-detail');
+    expect(markup.match(/<h1/g)).toHaveLength(1);
     expect(markup).toContain('href="/projects/source-only"');
     expect(markup).toContain("Traditional Chinese original");
 
