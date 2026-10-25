@@ -1,5 +1,6 @@
 import type { ExtractionEnvelope, SpecificationValue } from "./types";
 import type { DocumentChunk } from "./pdf/types";
+import { normalizeQuantity, type QuantityDimension } from "./units";
 
 export type EvidenceIssueCode =
   | "conflicting_value"
@@ -8,6 +9,7 @@ export type EvidenceIssueCode =
   | "evidence_missing"
   | "page_mismatch"
   | "quote_mismatch"
+  | "value_mismatch"
   | "unknown_chunk";
 
 export interface EvidenceIssue {
@@ -32,6 +34,57 @@ function addIssue(issues: EvidenceIssue[], issue: EvidenceIssue): void {
   }
 }
 
+const FIELD_DIMENSIONS: Readonly<Record<string, QuantityDimension>> = {
+  capacitance: "capacitance", rated_voltage: "voltage", inductance: "inductance",
+  test_frequency: "frequency", rated_current: "current", rms_current: "current",
+  saturation_current: "current", ripple_current: "current", dcr: "resistance",
+  esr: "resistance", operating_temperature: "temperature",
+};
+
+const DIMENSION_UNITS: Readonly<Record<QuantityDimension, string>> = {
+  capacitance: "pF|nF|[µμu]F|F",
+  inductance: "nH|[µμu]H|mH|H",
+  voltage: "mV|V",
+  current: "mA|A",
+  resistance: "mΩ|Ω",
+  frequency: "Hz|kHz|MHz|GHz",
+  temperature: "°C",
+  length: "[µμu]m|mm|cm|m",
+};
+
+function dimensionValues(text: string, dimension: QuantityDimension): number[] {
+  const unitPattern = DIMENSION_UNITS[dimension];
+  const numberPattern = "[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:e[-+]?\\d+)?";
+  const values: number[] = [];
+  for (const match of text.matchAll(new RegExp(`(${numberPattern})\\s*(${unitPattern})(?![A-Za-zµμΩ])`, "gi"))) {
+    const result = normalizeQuantity({ rawValue: match[0], dimension, unit: match[2], typical: Number(match[1]) });
+    if (result.ok && result.value.typical !== undefined) values.push(result.value.typical);
+  }
+  for (const match of text.matchAll(new RegExp(`(${numberPattern})\\s*(?:to|–|—|~)\\s*(${numberPattern})\\s*(${unitPattern})(?![A-Za-zµμΩ])`, "gi"))) {
+    for (const raw of [match[1], match[2]]) {
+      const result = normalizeQuantity({ rawValue: match[0], dimension, unit: match[3], typical: Number(raw) });
+      if (result.ok && result.value.typical !== undefined) values.push(result.value.typical);
+    }
+  }
+  return values;
+}
+
+function closeToAny(value: number, candidates: readonly number[]): boolean {
+  return candidates.some((expected) => Math.abs(value - expected) <= Math.max(1e-12, Math.abs(expected) * 1e-9));
+}
+
+function valueIsBoundToRawAndEvidence(specification: SpecificationValue): boolean {
+  if (!specification.normalized) return true;
+  const dimension = FIELD_DIMENSIONS[specification.field];
+  if (!dimension) return true;
+  const actual = [specification.normalized.min, specification.normalized.typical, specification.normalized.max].filter((value): value is number => value !== undefined);
+  const rawValues = dimensionValues(specification.rawValue, dimension);
+  const evidenceValues = specification.evidence.flatMap(({ quote }) => dimensionValues(quote, dimension));
+  return actual.length > 0
+    && actual.every((value) => closeToAny(value, rawValues))
+    && actual.every((value) => closeToAny(value, evidenceValues));
+}
+
 function verifySpecification(specification: SpecificationValue, chunks: readonly DocumentChunk[], issues: EvidenceIssue[]): void {
   if (specification.status === "conflicting") {
     addIssue(issues, { field: specification.field, code: "conflicting_value" });
@@ -49,12 +102,17 @@ function verifySpecification(specification: SpecificationValue, chunks: readonly
     if (!chunk) code = "unknown_chunk";
     else if (chunk.documentId !== evidence.documentId) code = "document_mismatch";
     else if (chunk.page !== evidence.page) code = "page_mismatch";
-    else if (!normalizeQuote(chunk.text).includes(normalizeQuote(evidence.quote))) code = "quote_mismatch";
+    else if (!normalizeQuote(evidence.quote) || !normalizeQuote(chunk.text).includes(normalizeQuote(evidence.quote))) code = "quote_mismatch";
     if (code) {
       addIssue(issues, { field: specification.field, code, evidenceIndex });
       specification.status = "ambiguous";
     }
   });
+  if (specification.status === "extracted" && !valueIsBoundToRawAndEvidence(specification)) {
+    addIssue(issues, { field: specification.field, code: "value_mismatch" });
+    specification.status = "ambiguous";
+    specification.normalized = undefined;
+  }
 }
 
 export function verifyEvidence(envelope: ExtractionEnvelope, chunks: readonly DocumentChunk[]): EvidenceVerification {

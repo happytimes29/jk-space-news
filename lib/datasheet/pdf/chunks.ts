@@ -50,7 +50,17 @@ function splitPage(page: number, rawText: string): PendingChunk[] {
 
   const flush = () => {
     const text = normalizeText(buffer.join(" "));
-    if (text) result.push({ page, section, text });
+    if (text) {
+      let remaining = text;
+      while (remaining.length > MAX_CHUNK_CHARACTERS) {
+        const candidate = remaining.slice(0, MAX_CHUNK_CHARACTERS + 1);
+        const boundary = candidate.lastIndexOf(" ");
+        const splitAt = boundary > 0 ? boundary : MAX_CHUNK_CHARACTERS;
+        result.push({ page, section, text: remaining.slice(0, splitAt).trim() });
+        remaining = remaining.slice(splitAt).trim();
+      }
+      if (remaining) result.push({ page, section, text: remaining });
+    }
     buffer = [];
   };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { AnalysisResult, ModelTransport } from "@/lib/datasheet/analysis";
 import type { Locale } from "@/lib/i18n/locales";
 import { askDatasheet, type GroundedAnswer } from "@/lib/datasheet/question-answering";
@@ -25,6 +25,8 @@ export function QuickReadWorkspace({ locale, result, transport, file }: {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<GroundedAnswer>();
   const [asking, setAsking] = useState(false);
+  const questionAbortRef = useRef<AbortController | undefined>(undefined);
+  useEffect(() => () => questionAbortRef.current?.abort(), []);
   const { envelope } = result;
   const manual = envelope.part.specifications.filter(({ manualReview }) => manualReview);
   const limitations = [
@@ -34,11 +36,17 @@ export function QuickReadWorkspace({ locale, result, transport, file }: {
   ];
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    questionAbortRef.current?.abort();
+    const controller = new AbortController();
+    questionAbortRef.current = controller;
     setAsking(true);
     try {
-      setAnswer(await askDatasheet(question, result, transport));
+      const nextAnswer = await askDatasheet(question, result, transport, { locale, signal: controller.signal });
+      if (!controller.signal.aborted) setAnswer(nextAnswer);
+    } catch (error) {
+      if (!controller.signal.aborted) throw error;
     } finally {
-      setAsking(false);
+      if (questionAbortRef.current === controller) setAsking(false);
     }
   };
   return (

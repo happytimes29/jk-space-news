@@ -16,7 +16,7 @@ export interface ModelRequest {
   chunks: readonly DocumentChunk[];
 }
 
-export type ModelTransport = (request: ModelRequest) => Promise<unknown>;
+export type ModelTransport = (request: ModelRequest, signal?: AbortSignal) => Promise<unknown>;
 
 export interface PartOption {
   orderingCode: string;
@@ -63,7 +63,7 @@ function assertSupported(kind: string): asserts kind is ComponentKind {
   if (kind !== "mlcc" && kind !== "shielded-power-inductor") throw new AnalysisError("UNSUPPORTED_COMPONENT");
 }
 
-function parseOptions(value: unknown, expectedKind: ComponentKind): PartOption[] {
+function parseOptions(value: unknown, expectedKind: ComponentKind, chunks: readonly DocumentChunk[]): PartOption[] {
   if (typeof value !== "object" || value === null || !("options" in value) || !Array.isArray(value.options)) {
     throw new AnalysisError("ORDERING_CODE_DISCOVERY_FAILED");
   }
@@ -74,6 +74,7 @@ function parseOptions(value: unknown, expectedKind: ComponentKind): PartOption[]
     if (typeof source.orderingCode !== "string" || source.orderingCode.trim() === "") continue;
     if (typeof source.manufacturer !== "string" || source.manufacturer.trim() === "") continue;
     if (source.componentKind !== expectedKind) continue;
+    if (!chunks.some(({ text }) => text.includes(source.orderingCode as string))) continue;
     if (!options.some(({ orderingCode }) => orderingCode === source.orderingCode)) {
       options.push({ orderingCode: source.orderingCode, manufacturer: source.manufacturer, componentKind: expectedKind });
     }
@@ -95,7 +96,7 @@ export async function discoverPartOptions(input: AnalysisInput): Promise<PartOpt
     prompt: buildDiscoveryPrompt(input.componentKind, selected),
     chunks: selected,
   });
-  return parseOptions(response, input.componentKind);
+  return parseOptions(response, input.componentKind, selected);
 }
 
 function refreshMissingFields(envelope: ExtractionEnvelope): ExtractionEnvelope {
@@ -116,12 +117,15 @@ export async function analyzeDatasheet(
   onProgress("parsing");
   onProgress("retrieving");
   const fields = requiredFieldsFor(input.componentKind).map(({ id }) => id);
-  const selected = searchDocumentChunks(input.chunks, {
+  const replacementChunks = searchDocumentChunks(input.chunks, {
     componentKind: input.componentKind,
     purpose: "replacement",
     fields,
     limit: 20,
   });
+  const identityChunks = searchDocumentChunks(input.chunks, { componentKind: input.componentKind, purpose: "identity", fields: ["ordering_code"], limit: 4 });
+  if (!identityChunks.some(({ text }) => text.includes(input.selectedOrderingCode))) throw new AnalysisError("ORDERING_CODE_REQUIRED");
+  const selected = [...identityChunks, ...replacementChunks].filter((chunk, index, all) => all.findIndex(({ id }) => id === chunk.id) === index);
   onProgress("extracting");
   let raw = await transport({
     operation: "extract",
@@ -144,7 +148,18 @@ export async function analyzeDatasheet(
     throw new AnalysisError("EXTRACTION_INVALID");
   }
   onProgress("verifying");
-  const verification = verifyEvidence(parsed.value, selected);
+  const trustedEnvelope: ExtractionEnvelope = {
+    ...parsed.value,
+    document: {
+      documentId: input.document.sha256,
+      fileName: input.document.fileName,
+      sha256: input.document.sha256,
+      title: parsed.value.document.title,
+      revision: parsed.value.document.revision,
+      publishedAt: parsed.value.document.publishedAt,
+    },
+  };
+  const verification = verifyEvidence(trustedEnvelope, selected);
   onProgress("comparing");
   onProgress("complete");
   return {

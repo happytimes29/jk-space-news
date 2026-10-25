@@ -31,9 +31,9 @@ function conditionsMatch(original: SpecificationValue, candidate: SpecificationV
 function representative(value: SpecificationValue, preference: "min" | "typical" | "max"): number | undefined {
   const normalized = value.normalized;
   if (!normalized) return undefined;
-  if (preference === "max") return normalized.max ?? normalized.typical ?? normalized.min;
-  if (preference === "min") return normalized.min ?? normalized.typical ?? normalized.max;
-  return normalized.typical ?? normalized.max ?? normalized.min;
+  if (preference === "max") return normalized.max;
+  if (preference === "min") return normalized.min;
+  return normalized.typical;
 }
 
 function requirementNumber(requirement: WorkRequirement, preference: "min" | "typical" | "max"): number | undefined {
@@ -70,6 +70,13 @@ function requirementPasses(candidate: SpecificationValue, requirement: WorkRequi
   const available = representative(candidate, "typical");
   const needed = requirementNumber(requirement, "typical");
   return available !== undefined && needed !== undefined && available === needed;
+}
+
+const GUARANTEED_MAX_FIELDS = new Set(["rated_voltage", "rated_current", "rms_current", "saturation_current", "dcr", "esr"]);
+
+function hasGuaranteedLimit(candidate: SpecificationValue, field: string): boolean {
+  if (!GUARANTEED_MAX_FIELDS.has(field)) return true;
+  return candidate.category !== "typical" && candidate.normalized?.max !== undefined;
 }
 
 function baselinePasses(original: SpecificationValue, candidate: SpecificationValue): boolean {
@@ -115,6 +122,9 @@ export function compareSpecification(
   if (!conditionsMatch(original, candidate)) {
     return { field, status: priority === "preference" ? "soft-difference" : "insufficient-evidence", reasonCode: "test_conditions_mismatch", original, candidate, requirement };
   }
+  if (!hasGuaranteedLimit(candidate, field)) {
+    return { field, status: priority === "preference" ? "soft-difference" : "insufficient-evidence", reasonCode: priority === "preference" ? "preference_guaranteed_limit_missing" : "guaranteed_limit_missing", original, candidate, requirement };
+  }
   const pass = requirement ? requirementPasses(candidate, requirement) : baselinePasses(original, candidate);
   if (pass) return { field, status: "pass", reasonCode: "compatible", original, candidate, requirement };
   return {
@@ -151,7 +161,10 @@ export function evaluateReplacement(input: ReplacementInput): ReplacementReport 
   const requiredFields = requiredFieldsFor(input.original.componentKind)
     .filter(({ requiredForReplacement }) => requiredForReplacement)
     .map(({ id }) => id);
-  const fields = [...new Set([...requiredFields, ...input.conditions.requirements.map(({ field }) => field)])];
+  const manualFields = [...input.original.part.specifications, ...input.candidate.part.specifications]
+    .filter(({ manualReview }) => manualReview)
+    .map(({ field }) => field);
+  const fields = [...new Set([...requiredFields, ...input.conditions.requirements.map(({ field }) => field), ...manualFields])];
 
   for (const field of fields) {
     const original = input.original.part.specifications.find((item) => item.field === field);
@@ -170,6 +183,7 @@ export function evaluateReplacement(input: ReplacementInput): ReplacementReport 
     reason === "ordering_code_required"
     || reason.startsWith("original_evidence_missing:")
     || reason.startsWith("candidate_evidence_missing:")
+    || reason.startsWith("guaranteed_limit_missing:")
     || reason.startsWith("test_conditions_mismatch:")
     || reason.startsWith("manual_curve_review_required:"));
   const hasCondition = reasonCodes.some((reason) =>

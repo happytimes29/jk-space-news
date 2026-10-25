@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { HostResolver } from "@/lib/datasheet/relay-security";
-import { createRelayHandler } from "@/lib/datasheet/relay-handler";
+import { createPinnedLookup, createRelayHandler } from "@/lib/datasheet/relay-handler";
 
 const publicResolver: HostResolver = async () => [{ address: "93.184.216.34", family: 4 }];
 
@@ -129,5 +129,24 @@ describe("datasheet relay route", () => {
 
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ error: { code: "invalid_request" } });
+  });
+
+  it("rejects_an_oversized_success_response_before_buffering_it_all", async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({ content: [{ type: "text", text: "x".repeat(2 * 1024 * 1024) }] }), { status: 200 }));
+    const handler = createRelayHandler({ resolver: publicResolver, fetcher });
+
+    const response = await handler(relayRequest(validBody));
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({ error: { code: "provider_response_too_large" } });
+  });
+
+  it("pins_connector_resolution_to_the_prevalidated_addresses", async () => {
+    const lookup = createPinnedLookup([{ address: "93.184.216.34", family: 4 }]);
+    const resolved = await new Promise<{ address: string; family: number }>((resolve, reject) => lookup("models.example.com", {}, (error, address, family) => {
+      if (error) reject(error);
+      else resolve({ address: String(address), family: family ?? 0 });
+    }));
+    expect(resolved).toEqual({ address: "93.184.216.34", family: 4 });
   });
 });

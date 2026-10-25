@@ -103,4 +103,15 @@ describe("parseExtractionEnvelope", () => {
     ]);
     expect(requiredFieldsFor("mlcc").filter((field) => field.requiredForReplacement).map(({ id }) => id)).toContain("rated_voltage");
   });
+
+  it("rejects_a_normalized_unit_that_does_not_match_the_field_dimension", () => {
+    const invalid = structuredClone(sourcedMlcc);
+    Object.assign(invalid.part.specifications[0], { normalized: { typical: 0.1, unit: "V" } });
+
+    const result = parseExtractionEnvelope(invalid);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors).toEqual(expect.arrayContaining([expect.objectContaining({ code: "unit_dimension_mismatch" })]));
+  });
 });

@@ -10,27 +10,28 @@ interface ConditionField {
   placeholder: string;
   dimension?: QuantityDimension;
   lockedMandatory?: boolean;
+  required?: boolean;
 }
 
 const FIELDS: Record<ComponentKind, ConditionField[]> = {
   mlcc: [
-    { field: "capacitance", label: "Capacitance", placeholder: "0.1 µF", dimension: "capacitance", lockedMandatory: true },
-    { field: "rated_voltage", label: "DC voltage", placeholder: "25 V", dimension: "voltage", lockedMandatory: true },
-    { field: "test_frequency", label: "Ripple frequency", placeholder: "100 kHz", dimension: "frequency" },
-    { field: "ripple_current", label: "Ripple current", placeholder: "1 A", dimension: "current" },
-    { field: "operating_temperature", label: "Ambient temperature", placeholder: "-40 to 85 °C", dimension: "temperature", lockedMandatory: true },
-    { field: "dielectric", label: "Dielectric", placeholder: "X7R", lockedMandatory: true },
-    { field: "dimensions", label: "Allowed dimensions", placeholder: "1.6 × 0.8 mm", lockedMandatory: true },
+    { field: "capacitance", label: "Capacitance", placeholder: "0.1 µF", dimension: "capacitance", lockedMandatory: true, required: true },
+    { field: "rated_voltage", label: "DC voltage", placeholder: "25 V", dimension: "voltage", lockedMandatory: true, required: true },
+    { field: "test_frequency", label: "Ripple frequency", placeholder: "100 kHz", dimension: "frequency", required: true },
+    { field: "ripple_current", label: "Ripple current", placeholder: "1 A", dimension: "current", required: true },
+    { field: "operating_temperature", label: "Ambient temperature", placeholder: "-40 to 85 °C", dimension: "temperature", lockedMandatory: true, required: true },
+    { field: "dielectric", label: "Dielectric", placeholder: "X7R", lockedMandatory: true, required: true },
+    { field: "dimensions", label: "Allowed dimensions", placeholder: "1.6 × 0.8 mm", lockedMandatory: true, required: true },
     { field: "dc_bias", label: "DC bias retention", placeholder: "80 %" },
   ],
   "shielded-power-inductor": [
-    { field: "inductance", label: "Inductance", placeholder: "4.7 µH", dimension: "inductance", lockedMandatory: true },
-    { field: "rms_current", label: "RMS current", placeholder: "2 A", dimension: "current", lockedMandatory: true },
-    { field: "saturation_current", label: "Peak current", placeholder: "2.5 A", dimension: "current", lockedMandatory: true },
-    { field: "test_frequency", label: "Operating frequency", placeholder: "100 kHz", dimension: "frequency" },
-    { field: "operating_temperature", label: "Ambient temperature", placeholder: "-40 to 85 °C", dimension: "temperature", lockedMandatory: true },
-    { field: "dcr", label: "Maximum DCR", placeholder: "80 mΩ", dimension: "resistance", lockedMandatory: true },
-    { field: "dimensions", label: "Allowed dimensions", placeholder: "4.0 × 4.0 mm", lockedMandatory: true },
+    { field: "inductance", label: "Inductance", placeholder: "4.7 µH", dimension: "inductance", lockedMandatory: true, required: true },
+    { field: "rms_current", label: "RMS current", placeholder: "2 A", dimension: "current", lockedMandatory: true, required: true },
+    { field: "saturation_current", label: "Peak current", placeholder: "2.5 A", dimension: "current", lockedMandatory: true, required: true },
+    { field: "test_frequency", label: "Operating frequency", placeholder: "100 kHz", dimension: "frequency", required: true },
+    { field: "operating_temperature", label: "Ambient temperature", placeholder: "-40 to 85 °C", dimension: "temperature", lockedMandatory: true, required: true },
+    { field: "dcr", label: "Maximum DCR", placeholder: "80 mΩ", dimension: "resistance", lockedMandatory: true, required: true },
+    { field: "dimensions", label: "Allowed dimensions", placeholder: "4.0 × 4.0 mm", lockedMandatory: true, required: true },
   ],
 };
 
@@ -46,7 +47,7 @@ export function emptyConditionDraft(): ConditionDraft {
 function parseNormalized(rawValue: string, dimension?: QuantityDimension): WorkRequirement["normalized"] {
   if (!dimension) return undefined;
   const unit = rawValue.match(/(pF|nF|[µμu]F|F|nH|[µμu]H|mH|H|mΩ|Ω|Hz|kHz|MHz|GHz|mA|A|mV|V|°C|µm|mm|cm|m)\s*$/)?.[1];
-  const numbers = rawValue.match(/-?\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  const numbers = rawValue.match(/[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi)?.map(Number) ?? [];
   if (!unit || numbers.length === 0) return undefined;
   const input = numbers.length >= 2
     ? { rawValue, dimension, unit, min: numbers[0], max: numbers[1] }
@@ -71,6 +72,15 @@ export function buildWorkConditions(kind: ComponentKind, draft: ConditionDraft):
       };
     });
   return { componentKind: kind, pcbChangeAllowed: false, requirements };
+}
+
+export function conditionDraftIssues(kind: ComponentKind, draft: ConditionDraft): string[] {
+  return FIELDS[kind].flatMap((definition) => {
+    const rawValue = draft.values[definition.field]?.trim() ?? "";
+    if (definition.required && !rawValue) return [`${definition.field}: required`];
+    if (rawValue && definition.dimension && !parseNormalized(rawValue, definition.dimension)) return [`${definition.field}: invalid quantity`];
+    return [];
+  });
 }
 
 export function WorkConditionsForm({ kind, draft, onChange }: {

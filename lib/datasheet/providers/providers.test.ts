@@ -58,6 +58,12 @@ describe("provider adapters", () => {
     expect(adapter.parseResponse({ choices: [{ message: { content: "{\"unexpected\":true}" } }] })).toEqual({ unexpected: true });
   });
 
+  it("preserves_malformed_model_json_for_the_single_repair_pass", () => {
+    const adapter = getProviderAdapter("openai-compatible");
+
+    expect(adapter.parseResponse({ choices: [{ message: { content: "{not-json" } }] })).toEqual({ invalidJson: "{not-json" });
+  });
+
   it("sanitizes_upstream_errors_without_echoing_the_key_prompt_or_body", () => {
     const error = sanitizeUpstreamError("anthropic", 429, {
       error: { message: "secret-provider-key Return a JSON object with sourced values." },

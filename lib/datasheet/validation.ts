@@ -46,7 +46,13 @@ function parseEvidence(value: unknown, path: string, errors: ValidationIssue[]):
   };
 }
 
-function parseNormalized(value: unknown, path: string, errors: ValidationIssue[]): NormalizedQuantity | undefined {
+const FIELD_UNITS: Readonly<Record<string, string>> = {
+  capacitance: "F", rated_voltage: "V", inductance: "H", test_frequency: "Hz",
+  rated_current: "A", rms_current: "A", saturation_current: "A", ripple_current: "A",
+  dcr: "Ω", esr: "Ω", operating_temperature: "°C", dimensions: "m",
+};
+
+function parseNormalized(value: unknown, field: string, path: string, errors: ValidationIssue[]): NormalizedQuantity | undefined {
   if (value === undefined) return undefined;
   const source = record(value);
   if (!source) {
@@ -54,6 +60,10 @@ function parseNormalized(value: unknown, path: string, errors: ValidationIssue[]
     return undefined;
   }
   const quantity: NormalizedQuantity = { unit: stringAt(source, "unit", `${path}.unit`, errors) };
+  const expectedUnit = FIELD_UNITS[field];
+  if (expectedUnit && quantity.unit !== expectedUnit) {
+    errors.push({ path: `${path}.unit`, code: "unit_dimension_mismatch", message: `Expected ${expectedUnit} for ${field}` });
+  }
   for (const key of ["min", "typical", "max"] as const) {
     const number = source[key];
     if (number === undefined) continue;
@@ -62,6 +72,9 @@ function parseNormalized(value: unknown, path: string, errors: ValidationIssue[]
     } else {
       quantity[key] = number;
     }
+  }
+  if (quantity.min !== undefined && quantity.max !== undefined && quantity.min > quantity.max) {
+    errors.push({ path, code: "invalid_range", message: "Expected min to be no greater than max" });
   }
   return quantity;
 }
@@ -83,10 +96,11 @@ function parseSpecification(value: unknown, index: number, errors: ValidationIss
   if (typeof status !== "string" || !statuses.includes(status)) {
     errors.push({ path: `${path}.status`, code: "invalid_status", message: "Expected a supported status" });
   }
+  const field = stringAt(source, "field", `${path}.field`, errors);
   return {
-    field: stringAt(source, "field", `${path}.field`, errors),
+    field,
     rawValue: stringAt(source, "rawValue", `${path}.rawValue`, errors),
-    normalized: parseNormalized(source.normalized, `${path}.normalized`, errors),
+    normalized: parseNormalized(source.normalized, field, `${path}.normalized`, errors),
     category: typeof source.category === "string" ? source.category as SpecificationValue["category"] : undefined,
     conditions: Array.isArray(conditions) ? conditions.filter((item): item is string => typeof item === "string") : [],
     evidence: Array.isArray(evidence) ? evidence.map((item, evidenceIndex) => parseEvidence(item, `${path}.evidence[${evidenceIndex}]`, errors)) : [],

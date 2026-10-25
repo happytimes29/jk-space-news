@@ -80,6 +80,17 @@ describe("askDatasheet", () => {
     });
   });
 
+  it("rejects_empty_quotes_and_any_uncited_claim_sentence", async () => {
+    const emptyQuote = transport({ answer: "額定電壓為 50 V。[1]", citations: [{ chunkHash: "v".repeat(64), page: 2, quote: "" }] });
+    expect((await askDatasheet("額定電壓是多少？", result(), emptyQuote)).status).toBe("insufficient-evidence");
+
+    const uncitedClaim = transport({
+      answer: "額定電壓為 50 V。[1] 這顆料在所有溫度都安全。",
+      citations: [{ chunkHash: "v".repeat(64), page: 2, quote: "Rated voltage is 50 V" }],
+    });
+    expect((await askDatasheet("額定電壓是多少？", result(), uncitedClaim)).status).toBe("insufficient-evidence");
+  });
+
   it("does_not_call_the_model_when_no_verified_chunk_supports_the_question", async () => {
     const analysis = result();
     analysis.envelope.part.specifications[0].status = "ambiguous";
@@ -89,5 +100,19 @@ describe("askDatasheet", () => {
 
     expect(answer.status).toBe("insufficient-evidence");
     expect(send).not.toHaveBeenCalled();
+  });
+
+  it("forwards_cancellation_and_localizes_the_insufficient_evidence_message", async () => {
+    const controller = new AbortController();
+    let receivedSignal: AbortSignal | undefined;
+    const send: ModelTransport = async (_request, signal) => {
+      receivedSignal = signal;
+      return { answer: "unsupported", citations: [] };
+    };
+
+    const answer = await askDatasheet("What is the rating?", result(), send, { locale: "en", signal: controller.signal });
+
+    expect(receivedSignal).toBe(controller.signal);
+    expect(answer.answer).toBe("The document does not contain enough evidence.");
   });
 });

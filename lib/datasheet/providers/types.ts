@@ -39,7 +39,7 @@ export function parseJsonText(value: unknown): unknown {
   try {
     return JSON.parse(value) as unknown;
   } catch {
-    throw new ProviderResponseError("invalid_provider_json");
+    return { invalidJson: value };
   }
 }
 

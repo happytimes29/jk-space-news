@@ -1,6 +1,7 @@
 import type { AnalysisResult, ModelTransport } from "./analysis";
 import type { DocumentChunk } from "./pdf/types";
 import type { SourceEvidence } from "./types";
+import type { Locale } from "@/lib/i18n/locales";
 
 export interface GroundedAnswer {
   status: "grounded" | "insufficient-evidence";
@@ -8,10 +9,10 @@ export interface GroundedAnswer {
   citations: SourceEvidence[];
 }
 
-const INSUFFICIENT: GroundedAnswer = {
-  status: "insufficient-evidence",
-  answer: "文件沒有足夠證據",
-  citations: [],
+const INSUFFICIENT: Record<Locale, GroundedAnswer> = {
+  "zh-TW": { status: "insufficient-evidence", answer: "文件沒有足夠證據", citations: [] },
+  "zh-CN": { status: "insufficient-evidence", answer: "文件没有足够证据", citations: [] },
+  en: { status: "insufficient-evidence", answer: "The document does not contain enough evidence.", citations: [] },
 };
 
 function normalize(value: string): string {
@@ -38,7 +39,7 @@ function parseGroundedResponse(value: unknown, chunks: readonly DocumentChunk[])
     const candidate = source.citations[index];
     if (typeof candidate !== "object" || candidate === null) return null;
     const citation = candidate as Record<string, unknown>;
-    if (typeof citation.chunkHash !== "string" || !Number.isInteger(citation.page) || typeof citation.quote !== "string") return null;
+    if (typeof citation.chunkHash !== "string" || !Number.isInteger(citation.page) || typeof citation.quote !== "string" || !citation.quote.trim()) return null;
     const chunk = chunks.find(({ chunkHash, page }) => chunkHash === citation.chunkHash && page === citation.page);
     if (!chunk || !normalize(chunk.text).includes(normalize(citation.quote))) return null;
     if (!source.answer.includes(`[${index + 1}]`)) return null;
@@ -50,12 +51,22 @@ function parseGroundedResponse(value: unknown, chunks: readonly DocumentChunk[])
       chunkHash: chunk.chunkHash,
     });
   }
+  const factualSegments = source.answer.match(/[^.!?。！？]+[.!?。！？]?(?:\s*\[\d+\])*/g) ?? [];
+  if (factualSegments.some((segment) => /[\p{L}\p{N}]/u.test(segment) && !/\[\d+\]/.test(segment))) return null;
+  const markers = [...source.answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1]));
+  if (markers.some((marker) => marker < 1 || marker > citations.length)) return null;
   return { status: "grounded", answer: source.answer, citations };
 }
 
-export async function askDatasheet(question: string, result: AnalysisResult, transport: ModelTransport): Promise<GroundedAnswer> {
+export async function askDatasheet(
+  question: string,
+  result: AnalysisResult,
+  transport: ModelTransport,
+  options: { locale?: Locale; signal?: AbortSignal } = {},
+): Promise<GroundedAnswer> {
+  const insufficient = INSUFFICIENT[options.locale ?? "zh-TW"];
   const chunks = verifiedChunks(result);
-  if (!question.trim() || chunks.length === 0) return INSUFFICIENT;
+  if (!question.trim() || chunks.length === 0) return insufficient;
   const prompt = [
     "Answer only from the supplied verified datasheet chunks.",
     "Every factual sentence must end with citation markers [1], [2], matching the citations array order.",
@@ -64,7 +75,7 @@ export async function askDatasheet(question: string, result: AnalysisResult, tra
     `Question: ${question}`,
     `Verified chunks: ${JSON.stringify(chunks.map(({ id, documentId, page, section, text, chunkHash }) => ({ id, documentId, page, section, text, chunkHash })))}`,
   ].join("\n");
-  const response = await transport({ operation: "question", prompt, chunks });
-  return parseGroundedResponse(response, chunks) ?? INSUFFICIENT;
+  const response = await transport({ operation: "question", prompt, chunks }, options.signal);
+  return parseGroundedResponse(response, chunks) ?? insufficient;
 }
 

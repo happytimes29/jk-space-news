@@ -70,6 +70,18 @@ describe("evaluateReplacement", () => {
     expect(report.reasonCodes).toContain("requirement_not_met: rated_voltage");
   });
 
+  it("never_treats_a_typical_only_rating_as_a_guaranteed_limit", () => {
+    const input = replacementInput();
+    const voltage = specification(input.candidate, "rated_voltage");
+    voltage.category = "typical";
+    voltage.normalized = { typical: 50, unit: "V" };
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("guaranteed_limit_missing: rated_voltage");
+  });
+
   it("returns_not_recommended_when_the_footprint_is_not_compatible", () => {
     const report = evaluateReplacement(replacementInput({ footprintCompatible: false }));
 
@@ -112,6 +124,25 @@ describe("evaluateReplacement", () => {
       manualReview: true,
     });
     input.candidate.part.specifications.push(clone(input.original.part.specifications.at(-1)!));
+
+    const report = evaluateReplacement(input);
+
+    expect(report.verdict).toBe("insufficient-evidence");
+    expect(report.reasonCodes).toContain("manual_curve_review_required: dc_bias");
+  });
+
+  it("automatically_includes_curve_only_fields_present_in_either_datasheet", () => {
+    const input = replacementInput();
+    const curve = {
+      field: "dc_bias",
+      rawValue: "See curve",
+      conditions: ["25 VDC"],
+      evidence: [{ documentId: "fixture-mlcc", page: 4, quote: "DC bias characteristics", chunkHash: "4".repeat(64) }],
+      status: "extracted" as const,
+      manualReview: true,
+    };
+    input.original.part.specifications.push(curve);
+    input.candidate.part.specifications.push(structuredClone(curve));
 
     const report = evaluateReplacement(input);
 

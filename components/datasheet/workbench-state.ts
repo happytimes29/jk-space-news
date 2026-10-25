@@ -66,11 +66,11 @@ export type WorkbenchAction =
   | { type: "provider/configure"; provider: ProviderConfiguration }
   | { type: "provider/connection"; status: WorkbenchState["providerConnection"] }
   | { type: "document/select"; slot: DocumentSlot; file: File }
-  | { type: "document/parsed"; slot: DocumentSlot; parsed: ParsedPdf; chunks: DocumentChunk[] }
+  | { type: "document/parsed"; slot: DocumentSlot; file: File; parsed: ParsedPdf; chunks: DocumentChunk[] }
   | { type: "document/kind"; slot: DocumentSlot; componentKind: NonNullable<WorkbenchDocument["componentKind"]> }
-  | { type: "document/options"; slot: DocumentSlot; options: PartOption[]; componentKind: WorkbenchDocument["componentKind"] }
+  | { type: "document/options"; slot: DocumentSlot; documentId: string; options: PartOption[]; componentKind: WorkbenchDocument["componentKind"] }
   | { type: "document/ordering-code"; slot: DocumentSlot; orderingCode: string }
-  | { type: "document/analysis"; slot: DocumentSlot; analysis: AnalysisResult }
+  | { type: "document/analysis"; slot: DocumentSlot; documentId: string; orderingCode: string; analysis: AnalysisResult }
   | { type: "document/remove"; slot: DocumentSlot }
   | { type: "run/start"; id: string; controller: AbortController }
   | { type: "run/stage"; stage: NonNullable<WorkbenchState["stage"]> }
@@ -105,7 +105,7 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
       };
     case "document/parsed": {
       const current = state.documents[action.slot];
-      if (!current) return state;
+      if (!current || current.file !== action.file) return state;
       return { ...state, documents: { ...state.documents, [action.slot]: { ...current, parsed: action.parsed, chunks: action.chunks } } };
     }
     case "document/kind": {
@@ -115,7 +115,7 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
     }
     case "document/options": {
       const current = state.documents[action.slot];
-      if (!current) return state;
+      if (!current || current.parsed?.sha256 !== action.documentId) return state;
       return { ...state, documents: { ...state.documents, [action.slot]: { ...current, options: action.options, componentKind: action.componentKind } } };
     }
     case "document/ordering-code": {
@@ -125,7 +125,7 @@ export function workbenchReducer(state: WorkbenchState, action: WorkbenchAction)
     }
     case "document/analysis": {
       const current = state.documents[action.slot];
-      if (!current) return state;
+      if (!current || current.parsed?.sha256 !== action.documentId || current.selectedOrderingCode !== action.orderingCode) return state;
       return { ...state, documents: { ...state.documents, [action.slot]: { ...current, analysis: action.analysis } } };
     }
     case "document/remove": {

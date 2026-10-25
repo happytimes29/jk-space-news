@@ -8,6 +8,7 @@ This runbook covers `/api/datasheet/relay`, the only server-side boundary used b
 - Providers: `openai-compatible`, `anthropic`, and `gemini`.
 - Allowed operations: `connect`, `discover`, `extract`, `repair`, `explain`, and `question`.
 - Request body limit: 512 KiB, enforced by declared length and streamed bytes.
+- Upstream success response limit: 2 MiB, enforced by declared length and streamed bytes.
 - Prompt limit: 450,000 JavaScript characters; model name limit: 200 characters; bearer key limit: 4,096 non-whitespace characters.
 - Upstream timeout: 60 seconds. A caller abort also cancels the provider request.
 - Redirects: at most two, same-origin only, with target validation repeated for each hop.
@@ -18,7 +19,7 @@ The route does not implement a global rate limiter because a serverless instance
 
 ## Provider and SSRF behavior
 
-Anthropic is restricted to `https://api.anthropic.com/v1/messages`. Gemini is restricted to `https://generativelanguage.googleapis.com/v1beta/models/`. OpenAI-compatible mode accepts a custom HTTPS base URL, but rejects credentials in the URL, non-443 explicit ports, localhost, `.local`, empty DNS, private/reserved IPv4 or IPv6, and redirects to a different origin. DNS results are validated before every request and redirect.
+Anthropic is restricted to `https://api.anthropic.com/v1/messages`. Gemini is restricted to `https://generativelanguage.googleapis.com/v1beta/models/`. OpenAI-compatible mode accepts a custom HTTPS base URL, but rejects credentials in the URL, non-443 explicit ports, localhost, `.local`, empty DNS, private/reserved IPv4 or IPv6, and redirects to a different origin. DNS results are validated before every request and redirect, then the outbound socket is pinned to those exact validated addresses so a second lookup cannot rebind the host to a private address.
 
 An OpenAI-compatible service behind a private network, VPN, local address, nonstandard port, or cross-origin redirect is intentionally unsupported and returns `relay_target_blocked`. Do not weaken the validator to support an individual endpoint; use a publicly reachable HTTPS endpoint with stable public DNS.
 

@@ -10,6 +10,29 @@ function result(envelope = mlccRecord): AnalysisResult {
   return { envelope: structuredClone(envelope), evidenceIssues: [], usedChunks: [] };
 }
 
+function completeMlccConditions() {
+  for (const [label, value] of [
+    ["Capacitance", "0.1 µF"], ["DC voltage", "25 V"], ["Ripple frequency", "100 kHz"],
+    ["Ripple current", "1 A"], ["Ambient temperature", "-40 to 85 °C"],
+    ["Dielectric", "X7R"], ["Allowed dimensions", "1.6 × 0.8 mm"],
+  ]) fireEvent.change(screen.getByLabelText(label, { exact: true }), { target: { value } });
+  fireEvent.click(screen.getByRole("checkbox", { name: "Footprint and terminal layout are compatible" }));
+}
+
+function withOperatingSpecifications(includeCandidateRipple: boolean) {
+  const original = result();
+  const candidate = result();
+  const specification = (field: string, rawValue: string, normalized: { typical?: number; max?: number; unit: string }) => ({
+    field, rawValue, normalized, conditions: [], status: "extracted" as const,
+    evidence: [{ documentId: "fixture-mlcc", page: 3, quote: `${field}: ${rawValue}`, chunkHash: field.padEnd(64, "0") }],
+  });
+  original.envelope.part.specifications.push(specification("test_frequency", "100 kHz", { typical: 100_000, unit: "Hz" }));
+  candidate.envelope.part.specifications.push(specification("test_frequency", "100 kHz", { typical: 100_000, unit: "Hz" }));
+  original.envelope.part.specifications.push(specification("ripple_current", "1 A", { max: 1, unit: "A" }));
+  if (includeCandidateRipple) candidate.envelope.part.specifications.push(specification("ripple_current", "1 A", { max: 1, unit: "A" }));
+  return { original, candidate };
+}
+
 describe("ReplacementWorkspace", () => {
   it("shows_differences_without_a_verdict_until_work_conditions_exist", () => {
     render(<ReplacementWorkspace locale="en" original={result()} candidate={result()} />);
@@ -34,9 +57,10 @@ describe("ReplacementWorkspace", () => {
   });
 
   it("changes_the_deterministic_outcome_when_a_requirement_switches_priority", async () => {
-    render(<ReplacementWorkspace locale="en" original={result()} candidate={result()} />);
+    const { original, candidate } = withOperatingSpecifications(false);
+    render(<ReplacementWorkspace locale="en" original={original} candidate={candidate} />);
 
-    fireEvent.change(screen.getByLabelText("Ripple current"), { target: { value: "1 A" } });
+    completeMlccConditions();
     fireEvent.click(screen.getByRole("button", { name: "Evaluate replacement" }));
     expect(await screen.findByText("? Evidence incomplete")).toBeInTheDocument();
 
@@ -60,7 +84,8 @@ describe("ReplacementWorkspace", () => {
     candidate.envelope.part.specifications.push(structuredClone(curve));
 
     render(<ReplacementWorkspace locale="en" original={original} candidate={candidate} />);
-    fireEvent.change(screen.getByLabelText("DC bias retention"), { target: { value: "80 %" } });
+    completeMlccConditions();
+    fireEvent.change(screen.getByLabelText("DC bias retention", { exact: true }), { target: { value: "80 %" } });
     fireEvent.click(screen.getByRole("button", { name: "Evaluate replacement" }));
 
     const resultPanel = await screen.findByTestId("replacement-result");
@@ -72,7 +97,7 @@ describe("ReplacementWorkspace", () => {
   it("downloads_the_Task_6_markdown_and_json_without_credentials", async () => {
     const download = vi.fn();
     render(<ReplacementWorkspace locale="en" original={result()} candidate={result()} download={download} />);
-    fireEvent.change(screen.getByLabelText("DC voltage"), { target: { value: "25 V" } });
+    completeMlccConditions();
     fireEvent.click(screen.getByRole("button", { name: "Evaluate replacement" }));
     fireEvent.click(await screen.findByRole("button", { name: "Download Markdown" }));
     fireEvent.click(screen.getByRole("button", { name: "Download JSON" }));

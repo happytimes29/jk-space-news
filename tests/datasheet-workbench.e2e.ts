@@ -107,7 +107,14 @@ test("mocked provider completes quick read and a non-direct replacement report",
   await page.getByRole("button", { name: "Analyze datasheet" }).click();
   await expect(page.getByRole("heading", { name: "Work conditions" })).toBeVisible();
 
+  await page.getByLabel("Capacitance", { exact: true }).fill("0.1 µF");
+  await page.getByLabel("DC voltage", { exact: true }).fill("25 V");
+  await page.getByLabel("Ripple frequency", { exact: true }).fill("100 kHz");
   await page.getByLabel("Ripple current", { exact: true }).fill("1 A");
+  await page.getByLabel("Ambient temperature", { exact: true }).fill("-40 to 85 °C");
+  await page.getByLabel("Dielectric", { exact: true }).fill("X7R");
+  await page.getByLabel("Allowed dimensions", { exact: true }).fill("1.6 × 0.8 mm");
+  await page.getByLabel("Footprint and terminal layout are compatible").check();
   await page.getByRole("button", { name: "Evaluate replacement" }).click();
   await expect(page.getByText("? Evidence incomplete")).toBeVisible();
   const download = page.waitForEvent("download");

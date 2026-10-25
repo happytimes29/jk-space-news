@@ -17,7 +17,10 @@ describe("validateRelayTarget", () => {
     );
 
     expect(result.url.href).toBe("https://models.example.com/v1/chat/completions");
-    expect(result.addresses).toEqual(["93.184.216.34", "2606:2800:220:1:248:1893:25c8:1946"]);
+    expect(result.addresses).toEqual([
+      { address: "93.184.216.34", family: 4 },
+      { address: "2606:2800:220:1:248:1893:25c8:1946", family: 6 },
+    ]);
   });
 
   it.each([

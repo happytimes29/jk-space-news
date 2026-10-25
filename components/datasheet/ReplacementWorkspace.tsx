@@ -7,7 +7,7 @@ import type { Locale } from "@/lib/i18n/locales";
 import type { ReplacementReport } from "@/lib/datasheet/types";
 import { ComparisonMatrix } from "./ComparisonMatrix";
 import { ReportExport, type ReportDownloader } from "./ReportExport";
-import { buildWorkConditions, emptyConditionDraft, WorkConditionsForm } from "./WorkConditionsForm";
+import { buildWorkConditions, conditionDraftIssues, emptyConditionDraft, WorkConditionsForm } from "./WorkConditionsForm";
 
 const COPY: Record<Locale, {
   differences: string;
@@ -85,7 +85,7 @@ export function ReplacementWorkspace({ locale, original, candidate, originalFile
 }) {
   const copy = COPY[locale];
   const [draft, setDraft] = useState(emptyConditionDraft);
-  const [footprintCompatible, setFootprintCompatible] = useState(true);
+  const [footprintCompatible, setFootprintCompatible] = useState(false);
   const [externalChangesRequired, setExternalChangesRequired] = useState(false);
   const [processChangesRequired, setProcessChangesRequired] = useState(false);
   const [report, setReport] = useState<ReplacementReport>();
@@ -95,6 +95,7 @@ export function ReplacementWorkspace({ locale, original, candidate, originalFile
     () => buildWorkConditions(original.envelope.componentKind, draft),
     [draft, original.envelope.componentKind],
   );
+  const conditionIssues = useMemo(() => conditionDraftIssues(original.envelope.componentKind, draft), [draft, original.envelope.componentKind]);
   const baseline = useMemo(() => evaluateReplacement({
     original: original.envelope,
     candidate: candidate.envelope,
@@ -106,7 +107,7 @@ export function ReplacementWorkspace({ locale, original, candidate, originalFile
   if (!exactCodes) return <p role="alert">{copy.codeError}</p>;
 
   const evaluate = async () => {
-    if (conditions.requirements.length === 0) return;
+    if (conditionIssues.length > 0) return;
     setReport(await compareDatasheets({
       original,
       candidate,
@@ -123,11 +124,12 @@ export function ReplacementWorkspace({ locale, original, candidate, originalFile
   return <section className="datasheet-replacement-workspace">
     <WorkConditionsForm kind={original.envelope.componentKind} draft={draft} onChange={(next) => { setDraft(next); setReport(undefined); }} />
     <fieldset className="datasheet-replacement-switches">
-      <label><input type="checkbox" checked={footprintCompatible} onChange={(event) => setFootprintCompatible(event.target.checked)} /> {copy.footprint}</label>
-      <label><input type="checkbox" checked={externalChangesRequired} onChange={(event) => setExternalChangesRequired(event.target.checked)} /> {copy.external}</label>
-      <label><input type="checkbox" checked={processChangesRequired} onChange={(event) => setProcessChangesRequired(event.target.checked)} /> {copy.process}</label>
+      <label><input type="checkbox" checked={footprintCompatible} onChange={(event) => { setFootprintCompatible(event.target.checked); setReport(undefined); }} /> {copy.footprint}</label>
+      <label><input type="checkbox" checked={externalChangesRequired} onChange={(event) => { setExternalChangesRequired(event.target.checked); setReport(undefined); }} /> {copy.external}</label>
+      <label><input type="checkbox" checked={processChangesRequired} onChange={(event) => { setProcessChangesRequired(event.target.checked); setReport(undefined); }} /> {copy.process}</label>
     </fieldset>
-    <button type="button" disabled={conditions.requirements.length === 0} onClick={() => void evaluate()}>{copy.evaluate}</button>
+    {conditionIssues.length > 0 && conditions.requirements.length > 0 && <p role="alert">Complete or correct all required work conditions.</p>}
+    <button type="button" disabled={conditionIssues.length > 0} onClick={() => void evaluate()}>{copy.evaluate}</button>
 
     {!report && <p>{copy.noConditions}</p>}
     {report && <div data-testid="replacement-result">

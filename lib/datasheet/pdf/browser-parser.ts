@@ -21,11 +21,13 @@ function normalizePageText(items: readonly unknown[]): string {
   return items
     .map((item) => {
       if (typeof item !== "object" || item === null || !("str" in item)) return "";
-      return typeof item.str === "string" ? item.str : "";
+      if (typeof item.str !== "string") return "";
+      return `${item.str}${"hasEOL" in item && item.hasEOL === true ? "\n" : " "}`;
     })
     .filter(Boolean)
-    .join(" ")
-    .replace(/\s+/g, " ")
+    .join("")
+    .replace(/[ \t]+/g, " ")
+    .replace(/ *\n */g, "\n")
     .trim();
 }
 

@@ -84,6 +84,12 @@ describe("discoverPartOptions", () => {
     expect(transport.requests[0].operation).toBe("discover");
     expect(transport.requests[0].chunks.map(({ id }) => id)).toEqual([identity.id]);
   });
+
+  it("rejects_a_model_discovered_code_that_is_not_printed_in_the_identity_chunks", async () => {
+    const transport = sequenceTransport([{ options: [{ orderingCode: "INVENTED-123", manufacturer: "Murata", componentKind: "mlcc" }] }]);
+
+    await expect(discoverPartOptions({ document, chunks, componentKind: "mlcc", transport })).rejects.toMatchObject({ code: "ORDERING_CODE_DISCOVERY_FAILED" });
+  });
 });
 
 describe("analyzeDatasheet", () => {
@@ -102,7 +108,7 @@ describe("analyzeDatasheet", () => {
   });
 
   it("repairs_invalid_structured_output_exactly_once_and_reports_progress", async () => {
-    const transport = sequenceTransport([{ unexpected: true }, sourcedEnvelope()]);
+    const transport = sequenceTransport([{ invalidJson: "{not-json" }, sourcedEnvelope()]);
     const progress: string[] = [];
 
     const result = await analyzeDatasheet(
@@ -119,6 +125,8 @@ describe("analyzeDatasheet", () => {
     expect(transport.requests[0].prompt).toContain("GRM188R71H104KA93D");
     expect(transport.requests[0].prompt).toContain("Do not interpolate values from curves");
     expect(transport.requests[0].prompt).toContain("absolute-maximum");
+    expect(transport.requests[0].prompt).toContain('"version": 1');
+    expect(result.envelope.document).toMatchObject({ documentId: "doc-mlcc", fileName: "family.pdf", sha256: "doc-mlcc" });
   });
 
   it("fails_safely_when_the_single_repair_is_still_invalid", async () => {

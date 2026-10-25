@@ -148,17 +148,16 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
     return { id, controller };
   };
 
-  const providerHeaders = () => ({
+  const providerHeaders = (provider: ProviderConfiguration) => ({
     "content-type": "application/json",
-    authorization: `Bearer ${stateRef.current.provider.apiKey}`,
+    authorization: `Bearer ${provider.apiKey}`,
   });
 
-  const relayTransport: ModelTransport = async (request: ModelRequest) => {
-    const provider = stateRef.current.provider;
+  const sendRelay = async (request: ModelRequest, provider: ProviderConfiguration, signal?: AbortSignal) => {
     const response = await services.fetcher("/api/datasheet/relay", {
       method: "POST",
-      headers: providerHeaders(),
-      signal: stateRef.current.activeRun?.controller.signal,
+      headers: providerHeaders(provider),
+      signal,
       body: JSON.stringify({
         provider: provider.kind,
         model: provider.model,
@@ -171,6 +170,7 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
     if (!response.ok || !("data" in payload)) throw new Error(payload.error?.code ?? "relay_failure");
     return payload.data;
   };
+  const relayTransport: ModelTransport = (request, signal) => sendRelay(request, stateRef.current.provider, signal);
 
   const selectFile = async (slot: DocumentSlot, file: File) => {
     if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
@@ -187,7 +187,7 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
     try {
       const parsed = await services.parsePdf(file, controller.signal);
       const chunks = await services.buildChunks(parsed);
-      dispatch({ type: "document/parsed", slot, parsed, chunks });
+      dispatch({ type: "document/parsed", slot, file, parsed, chunks });
     } catch (error) {
       if (!controller.signal.aborted) dispatch({ type: "error/set", error: error instanceof Error ? error.message : copy.requestFailed });
     } finally {
@@ -203,12 +203,13 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
       const provider = stateRef.current.provider;
       const response = await services.fetcher("/api/datasheet/relay", {
         method: "POST",
-        headers: providerHeaders(),
+        headers: providerHeaders(provider),
         signal: controller.signal,
         body: JSON.stringify({ provider: provider.kind, model: provider.model, baseUrl: provider.baseUrl || undefined, operation: "connect", prompt: "Return JSON {\"ok\":true}." }),
       });
       if (!response.ok) throw new Error("connection_failed");
-      await response.json();
+      const payload = await response.json() as { data?: { ok?: unknown } };
+      if (payload.data?.ok !== true) throw new Error("connection_failed");
       dispatch({ type: "provider/connection", status: "connected" });
     } catch {
       if (!controller.signal.aborted) dispatch({ type: "provider/connection", status: "failed" });
@@ -228,14 +229,16 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
 
   const analyze = async () => {
     const { id, controller } = startRun();
+    const provider = stateRef.current.provider;
+    const runTransport: ModelTransport = (request, signal) => sendRelay(request, provider, signal ?? controller.signal);
     try {
       if (needsDiscovery) {
         dispatch({ type: "run/stage", stage: "retrieving" });
         for (const slot of requiredSlots) {
           const document = stateRef.current.documents[slot];
           if (!document?.parsed || !document.chunks || !document.componentKind || document.options) continue;
-          const options = await discoverPartOptions({ document: document.parsed, chunks: document.chunks, componentKind: document.componentKind, transport: relayTransport });
-          dispatch({ type: "document/options", slot, options, componentKind: document.componentKind });
+          const options = await discoverPartOptions({ document: document.parsed, chunks: document.chunks, componentKind: document.componentKind, transport: runTransport });
+          dispatch({ type: "document/options", slot, documentId: document.parsed.sha256, options, componentKind: document.componentKind });
         }
         return;
       }
@@ -250,8 +253,8 @@ export function DatasheetWorkbenchApp({ locale, services = DEFAULT_SERVICES }: {
           chunks: document.chunks,
           componentKind: document.componentKind,
           selectedOrderingCode: document.selectedOrderingCode,
-        }, relayTransport, (stage) => dispatch({ type: "run/stage", stage }));
-        dispatch({ type: "document/analysis", slot, analysis: result });
+        }, runTransport, (stage) => dispatch({ type: "run/stage", stage }));
+        dispatch({ type: "document/analysis", slot, documentId: document.parsed.sha256, orderingCode: document.selectedOrderingCode, analysis: result });
         if (state.mode === "quick-read") dispatch({ type: "result/set", result: { kind: "quick-read", value: result } });
       }
     } catch (error) {

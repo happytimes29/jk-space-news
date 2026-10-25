@@ -16,7 +16,7 @@ export type HostResolver = (hostname: string) => Promise<readonly ResolvedHost[]
 
 export interface SafeRelayTarget {
   url: URL;
-  addresses: string[];
+  addresses: ResolvedHost[];
 }
 
 export type RelaySecurityErrorCode = "RELAY_DNS_EMPTY" | "RELAY_TARGET_BLOCKED";
@@ -136,6 +136,6 @@ export async function validateRelayTarget(input: RelayTarget, resolver: HostReso
     : await resolver(hostname);
   if (resolved.length === 0) throw new RelaySecurityError("RELAY_DNS_EMPTY");
   if (resolved.some(({ address }) => !isPublicAddress(address))) throw new RelaySecurityError("RELAY_TARGET_BLOCKED");
-  return { url, addresses: resolved.map(({ address }) => address) };
+  return { url, addresses: [...resolved] };
 }
 

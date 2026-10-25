@@ -26,7 +26,15 @@ export function buildDiscoveryPrompt(kind: ComponentKind, chunks: readonly Docum
 export function buildExtractionPrompt(kind: ComponentKind, orderingCode: string, chunks: readonly DocumentChunk[]): string {
   const fields = requiredFieldsFor(kind).map(({ id }) => id).join(", ");
   return [
-    "Extract a single exact part into the supplied JSON contract.",
+    "Extract a single exact part into this JSON contract:",
+    JSON.stringify({
+      version: 1,
+      document: { documentId: "string", fileName: "string", sha256: "string", title: "optional string", revision: "optional string", publishedAt: "optional string" },
+      componentKind: kind,
+      selectedOrderingCode: orderingCode,
+      part: { manufacturer: "string", family: "optional string", orderingCode, specifications: [{ field: "string", rawValue: "string", normalized: { min: "optional number", typical: "optional number", max: "optional number", unit: "base SI unit" }, category: "identity|absolute-maximum|operating|typical|package", conditions: ["string"], evidence: [{ documentId: "string", page: 1, section: "optional string", table: "optional string", quote: "exact non-empty substring", chunkHash: "string" }], status: "extracted|missing|ambiguous|conflicting", manualReview: false }] },
+      missingFields: ["string"],
+    }, null, 2),
     `Component kind: ${kind}.`,
     `Selected Ordering Code: ${orderingCode}. Do not use values belonging to another ordering code.`,
     `Fields: ${fields}.`,

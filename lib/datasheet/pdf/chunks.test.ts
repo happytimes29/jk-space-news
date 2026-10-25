@@ -37,6 +37,14 @@ describe("buildDocumentChunks", () => {
     const [chunk] = await buildDocumentChunks({ ...document, pages: [{ page: 1, text: "Summary\nRated voltage: 50 V" }], pageCount: 1 });
     expect(chunk.chunkHash).toMatch(/^[a-f0-9]{64}$/);
   });
+
+  it("hard_splits_a_flattened_oversized_page", async () => {
+    const words = Array.from({ length: 2_500 }, (_, index) => `value${index}`).join(" ");
+    const chunks = await buildDocumentChunks({ ...document, pageCount: 1, pages: [{ page: 1, text: words }] });
+
+    expect(chunks.length).toBeGreaterThan(1);
+    expect(Math.max(...chunks.map(({ text }) => text.length))).toBeLessThanOrEqual(1_200);
+  });
 });
 
 describe("searchDocumentChunks", () => {

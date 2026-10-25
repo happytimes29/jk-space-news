@@ -1,9 +1,13 @@
 import { getProviderAdapter, sanitizeUpstreamError, type ProviderKind, type ProviderOperation } from "./providers";
 import { defaultHostResolver, RelaySecurityError, validateRelayTarget, type HostResolver } from "./relay-security";
+import { Agent, fetch as undiciFetch } from "undici";
+import type { LookupFunction } from "node:net";
+import type { ResolvedHost } from "./relay-security";
 
 const MAX_BODY_BYTES = 512 * 1024;
 const MAX_REDIRECTS = 2;
 const DEFAULT_TIMEOUT_MS = 60_000;
+const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 const PROVIDERS = new Set<ProviderKind>(["openai-compatible", "anthropic", "gemini"]);
 const OPERATIONS = new Set<ProviderOperation>(["connect", "discover", "extract", "repair", "explain", "question"]);
 
@@ -67,6 +71,41 @@ async function readLimitedBody(request: Request): Promise<string> {
   return body + decoder.decode();
 }
 
+async function readLimitedJson(response: Response): Promise<unknown> {
+  const declaredLength = response.headers.get("content-length");
+  if (declaredLength && Number(declaredLength) > MAX_RESPONSE_BYTES) throw new RelayRouteError("provider_response_too_large", 502);
+  if (!response.body) throw new RelayRouteError("invalid_provider_response", 502);
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let bytes = 0;
+  let body = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    bytes += value.byteLength;
+    if (bytes > MAX_RESPONSE_BYTES) {
+      await reader.cancel();
+      throw new RelayRouteError("provider_response_too_large", 502);
+    }
+    body += decoder.decode(value, { stream: true });
+  }
+  try {
+    return JSON.parse(body + decoder.decode()) as unknown;
+  } catch {
+    throw new RelayRouteError("invalid_provider_response", 502);
+  }
+}
+
+export function createPinnedLookup(addresses: readonly ResolvedHost[]): LookupFunction {
+  let cursor = 0;
+  return (_hostname, options, callback) => {
+    const ordered = addresses.map((entry, index) => addresses[(cursor + index) % addresses.length]);
+    cursor = (cursor + 1) % addresses.length;
+    if (options.all) callback(null, ordered.map(({ address, family }) => ({ address, family })));
+    else callback(null, ordered[0].address, ordered[0].family);
+  };
+}
+
 function parseBody(value: unknown): RelayBody {
   if (typeof value !== "object" || value === null || Array.isArray(value)) throw new RelayRouteError("invalid_request", 400);
   const source = value as Record<string, unknown>;
@@ -101,16 +140,21 @@ async function fetchWithValidatedRedirects(
   initialUrl: string,
   init: RequestInit,
   resolver: HostResolver,
-  fetcher: (url: string | URL, init?: RequestInit) => Promise<Response>,
-): Promise<Response> {
+  fetcher?: (url: string | URL, init?: RequestInit) => Promise<Response>,
+): Promise<{ response: Response; close: () => Promise<void> }> {
   let currentUrl = new URL(initialUrl);
   const initialOrigin = currentUrl.origin;
   for (let redirects = 0; ; redirects += 1) {
-    await validateRelayTarget({ url: currentUrl.href, provider }, resolver);
-    const response = await fetcher(currentUrl, { ...init, redirect: "manual" });
-    if (response.status < 300 || response.status >= 400) return response;
+    const validated = await validateRelayTarget({ url: currentUrl.href, provider }, resolver);
+    const dispatcher = fetcher ? undefined : new Agent({ connect: { lookup: createPinnedLookup(validated.addresses) } });
+    const response = fetcher
+      ? await fetcher(currentUrl, { ...init, redirect: "manual" })
+      : await undiciFetch(currentUrl, { ...init, redirect: "manual", dispatcher } as Parameters<typeof undiciFetch>[1]) as unknown as Response;
+    if (response.status < 300 || response.status >= 400) return { response, close: async () => { await dispatcher?.close(); } };
+    await response.body?.cancel();
+    await dispatcher?.close();
     const location = response.headers.get("location");
-    if (!location) return response;
+    if (!location) return { response, close: async () => undefined };
     if (redirects >= MAX_REDIRECTS) throw new RelayRouteError("provider_redirect_limit", 502);
     const nextUrl = new URL(location, currentUrl);
     if (nextUrl.origin !== initialOrigin) throw new RelaySecurityError("RELAY_TARGET_BLOCKED");
@@ -120,7 +164,7 @@ async function fetchWithValidatedRedirects(
 
 export function createRelayHandler(dependencies: RelayDependencies = {}) {
   const resolver = dependencies.resolver ?? defaultHostResolver;
-  const fetcher = dependencies.fetcher ?? fetch;
+  const fetcher = dependencies.fetcher;
   const logger = dependencies.logger ?? { error: () => undefined };
   const timeoutMs = dependencies.timeoutMs ?? DEFAULT_TIMEOUT_MS;
 
@@ -129,6 +173,7 @@ export function createRelayHandler(dependencies: RelayDependencies = {}) {
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
     const cancelForCaller = () => controller.abort();
     request.signal.addEventListener("abort", cancelForCaller, { once: true });
+    let closeDispatcher: () => Promise<void> = async () => undefined;
     try {
       assertSameOrigin(request);
       const apiKey = readApiKey(request);
@@ -143,18 +188,16 @@ export function createRelayHandler(dependencies: RelayDependencies = {}) {
       const adapter = getProviderAdapter(body.provider);
       const upstream = adapter.buildRequest({ ...body, apiKey });
       upstream.init.signal = controller.signal;
-      const upstreamResponse = await fetchWithValidatedRedirects(body.provider, upstream.url, upstream.init, resolver, fetcher);
+      const outbound = await fetchWithValidatedRedirects(body.provider, upstream.url, upstream.init, resolver, fetcher);
+      const upstreamResponse = outbound.response;
+      closeDispatcher = outbound.close;
       if (!upstreamResponse.ok) {
+        await upstreamResponse.body?.cancel();
         const error = sanitizeUpstreamError(body.provider, upstreamResponse.status, undefined);
         logger.error({ event: "datasheet_provider_error", provider: body.provider, status: upstreamResponse.status });
         return json({ error }, upstreamResponse.status);
       }
-      let upstreamJson: unknown;
-      try {
-        upstreamJson = await upstreamResponse.json() as unknown;
-      } catch {
-        throw new RelayRouteError("invalid_provider_response", 502);
-      }
+      const upstreamJson = await readLimitedJson(upstreamResponse);
       return json({ data: adapter.parseResponse(upstreamJson) });
     } catch (error) {
       if (controller.signal.aborted) return json({ error: { code: "provider_timeout" } }, 504);
@@ -163,6 +206,7 @@ export function createRelayHandler(dependencies: RelayDependencies = {}) {
       logger.error({ event: "datasheet_relay_failure" });
       return json({ error: { code: "relay_failure" } }, 502);
     } finally {
+      await closeDispatcher();
       clearTimeout(timeout);
       request.signal.removeEventListener("abort", cancelForCaller);
     }

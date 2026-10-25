@@ -98,6 +98,17 @@ describe("DatasheetWorkbenchApp", () => {
     expect(screen.queryByText(/2 pages/)).not.toBeInTheDocument();
   });
 
+  it("does_not_mark_a_connection_verified_when_the_provider_did_not_confirm_ok", async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({ data: { ok: false } }), { status: 200 }));
+    render(<DatasheetWorkbenchApp locale="en" services={services(fetcher)} />);
+    fireEvent.change(screen.getByLabelText("Model"), { target: { value: "model" } });
+    fireEvent.change(screen.getByLabelText("API key"), { target: { value: "key" } });
+    fireEvent.click(screen.getByRole("button", { name: "Test connection" }));
+
+    await waitFor(() => expect(fetcher).toHaveBeenCalledOnce());
+    await waitFor(() => expect(screen.queryByText("Connection verified")).not.toBeInTheDocument());
+  });
+
   it("renders_the_quick_read_workspace_after_a_sourced_analysis", async () => {
     const envelope = structuredClone(mlccRecord);
     const fetcher = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {

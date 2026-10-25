@@ -74,4 +74,28 @@ describe("verifyEvidence", () => {
     expect(result.issues).toContainEqual({ field: "capacitance", code: "conflicting_value" });
     expect(result.envelope.part.specifications[0].status).toBe("ambiguous");
   });
+
+  it("rejects_a_normalized_number_not_supported_by_the_quoted_raw_value", () => {
+    const { envelope, chunks } = fixture();
+    envelope.part.specifications[0].rawValue = "0.1 µF";
+    envelope.part.specifications[0].normalized = { typical: 5e-4, unit: "F" };
+
+    const result = verifyEvidence(envelope, chunks);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual({ field: "capacitance", code: "value_mismatch" });
+    expect(result.envelope.part.specifications[0].normalized).toBeUndefined();
+  });
+
+  it("rejects_a_value_even_when_the_quote_exists_but_supports_a_different_number", () => {
+    const { envelope, chunks } = fixture();
+    chunks[0].text += " Alternate capacitance: 0.22 µF.";
+    envelope.part.specifications[0].evidence[0].quote = "Alternate capacitance: 0.22 µF";
+
+    const result = verifyEvidence(envelope, chunks);
+
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual({ field: "capacitance", code: "value_mismatch" });
+    expect(result.envelope.part.specifications[0].status).toBe("ambiguous");
+  });
 });
