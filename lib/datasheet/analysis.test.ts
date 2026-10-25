@@ -39,7 +39,7 @@ const specificationChunk: DocumentChunk = {
   documentId: "doc-mlcc",
   page: 3,
   section: "Specifications",
-  text: "GRM188R71H104KA93D capacitance: 0.1 µF; tolerance: ±10%; rated_voltage: 50 V; dielectric: X7R; operating_temperature: -55 °C to 125 °C; dimensions: 1.6 × 0.8 mm; termination: Ni/Sn",
+  text: "GRM188R71H104KA93D capacitance: 0.1 µF; GRM188R71H104KA93D tolerance: ±10%; GRM188R71H104KA93D rated_voltage: 50 V; GRM188R71H104KA93D dielectric: X7R; GRM188R71H104KA93D operating_temperature: -55 °C to 125 °C; GRM188R71H104KA93D dimensions: 1.6 × 0.8 mm; GRM188R71H104KA93D termination: Ni/Sn",
   chunkHash: "3".repeat(64),
 };
 const chunks = [irrelevant, identity, specificationChunk];
@@ -52,7 +52,7 @@ function sourcedEnvelope(): ExtractionEnvelope {
       documentId: "doc-mlcc",
       page: 3,
       section: "Specifications",
-      quote: `${item.field}: ${item.rawValue}`,
+      quote: `GRM188R71H104KA93D ${item.field}: ${item.rawValue}`,
       chunkHash: specificationChunk.chunkHash,
     }];
   });
@@ -95,6 +95,13 @@ describe("discoverPartOptions", () => {
     const transport = sequenceTransport([{ options: [{ orderingCode: "GRM188R71H104KA93", manufacturer: "Murata", componentKind: "mlcc" }] }]);
 
     await expect(discoverPartOptions({ document, chunks, componentKind: "mlcc", transport })).rejects.toMatchObject({ code: "ORDERING_CODE_DISCOVERY_FAILED" });
+  });
+
+  it("treats_hyphen_and_underscore_as_part_of_an_ordering_code_token", async () => {
+    const hyphenChunk = { ...identity, text: "Ordering code XAL4020-472M or XAL4020_222M" };
+    const transport = sequenceTransport([{ options: [{ orderingCode: "XAL4020", manufacturer: "Fixture", componentKind: "mlcc" }] }]);
+
+    await expect(discoverPartOptions({ document, chunks: [hyphenChunk], componentKind: "mlcc", transport })).rejects.toMatchObject({ code: "ORDERING_CODE_DISCOVERY_FAILED" });
   });
 });
 

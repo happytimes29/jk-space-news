@@ -136,4 +136,16 @@ describe("askDatasheet", () => {
 
     expect((await askDatasheet("What is the rating?", result(), send, { locale: "en" })).status).toBe("insufficient-evidence");
   });
+
+  it.each([
+    ["Package length is 9 mm.[1]", "Package length is 1.6 mm"],
+    ["The component has 4 terminals.[1]", "The component has 2 terminals"],
+  ])("rejects_unbound_dimension_or_count: %s", async (answer, quote) => {
+    const analysis = result();
+    analysis.usedChunks[0].text = quote;
+    analysis.envelope.part.specifications[0].evidence[0].quote = quote;
+    const send = transport({ answer, citations: [{ chunkHash: "v".repeat(64), page: 2, quote }] });
+
+    expect((await askDatasheet("What is it?", analysis, send, { locale: "en" })).status).toBe("insufficient-evidence");
+  });
 });

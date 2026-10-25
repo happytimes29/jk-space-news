@@ -11,7 +11,7 @@ function fixture() {
     documentId: "fixture-mlcc",
     page: 2,
     section: "Specifications",
-    quote: "Capacitance: 0.1 µF",
+    quote: "GRM188R71H104KA93D Capacitance: 0.1 µF",
     chunkHash: "c".repeat(64),
   }];
   const chunks: DocumentChunk[] = [{
@@ -19,7 +19,7 @@ function fixture() {
     documentId: "fixture-mlcc",
     page: 2,
     section: "Specifications",
-    text: "GRM188R71H104KA93D Electrical specifications Capacitance: 0.1 µF at 1 kHz.",
+    text: "GRM188R71H104KA93D Capacitance: 0.1 µF at 1 kHz.",
     chunkHash: "c".repeat(64),
   }];
   return { envelope, chunks };
@@ -90,8 +90,8 @@ describe("verifyEvidence", () => {
 
   it("rejects_a_value_even_when_the_quote_exists_but_supports_a_different_number", () => {
     const { envelope, chunks } = fixture();
-    chunks[0].text += " Alternate capacitance: 0.22 µF.";
-    envelope.part.specifications[0].evidence[0].quote = "Alternate capacitance: 0.22 µF";
+    chunks[0].text += " GRM188R71H104KA93D Alternate capacitance: 0.22 µF.";
+    envelope.part.specifications[0].evidence[0].quote = "GRM188R71H104KA93D Alternate capacitance: 0.22 µF";
 
     const result = verifyEvidence(envelope, chunks);
 
@@ -106,8 +106,8 @@ describe("verifyEvidence", () => {
     value.field = "rated_voltage";
     value.rawValue = "50 V";
     value.normalized = { max: 50, unit: "V" };
-    value.evidence[0].quote = "Rated voltage 16 V; test voltage 50 V";
-    chunks[0].text = `GRM188R71H104KA93D ${value.evidence[0].quote}`;
+    value.evidence[0].quote = "GRM188R71H104KA93D Rated voltage 16 V; test voltage 50 V";
+    chunks[0].text = value.evidence[0].quote;
 
     expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "rated_voltage", code: "value_mismatch" });
   });
@@ -117,8 +117,8 @@ describe("verifyEvidence", () => {
     const value = envelope.part.specifications[0];
     value.rawValue = "1 pF";
     value.normalized = { typical: 1e-12, unit: "F" };
-    value.evidence[0].quote = "capacitance: 0.1 pF";
-    chunks[0].text = `GRM188R71H104KA93D ${value.evidence[0].quote}`;
+    value.evidence[0].quote = "GRM188R71H104KA93D capacitance: 0.1 pF";
+    chunks[0].text = value.evidence[0].quote;
 
     expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "capacitance", code: "value_mismatch" });
   });
@@ -126,8 +126,34 @@ describe("verifyEvidence", () => {
   it("requires_each_specification_to_be_scoped_to_the_selected_ordering_code", () => {
     const { envelope, chunks } = fixture();
     envelope.document.fileName = "family.pdf";
+    envelope.part.specifications[0].evidence[0].quote = "Capacitance: 0.1 µF";
     chunks[0].text = "Electrical specifications Capacitance: 0.1 µF.";
 
     expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "capacitance", code: "ordering_code_scope_missing" });
+  });
+
+  it("does_not_trust_model_supplied_table_metadata_to_relabel_a_test_value", () => {
+    const { envelope, chunks } = fixture();
+    const value = envelope.part.specifications[0];
+    value.field = "rated_voltage";
+    value.rawValue = "50 V";
+    value.normalized = { max: 50, unit: "V" };
+    value.evidence[0].table = "Rated voltage";
+    value.evidence[0].quote = "GRM188R71H104KA93D Test voltage 50 V";
+    chunks[0].text = value.evidence[0].quote;
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "rated_voltage", code: "ordering_code_scope_missing" });
+  });
+
+  it("does_not_scope_a_value_to_an_ordering_code_elsewhere_in_the_same_chunk", () => {
+    const { envelope, chunks } = fixture();
+    const value = envelope.part.specifications[0];
+    value.field = "rated_voltage";
+    value.rawValue = "50 V";
+    value.normalized = { max: 50, unit: "V" };
+    value.evidence[0].quote = "OTHER-PART Rated voltage 50 V";
+    chunks[0].text = `GRM188R71H104KA93D Rated voltage 16 V; ${value.evidence[0].quote}`;
+
+    expect(verifyEvidence(envelope, chunks).issues).toContainEqual({ field: "rated_voltage", code: "ordering_code_scope_missing" });
   });
 });

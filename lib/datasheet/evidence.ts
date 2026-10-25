@@ -93,15 +93,13 @@ function normalizedWords(value: string): string {
 
 function fieldBoundQuotes(specification: SpecificationValue): string[] {
   const aliases = FIELD_ALIASES[specification.field] ?? [specification.field.replaceAll("_", " ")];
-  return specification.evidence.flatMap(({ quote, table }) => {
-    if (table && aliases.some((alias) => normalizedWords(table).includes(alias))) return [quote];
-    return quote.split(/[;\n]+/).filter((clause) => aliases.some((alias) => normalizedWords(clause).includes(alias)));
-  });
+  return specification.evidence.flatMap(({ quote }) => quote.split(/[;\n]+/))
+    .filter((clause) => aliases.some((alias) => normalizedWords(clause).includes(alias)));
 }
 
 function containsExactToken(text: string, token: string): boolean {
   const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`(?:^|[^A-Za-z0-9])${escaped}(?:$|[^A-Za-z0-9])`, "i").test(text);
+  return new RegExp(`(?:^|[^A-Za-z0-9_-])${escaped}(?:$|[^A-Za-z0-9_-])`, "i").test(text);
 }
 
 function valueIsBoundToRawAndEvidence(specification: SpecificationValue): boolean {
@@ -148,10 +146,7 @@ function verifySpecification(
     }
   });
   if (specification.status === "extracted" && orderingCode) {
-    const scoped = specification.evidence.some((evidence) => {
-      const chunk = chunks.find(({ chunkHash }) => chunkHash === evidence.chunkHash);
-      return containsExactToken(evidence.quote, orderingCode) || Boolean(chunk && containsExactToken(chunk.text, orderingCode));
-    });
+    const scoped = fieldBoundQuotes(specification).some((clause) => containsExactToken(clause, orderingCode));
     if (!scoped) {
       addIssue(issues, { field: specification.field, code: "ordering_code_scope_missing" });
       specification.status = "ambiguous";

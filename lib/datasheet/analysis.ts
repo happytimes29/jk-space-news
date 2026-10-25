@@ -65,7 +65,7 @@ function assertSupported(kind: string): asserts kind is ComponentKind {
 
 function containsExactOrderingCode(text: string, orderingCode: string): boolean {
   const escaped = orderingCode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`(?:^|[^A-Za-z0-9])${escaped}(?:$|[^A-Za-z0-9])`, "i").test(text);
+  return new RegExp(`(?:^|[^A-Za-z0-9_-])${escaped}(?:$|[^A-Za-z0-9_-])`, "i").test(text);
 }
 
 function parseOptions(value: unknown, expectedKind: ComponentKind, chunks: readonly DocumentChunk[]): PartOption[] {

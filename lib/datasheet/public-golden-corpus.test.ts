@@ -43,7 +43,7 @@ describe("public manufacturer datasheet golden corpus", () => {
     }]);
 
     expect(result.ok).toBe(false);
-    expect(result.issues).toContainEqual({ field: "dcr", code: "value_mismatch" });
+    expect(result.issues).toContainEqual({ field: "dcr", code: "ordering_code_scope_missing" });
     expect(result.envelope.part.specifications[0].status).toBe("ambiguous");
   });
 });

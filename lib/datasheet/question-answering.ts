@@ -20,8 +20,9 @@ function normalize(value: string): string {
 }
 
 function numericTokens(value: string): string[] {
-  const pattern = /[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?\s*(?:pF|nF|[µμu]F|F|nH|[µμu]H|mH|H|mΩ|Ω|Hz|kHz|MHz|GHz|mA|A|mV|V|°C|%)(?![A-Za-zµμΩ])/gi;
-  return [...value.matchAll(pattern)].map(([token]) => token.toLowerCase().replaceAll("μ", "µ").replace(/^([^a-z]*?)u(?=[fhm])/i, "$1µ").replace(/\s+/g, ""));
+  const withoutCitations = value.replace(/\[\d+\]/g, "");
+  const pattern = /(?<![A-Za-z0-9])[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?(?:\s*(?:pF|nF|[µμu]F|F|nH|[µμu]H|mH|H|mΩ|Ω|Hz|kHz|MHz|GHz|mA|A|mV|V|°C|[µμu]m|mm|cm|m|%))?(?![A-Za-z0-9µμΩ])/gi;
+  return [...withoutCitations.matchAll(pattern)].map(([token]) => token.toLowerCase().replaceAll("μ", "µ").replace(/^([^a-z]*?)u(?=[fhm])/i, "$1µ").replace(/\s+/g, ""));
 }
 
 function verifiedChunks(result: AnalysisResult): DocumentChunk[] {
