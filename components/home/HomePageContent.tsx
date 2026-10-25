@@ -9,7 +9,6 @@ import { localePath, type Locale } from "@/lib/i18n/locales";
 import { noteTypeLabels } from "@/app/notes/notes-view";
 import { ContentMeta } from "@/components/content/ContentMeta";
 import { StatusBadge } from "@/components/content/StatusBadge";
-import { EditorialSignalPanel } from "./EditorialSignalPanel";
 
 type Props = ReturnType<typeof selectHomeContent> & { now: NowItem; locale: Locale; dictionary: SiteDictionary };
 
@@ -48,7 +47,30 @@ export function HomePageContent({ featuredProjects, featuredTool, recentNotes, n
               </div>
             </div>
           </div>
-          <EditorialSignalPanel />
+          {featuredTool?.coverImage ? (
+            <figure className="editorial-hero__feature">
+              <div className="editorial-hero__image">
+                <Image
+                  src={featuredTool.coverImage}
+                  alt={`${featuredTool.title}${dictionary.home.toolImageAltSuffix}`}
+                  width={1191}
+                  height={730}
+                  priority
+                  sizes="(max-width: 899px) 100vw, 88vw"
+                />
+                <span aria-hidden="true">01</span>
+              </div>
+              <figcaption>
+                <span>SELECTED WORK / DIGITAL TOOL</span>
+                <strong>{featuredTool.title}</strong>
+                <span>{dictionary.home.toolCaption}</span>
+              </figcaption>
+            </figure>
+          ) : (
+            <div className="editorial-hero__feature editorial-hero__feature--type" aria-hidden="true">
+              <span>TOOLS</span><span>PROJECTS</span><span>NOTES</span>
+            </div>
+          )}
         </section>
 
         <div className="editorial-sections">

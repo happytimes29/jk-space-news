@@ -9,7 +9,7 @@ describe("personal engineering lab homepage", () => {
   // Catches retaining the news landing page or losing the visitor's next steps.
   it("introduces the engineering lab and links to projects and tools", async () => {
     const { container } = render(await HomePage());
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("把工程上的麻煩事，做成好用的工具。");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("把問題，做成工具。");
     expect(screen.getByText("硬體研發 × AI 自動化 × 獨立產品實驗")).toBeVisible();
     expect(screen.getByRole("link", { name: "查看專案" })).toHaveAttribute("href", "/projects");
     expect(screen.getByRole("link", { name: "使用工具" })).toHaveAttribute("href", "/tools");
@@ -29,7 +29,7 @@ describe("personal engineering lab homepage", () => {
   it("keeps seven ordered sections with real projects, an available tool and a dated Now", async () => {
     render(await HomePage());
     expect(screen.getAllByRole("region").map((region) => within(region).getAllByRole("heading")[0].textContent)).toEqual([
-      "把工程上的麻煩事，做成好用的工具。", "精選工具", "專業焦點", "精選專案", "最新筆記與觀點", "最近在做什麼", "一起解決下一個工程問題",
+      "把問題，做成工具。", "精選工具", "專業焦點", "精選專案", "最新筆記與觀點", "最近在做什麼", "一起解決下一個工程問題",
     ]);
     const focus = screen.getByRole("region", { name: "專業焦點" });
     for (const label of ["硬體與高頻研發", "AI 與工作流程自動化", "工程工具與獨立產品"]) {
@@ -77,5 +77,6 @@ describe("personal engineering lab homepage", () => {
     expect(within(notes).getByText("2026-10-15")).toHaveAttribute("datetime", "2026-10-15");
     expect(within(notes).queryByText("筆記正在整理中。")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "聯絡我" })).toBeVisible();
+    expect(screen.queryByRole("img", { name: "Engineering signal study" })).not.toBeInTheDocument();
   });
 });

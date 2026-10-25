@@ -12,7 +12,7 @@ describe("Footer", () => {
     const { container } = render(<Footer {...props} />);
     expect(container).not.toHaveTextContent("JK Space News");
     expect(screen.getByRole("link", { name: "JK Space" })).toHaveAttribute("href", "/en");
-    expect(screen.getByText("Turn difficult engineering work into useful tools.")).toBeInTheDocument();
+    expect(screen.getByText("Turn problems into tools.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/en/about");
     expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/en/privacy");
     expect(screen.getByRole("link", { name: "Contact" })).toHaveAttribute("href", "/en/contact");
