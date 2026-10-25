@@ -19,7 +19,7 @@ export async function ToolsPage({ locale }: { locale: Locale }) {
           <p className="editorial-page__lede">{copy.toolsDescription}</p>
         </header>
         {tools.length === 0 ? <div className="editorial-empty"><p>{copy.toolsEmpty}</p></div> : <div className="editorial-tools-list">{tools.map((tool, index) => (
-          <article key={tool.slug} aria-label={tool.title} className="editorial-tool-row">
+          <article key={tool.slug} aria-label={tool.title} className={`editorial-tool-row${tool.coverImage ? "" : " editorial-tool-row--no-cover"}`}>
             {tool.coverImage && <figure className="editorial-tool-row__visual"><Image src={tool.coverImage} alt={`${tool.title}${copy.toolImageAltSuffix}`} fill sizes="(max-width: 767px) 100vw, 45vw" className="object-cover" /><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span></figure>}
             <div className="editorial-tool-row__body">
               <div className="editorial-tool-row__status"><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><StatusBadge status={tool.status} locale={locale} /></div>

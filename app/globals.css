@@ -545,11 +545,28 @@ body:has(.editorial-home) footer {
   color: var(--editorial-muted);
 }
 
-.editorial-home .inline-flex.rounded-full {
+.editorial-home .editorial-status {
+  display: inline-flex;
+  border: 1px solid var(--editorial-ink);
   border-radius: 0;
-  border-color: var(--editorial-ink);
+  padding: 0.25rem 0.75rem;
   background: transparent;
   color: var(--editorial-ink);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.editorial-home .editorial-content-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  color: var(--editorial-muted);
+  font-size: 0.82rem;
+}
+
+.editorial-home .editorial-content-meta > div {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .editorial-tool__visual {
@@ -1097,7 +1114,7 @@ body:has(.editorial-home) header kbd {
   color: #aaa69c !important;
 }
 
-.editorial-projects .inline-flex.rounded-full {
+.editorial-projects .editorial-status {
   border-color: #7c7970;
   color: var(--editorial-paper);
 }

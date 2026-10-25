@@ -7,6 +7,7 @@ import { EditorialSectionHeading } from "@/components/editorial/EditorialSection
 export function ContactPage({ locale }: { locale: Locale }) {
   const dictionary = getDictionary(locale);
   const config = getSiteConfig(locale);
+  const links = getEnabledContactLinks(config);
   const copy = dictionary.contact;
   return (
     <div className="editorial-page editorial-utility editorial-contact-page">
@@ -23,7 +24,7 @@ export function ContactPage({ locale }: { locale: Locale }) {
             <p className="editorial-contact-privacy">{copy.privacyReminder}</p>
           </div>
         </section>
-        <section aria-label={dictionary.footer.contactChannels}><EditorialSectionHeading index="02" title={dictionary.footer.contactChannels} /><ContactLinks links={getEnabledContactLinks(config)} /></section>
+        {links.length > 0 && <section aria-label={dictionary.footer.contactChannels}><EditorialSectionHeading index="02" title={dictionary.footer.contactChannels} /><ContactLinks links={links} /></section>}
       </div>
     </div>
   );

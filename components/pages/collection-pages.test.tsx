@@ -24,6 +24,15 @@ function translated(data: Record<string, unknown>, locale: "en" | "zh-CN", statu
 }
 
 describe("localized collection pages", () => {
+  it("gives a tool without a cover the explicit full-width layout", async () => {
+    writeContent(path.join(root, "content/tools"), "test-tool.md", { ...toolData, coverImage: undefined });
+    render(await ToolsPage({ locale: "zh-TW" }));
+    const row = screen.getByRole("article", { name: toolData.title });
+    expect(row).toHaveClass("editorial-tool-row--no-cover");
+    expect(row.querySelector("figure")).toBeNull();
+    expect(row.querySelector(".editorial-tool-row__body")).toHaveTextContent(toolData.title);
+  });
+
   it("renders English headings, links, filters, and only English visible items", async () => {
     const projects = path.join(root, "content/projects");
     writeContent(projects, "test-project.md", projectData);

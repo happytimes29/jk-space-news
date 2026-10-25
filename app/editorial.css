@@ -102,6 +102,10 @@
 }
 
 .editorial-page a:focus-visible,
+.editorial-page input:focus-visible,
+.editorial-page select:focus-visible,
+.editorial-page textarea:focus-visible,
+.editorial-page button:focus-visible,
 .engineering-app-page a:focus-visible {
   outline: 2px solid var(--editorial-accent, var(--color-accent));
   outline-offset: 4px;
@@ -284,6 +288,15 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   min-height: 31rem;
   border-bottom: 1px solid var(--editorial-ink);
+}
+
+.editorial-page .editorial-tool-row--no-cover {
+  grid-template-columns: minmax(0, 1fr);
+  min-height: auto;
+}
+
+.editorial-page .editorial-tool-row--no-cover .editorial-tool-row__body {
+  padding: clamp(2rem, 4vw, 4rem) 0;
 }
 
 .editorial-page .editorial-tool-row:nth-child(even) .editorial-tool-row__visual {
@@ -757,7 +770,7 @@
 .editorial-page .editorial-timeline > li > span,
 .editorial-page .editorial-contact-grid li > span,
 .editorial-page .editorial-legal section > span,
-.editorial-page .editorial-not-found nav span {
+.editorial-page.editorial-not-found nav span {
   font: 600 0.68rem/1.4 'JetBrains Mono', monospace;
   color: var(--editorial-accent);
 }
@@ -986,7 +999,7 @@
   letter-spacing: -0.09em;
 }
 
-.editorial-page .editorial-not-found h1 {
+.editorial-page.editorial-not-found h1 {
   font-size: clamp(2.8rem, 7vw, 6rem);
 }
 
@@ -997,7 +1010,7 @@
   line-height: 1.8;
 }
 
-.editorial-page .editorial-not-found nav {
+.editorial-page.editorial-not-found nav {
   grid-column: 2;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1005,7 +1018,7 @@
   border-top: 1px solid var(--editorial-ink);
 }
 
-.editorial-page .editorial-not-found nav a {
+.editorial-page.editorial-not-found nav a {
   display: flex;
   gap: 1rem;
   justify-content: space-between;
@@ -1014,11 +1027,11 @@
   font: 600 0.74rem/1.4 'JetBrains Mono', monospace;
 }
 
-.editorial-page .editorial-not-found nav a:nth-child(odd) {
+.editorial-page.editorial-not-found nav a:nth-child(odd) {
   margin-right: 1.5rem;
 }
 
-.editorial-page .editorial-not-found nav a:hover {
+.editorial-page.editorial-not-found nav a:hover {
   color: var(--editorial-accent);
 }
 
@@ -1036,6 +1049,10 @@
   isolation: isolate;
   color: var(--color-text);
   font-family: 'Noto Sans TC', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.engineering-app:not(.pcb-engineering-app) {
+  background: var(--color-bg);
 }
 
 .engineering-app-page .engineering-app-shell {
@@ -1284,7 +1301,7 @@ body:has(.engineering-app-page) .site-footer {
     margin-top: 2.5rem;
   }
 
-  .editorial-page .editorial-not-found nav {
+  .editorial-page.editorial-not-found nav {
     grid-column: 1;
   }
 
