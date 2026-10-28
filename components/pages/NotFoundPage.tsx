@@ -12,10 +12,10 @@ export function NotFoundPage({ locale }: { locale: Locale }) {
     [dictionary.navigation.notes, "/notes"],
   ];
   return (
-    <section className="editorial-page editorial-utility editorial-not-found">
-      <div className="editorial-page__shell editorial-not-found__grid">
-        <p className="editorial-not-found__code" aria-hidden="true">404</p>
-        <div><p className="editorial-page__kicker">Signal lost / Page not found</p><h1>{copy.title}</h1><p className="editorial-not-found__description">{copy.description}</p></div>
+    <section className="v2-editorial-page v2-utility v2-not-found">
+      <div className="v2-page-shell v2-not-found__grid">
+        <p className="v2-not-found__code" aria-hidden="true">404</p>
+        <div><p className="v2-page-kicker">Signal lost / Page not found</p><h1>{copy.title}</h1><p className="v2-not-found__description">{copy.description}</p></div>
         <nav aria-label={copy.navigationLabel}>{links.map(([label, href], index) => <Link key={href} href={localePath(locale, href)}><span aria-hidden="true">0{index + 1}</span>{label}</Link>)}</nav>
       </div>
     </section>

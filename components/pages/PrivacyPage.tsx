@@ -8,15 +8,15 @@ export function PrivacyPage({ locale }: { locale: Locale }) {
   const config = getSiteConfig(locale);
   const copy = dictionary.privacy;
   return (
-    <div className="editorial-page editorial-utility editorial-privacy">
-      <div className="editorial-page__shell editorial-reading-shell">
-        <header className="editorial-utility-hero">
-          <p className="editorial-page__kicker">{config.name} / Privacy</p>
+    <div className="v2-editorial-page v2-utility v2-privacy">
+      <div className="v2-page-shell v2-reading-shell">
+        <header className="v2-utility-hero">
+          <p className="v2-page-kicker">{config.name} / Privacy</p>
           <h1>{copy.title}</h1>
-          <p className="editorial-privacy-date">{copy.updatedLabel}：<time dateTime={copy.updatedDate}>{copy.updatedDate}</time></p>
+          <p className="v2-privacy-date">{copy.updatedLabel}：<time dateTime={copy.updatedDate}>{copy.updatedDate}</time></p>
         </header>
-        <div className="editorial-legal">
-          <p className="editorial-legal__intro">{copy.intro.replace("JK Space", config.name)}</p>
+        <div className="v2-legal">
+          <p className="v2-legal__intro">{copy.intro.replace("JK Space", config.name)}</p>
           <section aria-labelledby="privacy-site"><span aria-hidden="true">01</span><div><h2 id="privacy-site">{copy.siteTitle}</h2><p>{copy.siteTextOne}</p><p>{copy.siteTextTwo}</p></div></section>
           <section aria-labelledby="privacy-hosting"><span aria-hidden="true">02</span><div><h2 id="privacy-hosting">{copy.hostingTitle}</h2><p>{copy.hostingTextOne}</p><p>{copy.hostingTextTwo}</p><p>{copy.preferenceText}</p></div></section>
           <section aria-labelledby="privacy-pcb"><span aria-hidden="true">03</span><div><h2 id="privacy-pcb">{copy.pcbTitle}</h2><p>{copy.pcbTextOne}</p><p>{copy.pcbTextTwo}</p></div></section>

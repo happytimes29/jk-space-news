@@ -34,32 +34,32 @@ export function AboutPage({ locale, featuredProjectAvailable }: { locale: Locale
   ];
 
   return (
-    <div className="editorial-page editorial-utility editorial-about">
-      <div className="editorial-page__shell">
-        <header className="editorial-utility-hero">
-          <p className="editorial-page__kicker">{config.name} / {copy.kicker}</p>
+    <div className="v2-editorial-page v2-utility v2-about">
+      <div className="v2-page-shell">
+        <header className="v2-utility-hero">
+          <p className="v2-page-kicker">{config.name} / {copy.kicker}</p>
           <h1>{copy.title}</h1>
-          <p className="editorial-utility-hero__tagline">{config.tagline}</p>
+          <p className="v2-utility-hero__tagline">{config.tagline}</p>
         </header>
-        <section aria-labelledby="about-intro" className="editorial-about-intro">
+        <section aria-labelledby="about-intro" className="v2-about-intro">
           <h2 id="about-intro">{copy.introTitle}</h2>
           <div><p>{copy.introOne}</p><p>{copy.introTwoBefore} <Link href={localePath(featuredProjectLocale, featuredProjectPath)} className={linkClass}>{featuredProjectLabel}</Link> {copy.introTwoAfter}</p></div>
         </section>
         <section aria-label={copy.expertiseTitle}>
           <EditorialSectionHeading index="01" title={copy.expertiseTitle} />
-          <div className="editorial-expertise-grid">{expertise.map(([title, text], index) => <article key={title}><span aria-hidden="true">0{index + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
+          <div className="v2-expertise-grid">{expertise.map(([title, text], index) => <article key={title}><span aria-hidden="true">0{index + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
         </section>
         <section aria-label={copy.methodTitle}>
           <EditorialSectionHeading index="02" title={copy.methodTitle} />
-          <ol className="editorial-method-list">{[copy.methodOne, copy.methodTwo, copy.methodThree].map((method, index) => <li key={method}><span aria-hidden="true">0{index + 1}</span><p>{method}</p></li>)}</ol>
+          <ol className="v2-method-list">{[copy.methodOne, copy.methodTwo, copy.methodThree].map((method, index) => <li key={method}><span aria-hidden="true">0{index + 1}</span><p>{method}</p></li>)}</ol>
         </section>
         <section aria-label={copy.timelineTitle}>
           <EditorialSectionHeading index="03" title={copy.timelineTitle} />
-          <ol className="editorial-timeline">{timeline.map(([title, text], index) => <li key={title}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><h3>{title}</h3><p>{text}</p></li>)}</ol>
+          <ol className="v2-timeline">{timeline.map(([title, text], index) => <li key={title}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><h3>{title}</h3><p>{text}</p></li>)}</ol>
         </section>
         <section aria-label={copy.focusTitle}>
           <EditorialSectionHeading index="04" title={copy.focusTitle} />
-          <div className="editorial-focus-copy"><p>{copy.focusText}</p><div className="editorial-inline-actions"><Link href={localePath(locale, "/projects")}>{dictionary.common.viewProjects}</Link><Link href={localePath(locale, "/tools")}>{dictionary.common.useTools}</Link><Link href={localePath(locale, "/contact")}>{dictionary.common.contactMe}</Link></div></div>
+          <div className="v2-focus-copy"><p>{copy.focusText}</p><div className="v2-inline-actions"><Link href={localePath(locale, "/projects")}>{dictionary.common.viewProjects}</Link><Link href={localePath(locale, "/tools")}>{dictionary.common.useTools}</Link><Link href={localePath(locale, "/contact")}>{dictionary.common.contactMe}</Link></div></div>
         </section>
         {config.contacts.length > 0 && <section aria-label={copy.externalLinksTitle}><EditorialSectionHeading index="05" title={copy.externalLinksTitle} /><ContactLinks links={getEnabledContactLinks(config)} /></section>}
       </div>

@@ -10,18 +10,18 @@ export function ContactPage({ locale }: { locale: Locale }) {
   const links = getEnabledContactLinks(config);
   const copy = dictionary.contact;
   return (
-    <div className="editorial-page editorial-utility editorial-contact-page">
-      <div className="editorial-page__shell">
-        <header className="editorial-utility-hero editorial-contact-hero">
-          <p className="editorial-page__kicker">{config.name} / Contact</p>
+    <div className="v2-editorial-page v2-utility v2-contact-page">
+      <div className="v2-page-shell">
+        <header className="v2-utility-hero v2-contact-hero">
+          <p className="v2-page-kicker">{config.name} / Contact</p>
           <h1>{copy.title}</h1>
-          <p className="editorial-utility-hero__tagline">{copy.intro}</p>
+          <p className="v2-utility-hero__tagline">{copy.intro}</p>
         </header>
         <section aria-label={copy.topicsTitle}>
           <EditorialSectionHeading index="01" title={copy.topicsTitle} />
-          <div className="editorial-contact-grid">
+          <div className="v2-contact-grid">
             <ul>{[copy.topicTechnical, copy.topicFeedback, copy.topicCollaboration].map((topic, index) => <li key={topic}><span aria-hidden="true">0{index + 1}</span><p>{topic}</p></li>)}</ul>
-            <p className="editorial-contact-privacy">{copy.privacyReminder}</p>
+            <p className="v2-contact-privacy">{copy.privacyReminder}</p>
           </div>
         </section>
         {links.length > 0 && <section aria-label={dictionary.footer.contactChannels}><EditorialSectionHeading index="02" title={dictionary.footer.contactChannels} /><ContactLinks links={links} /></section>}

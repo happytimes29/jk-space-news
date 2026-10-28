@@ -32,7 +32,7 @@ describe.each([
     ];
     for (const page of pages) {
       const { container, unmount } = render(page);
-      expect(container.firstElementChild).toHaveClass("editorial-page", "editorial-utility");
+      expect(container.firstElementChild).toHaveClass("v2-editorial-page", "v2-utility");
       expect(container.querySelectorAll("h1")).toHaveLength(1);
       expect(container.querySelector("h1")).not.toBeEmptyDOMElement();
       expect(container.querySelectorAll("section").length).toBeGreaterThan(0);
@@ -40,6 +40,27 @@ describe.each([
       unmount();
     }
   });
+});
+
+it.each([
+  ["zh-TW", "/", "/projects", "/tools", "/notes"],
+  ["zh-CN", "/zh-cn", "/zh-cn/projects", "/zh-cn/tools", "/zh-cn/notes"],
+  ["en", "/en", "/en/projects", "/en/tools", "/en/notes"],
+] as const)("renders a static four-link %s recovery path", (locale, ...hrefs) => {
+  const { container } = render(<NotFoundPage locale={locale} />);
+  const links = screen.getAllByRole("link");
+  expect(links).toHaveLength(4);
+  expect(links.map((link) => link.getAttribute("href"))).toEqual(hrefs);
+  expect(container.querySelector("canvas, video")).toBeNull();
+});
+
+it("uses only the configured contact destinations", () => {
+  const { container } = render(<ContactPage locale="en" />);
+  expect(screen.getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
+    "https://github.com/happytimes29",
+    "https://t.me/JK_Sapce",
+  ]);
+  expect(container).not.toHaveTextContent(["jk", "example.com"].join("@"));
 });
 
 it("keeps English About and Privacy internal links under /en", () => {
