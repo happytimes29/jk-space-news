@@ -34,7 +34,7 @@ export function HomePageContent({ featuredProjects, featuredTool, recentNotes, n
 
         <section aria-labelledby="v2-home-orientation-title" className="v2-home-orientation">
           <div className="v2-home-section-mark"><span>01</span><span>IN 30 SECONDS</span></div>
-          <div className="v2-home-orientation__body"><h2 id="v2-home-orientation-title">{dictionary.home.orientationTitle}</h2><p>{dictionary.home.intro}</p><nav aria-label={dictionary.home.orientationTitle}><Link href={localePath(locale, "/tools")}>Tools <ArrowUpRight aria-hidden="true" size={15} /></Link><Link href={localePath(locale, "/projects")}>Projects <ArrowUpRight aria-hidden="true" size={15} /></Link><Link href={localePath(locale, "/notes")}>Notes <ArrowUpRight aria-hidden="true" size={15} /></Link></nav></div>
+          <div className="v2-home-orientation__body"><h2 id="v2-home-orientation-title">{dictionary.home.orientationTitle}</h2><p>{dictionary.home.intro}</p><nav aria-label={dictionary.home.orientationTitle}><Link href={localePath(locale, "/tools")}>{dictionary.navigation.tools} <ArrowUpRight aria-hidden="true" size={15} /></Link><Link href={localePath(locale, "/projects")}>{dictionary.navigation.projects} <ArrowUpRight aria-hidden="true" size={15} /></Link><Link href={localePath(locale, "/notes")}>{dictionary.navigation.notes} <ArrowUpRight aria-hidden="true" size={15} /></Link></nav></div>
         </section>
 
         <section aria-labelledby="v2-home-focus-title" className="v2-home-practice">

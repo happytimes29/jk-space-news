@@ -4,6 +4,7 @@ import HomePage from "@/app/(zh-tw)/page";
 import { HomePageContent } from "./HomePageContent";
 import { loadNotes, type NoteItem } from "@/lib/notes";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { localePath, type Locale } from "@/lib/i18n/locales";
 
 describe("personal engineering lab homepage", () => {
   // Catches retaining the news landing page or losing the visitor's next steps.
@@ -26,6 +27,26 @@ describe("personal engineering lab homepage", () => {
     const projectsLink = screen.getByRole("link", { name: "查看專案" });
 
     expect(toolsLink.compareDocumentPosition(projectsLink) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it.each(["zh-TW", "zh-CN", "en"] as const)("localizes the %s orientation navigation", (locale: Locale) => {
+    const dictionary = getDictionary(locale);
+    render(<HomePageContent
+      featuredProjects={[]}
+      featuredTool={null}
+      recentNotes={[]}
+      now={{ content: dictionary.home.nowContent, updatedAt: "2026-10-14" }}
+      locale={locale}
+      dictionary={dictionary}
+    />);
+    const navigation = within(screen.getByRole("region", { name: dictionary.home.orientationTitle })).getByRole("navigation");
+    for (const [label, pathname] of [
+      [dictionary.navigation.tools, "/tools"],
+      [dictionary.navigation.projects, "/projects"],
+      [dictionary.navigation.notes, "/notes"],
+    ]) {
+      expect(within(navigation).getByRole("link", { name: label })).toHaveAttribute("href", localePath(locale, pathname));
+    }
   });
 
   // Catches hiding real work or Now when Notes is empty, and missing collaboration routing.

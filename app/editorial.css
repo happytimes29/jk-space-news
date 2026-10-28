@@ -140,17 +140,6 @@ body:has(.engineering-app-page) {
   background: #f1efe8;
 }
 
-body:has(.engineering-app-page) .site-header {
-  background: rgba(241, 239, 232, 0.96);
-  --color-text: #131312;
-  --color-muted: #65635e;
-  --color-border: #b7b2a7;
-  --color-card: #f1efe8;
-  --color-card-hover: #e6e2d8;
-  --color-accent: #b62d19;
-  backdrop-filter: none;
-}
-
 body:has(.engineering-app-page) .site-footer {
   margin-top: 0;
   background: #131312;

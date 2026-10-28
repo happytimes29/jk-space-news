@@ -110,6 +110,9 @@ test("mobile navigation, search, language, recovery, and real contacts remain op
   await page.getByRole("navigation", { name: "行動版主導覽" }).getByRole("group", { name: "選擇語言" }).getByRole("button", { name: "English" }).click();
   await expect(page).toHaveURL("/en");
   await expect(page.getByRole("heading", { level: 1, name: "Turn signals into answers." })).toBeVisible();
+  await page.getByRole("button", { name: "Open menu" }).click();
+  await expect(page.getByRole("navigation", { name: "Mobile primary navigation" })).toBeVisible();
+  await page.getByRole("button", { name: "Close menu" }).click();
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("textbox", { name: "Search projects, tools, and notes" })).toBeFocused();
   await page.keyboard.press("Escape");
