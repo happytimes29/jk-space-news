@@ -10,7 +10,7 @@ it("separates the editorial index from the section heading and action", async ()
   if (!fs.existsSync(componentPath)) return;
 
   const { EditorialSectionHeading } = await import("./EditorialSectionHeading");
-  render(
+  const { container } = render(
     <EditorialSectionHeading
       index="02"
       title="Selected work"
@@ -18,7 +18,10 @@ it("separates the editorial index from the section heading and action", async ()
     />,
   );
 
+  expect(container.firstElementChild).toHaveClass("editorial-section-heading", "v2-section-heading");
   expect(screen.getByText("02")).toHaveAttribute("aria-hidden", "true");
+  expect(screen.getByText("02")).toHaveClass("v2-section-heading__index");
   expect(screen.getByRole("heading", { level: 2, name: "Selected work" })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "View all" }).parentElement).toHaveClass("v2-section-heading__action");
   expect(screen.getByRole("link", { name: "View all" })).toHaveAttribute("href", "/projects");
 });

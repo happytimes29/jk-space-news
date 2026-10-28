@@ -22,45 +22,36 @@ export function Header({ locale, dictionary, config, availability }: HeaderProps
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="site-header sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur-xl">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+    <header className="site-header v2-site-header">
+      <div className="v2-site-header__inner">
           <Link
             href={config.navigation[0].href}
-            className="group text-sm font-semibold tracking-tight text-[var(--color-text)]"
+            className="v2-site-header__brand"
           >
             {config.name}
           </Link>
 
-          {/* Desktop nav */}
-          <nav aria-label={dictionary.header.mainNavigation} className="hidden md:flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)]/70 p-1">
+          <nav aria-label={dictionary.header.mainNavigation} className="v2-site-nav hidden md:flex">
             {config.navigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
-                  pathname === item.href
-                    ? "text-[var(--color-text)] bg-[var(--color-card-hover)]"
-                    : "text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-card-hover)]"
-                }`}
+                aria-current={pathname === item.href ? "page" : undefined}
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          {/* Kbd hint */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="v2-site-header__tools hidden md:flex">
             <LanguageSwitcher locale={locale} availability={availability} label={dictionary.language.select} unavailableLabel={dictionary.language.unavailable} />
-            <kbd className="hidden lg:flex items-center gap-1 px-2.5 py-1 text-xs text-[var(--color-muted)] border border-[var(--color-border)] rounded-full bg-[var(--color-card)] cursor-default select-none">
+            <kbd className="v2-site-header__shortcut hidden lg:flex">
               <span>⌘</span>K
             </kbd>
           </div>
 
-          {/* Mobile toggle */}
           <button
-            className="md:hidden p-2 text-[var(--color-muted)] hover:text-[var(--color-text)] transition-colors"
+            className="v2-site-header__toggle md:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? dictionary.header.closeMenu : dictionary.header.openMenu}
             aria-expanded={mobileOpen}
@@ -68,22 +59,20 @@ export function Header({ locale, dictionary, config, availability }: HeaderProps
           >
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
-        </div>
       </div>
 
-      {/* Mobile menu */}
-      <nav id="mobile-navigation" aria-label={dictionary.header.mobileNavigation} hidden={!mobileOpen} className="md:hidden border-t border-[var(--color-border)] bg-[var(--color-bg)]/95 px-4 pb-4 pt-2 backdrop-blur-xl">
+      <nav id="mobile-navigation" aria-label={dictionary.header.mobileNavigation} hidden={!mobileOpen} className="v2-site-header__mobile md:hidden">
         {config.navigation.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="block rounded-xl px-3 py-2.5 text-sm text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-card-hover)] transition-colors"
+            aria-current={pathname === item.href ? "page" : undefined}
             onClick={() => setMobileOpen(false)}
           >
             {item.label}
           </Link>
         ))}
-        <div className="mt-3 border-t border-[var(--color-border)] pt-3">
+        <div className="v2-site-header__mobile-language">
           <LanguageSwitcher locale={locale} availability={availability} label={dictionary.language.select} unavailableLabel={dictionary.language.unavailable} />
         </div>
       </nav>

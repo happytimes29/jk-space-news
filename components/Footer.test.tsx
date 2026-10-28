@@ -10,13 +10,14 @@ const props = { locale: "en" as const, dictionary: getDictionary("en"), config: 
 describe("Footer", () => {
   it("shows the new brand, tagline, trust pages, and real contact destinations", () => {
     const { container } = render(<Footer {...props} />);
-    expect(container.firstElementChild).toHaveClass("site-footer");
+    expect(container.firstElementChild).toHaveClass("site-footer", "v2-site-footer");
     expect(container).not.toHaveTextContent("JK Space News");
     expect(screen.getByRole("link", { name: "JK Space" })).toHaveAttribute("href", "/en");
     expect(screen.getByText("Turn problems into tools.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/en/about");
     expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/en/privacy");
     expect(screen.getByRole("link", { name: "Contact" })).toHaveAttribute("href", "/en/contact");
+    expect(screen.getByRole("navigation", { name: "Site information" }).querySelectorAll(".v2-footer-index")).toHaveLength(3);
     expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "https://github.com/happytimes29");
     expect(screen.getByRole("link", { name: "Telegram" })).toHaveAttribute("href", "https://t.me/JK_Sapce");
     expect(screen.queryByLabelText(/Email|LinkedIn|YouTube|TikTok|Threads/)).not.toBeInTheDocument();

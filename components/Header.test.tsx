@@ -15,11 +15,12 @@ const props = { locale: "en" as const, dictionary: getDictionary("en"), config: 
 describe("Header", () => {
   it("renders the new brand and all six centralized destinations in order", () => {
     const { container } = render(<Header {...props} />);
-    expect(container.firstElementChild).toHaveClass("site-header");
+    expect(container.firstElementChild).toHaveClass("site-header", "v2-site-header");
     expect(screen.getByRole("link", { name: "JK Space" })).toHaveAttribute("href", "/en");
     expect(screen.queryByText(/JK Space News/)).not.toBeInTheDocument();
     const links = within(screen.getByRole("navigation", { name: "Primary navigation" })).getAllByRole("link");
     expect(links.map((link) => [link.textContent, link.getAttribute("href")])).toEqual(expectedNavigation);
+    expect(screen.getByRole("navigation", { name: "Primary navigation" })).toHaveClass("v2-site-nav");
     expect(screen.getAllByRole("group", { name: "Choose a language" })).toHaveLength(1);
   });
 
