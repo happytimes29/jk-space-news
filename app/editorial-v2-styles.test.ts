@@ -21,7 +21,9 @@ function declarations(selector: string) {
 
 function allSelectors() {
   const selectors: string[] = [];
-  stylesheet().walkRules((rule) => selectors.push(...rule.selectors.map((selector) => selector.trim())));
+  stylesheet().walkRules((rule) => {
+    selectors.push(...rule.selectors.map((selector) => selector.trim()));
+  });
   return selectors;
 }
 

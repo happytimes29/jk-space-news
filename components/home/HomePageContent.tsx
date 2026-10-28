@@ -8,6 +8,7 @@ import { localePath, type Locale } from "@/lib/i18n/locales";
 import { noteTypeLabels } from "@/app/notes/notes-view";
 import { ContentMeta } from "@/components/content/ContentMeta";
 import { StatusBadge } from "@/components/content/StatusBadge";
+import { HomeSignalField } from "@/components/home/HomeSignalField";
 
 type Props = ReturnType<typeof selectHomeContent> & { now: NowItem; locale: Locale; dictionary: SiteDictionary };
 
@@ -28,7 +29,7 @@ export function HomePageContent({ featuredProjects, featuredTool, recentNotes, n
             <div className="v2-home-hero__copy"><p className="v2-home-index">ISSUE 01 — INDEPENDENT ENGINEERING</p><h1 id="v2-home-hero-title">{dictionary.home.heroTitle}</h1><p className="v2-home-hero__eyebrow">{dictionary.home.eyebrow}</p></div>
             <div className="v2-home-hero__aside"><p>{dictionary.home.intro}</p><div className="v2-home-actions"><Link href={localePath(locale, "/tools")}>{dictionary.common.useTools}<ArrowRight aria-hidden="true" size={16} /></Link><Link href={localePath(locale, "/projects")}>{dictionary.common.viewProjects}<ArrowUpRight aria-hidden="true" size={16} /></Link></div></div>
           </div>
-          <div className="v2-home-hero__signal-host" data-signal-field-host aria-hidden="true"><span>Γ</span><span>50 Ω</span><span>JK</span><span>1.000 GHz</span></div>
+          <HomeSignalField label={dictionary.home.signalFieldLabel} />
         </section>
 
         <section aria-labelledby="v2-home-orientation-title" className="v2-home-orientation">
