@@ -70,4 +70,29 @@ describe("editorial v2 design boundary", () => {
     });
     expect(unsafe).toEqual([]);
   });
+
+  it("keeps migrated source files free of V1 page wrappers", () => {
+    const files = [
+      "components/home/HomePageContent.tsx",
+      "components/pages/ProjectsPage.tsx",
+      "components/pages/ToolsPage.tsx",
+      "components/pages/NotesPage.tsx",
+      "components/pages/ProjectDetailPage.tsx",
+      "components/pages/ToolDetailPage.tsx",
+      "components/pages/NoteDetailPage.tsx",
+      "components/pages/AboutPage.tsx",
+      "components/pages/ContactPage.tsx",
+      "components/pages/PrivacyPage.tsx",
+      "components/pages/NotFoundPage.tsx",
+    ];
+    for (const file of files) {
+      const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+      expect(source, file).not.toMatch(/(?:^|["'\s])editorial-(?:home|page|collection|detail|utility)(?:["'\s]|$)/m);
+    }
+  });
+
+  it("scopes every V2 selector beneath the fixed site root", () => {
+    const unscoped = allSelectors().filter((selector) => selector.includes(".v2-") && !selector.startsWith(".site-v2") && selector !== ".site-v2-content");
+    expect(unscoped).toEqual([]);
+  });
 });
