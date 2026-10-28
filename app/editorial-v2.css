@@ -50,7 +50,6 @@
   --color-input-bg: #ffffff;
   --color-code-bg: #f1ede5;
   --color-accent: #a73b2b;
-  color-scheme: light;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1335,4 +1334,66 @@
 @media (max-width: 639px) {
   .site-v2 .v2-utility .editorial-contact-links { grid-template-columns: 1fr; }
   .site-v2 .v2-utility .editorial-contact-links li:nth-child(odd) { border-right: 0; }
+}
+
+.site-v2 .v2-engineering-shell {
+  --engineering-shell-paper: var(--v2-paper);
+  --engineering-shell-ink: var(--v2-ink);
+  --engineering-shell-muted: #596074;
+  --engineering-shell-rule: var(--v2-rule);
+  min-height: 70svh;
+  color: var(--v2-ink);
+  background: var(--v2-paper);
+}
+
+.site-v2 .v2-engineering-shell__chrome {
+  width: min(100% - 2rem, 88rem);
+  margin-inline: auto;
+  padding: clamp(1.25rem, 3vw, 2.25rem) 0 clamp(2.5rem, 6vw, 5rem);
+}
+
+.site-v2 .v2-engineering-shell__back {
+  color: var(--color-muted);
+  font: 0.66rem var(--v2-mono);
+  letter-spacing: 0.05em;
+}
+
+.site-v2 .v2-engineering-shell__back a::before { color: var(--v2-signal); }
+
+.site-v2 .v2-engineering-shell__intro {
+  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+  gap: clamp(2rem, 8vw, 8rem);
+  margin-top: clamp(2rem, 5vw, 4rem);
+  padding-bottom: clamp(2rem, 5vw, 4rem);
+  border-color: var(--v2-rule);
+}
+
+.site-v2 .v2-engineering-shell__kicker { color: var(--v2-brass); }
+
+.site-v2 .v2-engineering-shell__chrome h1 {
+  max-width: 15ch;
+  color: var(--v2-ink);
+  font-family: var(--v2-serif);
+  font-size: clamp(2.75rem, 6vw, 6rem);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+}
+
+.site-v2 .v2-engineering-shell__summary { color: var(--color-muted); line-height: 1.8; }
+
+.site-v2 .v2-engineering-shell__privacy {
+  color: var(--color-muted);
+  border-color: var(--v2-rule);
+  font: 0.68rem/1.7 var(--v2-mono);
+}
+
+.site-v2 .v2-engineering-shell .pcb-tool-shell {
+  padding-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+.site-v2 .v2-engineering-shell .pcb-tool-shell__bar { border-color: var(--v2-rule); }
+.site-v2 .v2-engineering-shell .pcb-tool-shell__mark { color: var(--v2-signal); border-color: var(--v2-rule); }
+
+@media (max-width: 767px) {
+  .site-v2 .v2-engineering-shell__intro { grid-template-columns: 1fr; }
 }

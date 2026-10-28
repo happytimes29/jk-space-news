@@ -34,7 +34,8 @@ afterEach(() => {
 it("keeps every PCB input inside the isolated application boundary", () => {
   const { container } = render(<PcbTestPointTool />);
 
-  expect(container.firstElementChild).toHaveClass("engineering-app-page");
+  expect(container.firstElementChild).toHaveClass("engineering-app-page", "v2-engineering-shell");
+  expect(container.querySelector(".v2-engineering-shell__chrome")).toBeInTheDocument();
   const application = container.querySelector(".engineering-app");
   expect(application).toBeInTheDocument();
   expect(screen.getByRole("heading", { level: 1, name: "PCB Test Point 自動比對工具" })).toBeInTheDocument();
@@ -43,6 +44,11 @@ it("keeps every PCB input inside the isolated application boundary", () => {
   expect(screen.getByText("板框 DXF 底圖")).toBeInTheDocument();
   expect(screen.getByPlaceholderText(/TP1, TP2, TP3/)).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "載入範例" })).toBeInTheDocument();
+  expect(Array.from(application!.querySelectorAll("input, button"), (control) =>
+    control.tagName === "INPUT"
+      ? `input:${control.getAttribute("type")}`
+      : `button:${control.textContent?.trim()}`,
+  )).toEqual(["button:載入範例", "input:file", "input:file", "input:file", "button:匯入 TXT / CSV", "input:file"]);
 });
 
 it("loads the public example, renders comparison results, and exports CSV", async () => {

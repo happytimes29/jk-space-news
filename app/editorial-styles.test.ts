@@ -23,6 +23,11 @@ describe("final editorial review contracts", () => {
     expect(declarations(".engineering-app").background).toBeUndefined();
   });
 
+  it("leaves v2 engineering chrome ownership outside the application boundary", () => {
+    const stylesheet = fs.readFileSync(stylesheetPath, "utf8");
+    expect(stylesheet).not.toContain("v2-engineering-shell");
+  });
+
   it("places 404 recovery links in the second desktop column and first mobile column", () => {
     expect(declarations(".editorial-page.editorial-not-found nav")).toMatchObject({
       display: "grid", "grid-column": "2", "grid-template-columns": "repeat(2, minmax(0, 1fr))",

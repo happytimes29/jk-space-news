@@ -102,8 +102,8 @@ export default function PcbTestPointTool() {
   }, [results]);
 
   return (
-    <div className="engineering-app-page pcb-tool-page">
-      <header className="engineering-app-shell pcb-tool-shell">
+    <div className="engineering-app-page v2-engineering-shell pcb-tool-page">
+      <header className="engineering-app-shell v2-engineering-shell__chrome pcb-tool-shell">
         <div className="pcb-tool-shell__bar">
           <Link
             href="/tools/pcb-test-point"

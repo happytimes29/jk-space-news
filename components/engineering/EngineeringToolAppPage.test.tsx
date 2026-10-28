@@ -13,7 +13,7 @@ beforeEach(() => {
 
 it("renders a reviewed localized application in preview", async () => {
   const { container } = render(await EngineeringToolAppPage({ locale: "en", slug: "engineering-converter", visibility: "preview" }));
-  expect(container.firstElementChild).toHaveClass("engineering-app-page");
+  expect(container.firstElementChild).toHaveClass("engineering-app-page", "v2-engineering-shell");
   expect(container.querySelector(".engineering-app")).toBeInTheDocument();
   expect(screen.getByRole("heading", { level: 1, name: "Engineering Unit and RF Power Converter" })).toBeInTheDocument();
   expect(screen.getByRole("link", { name: /Back to tool overview/ })).toHaveAttribute("href", "/en/tools/engineering-converter");
@@ -27,10 +27,16 @@ it("renders an application exactly once inside the isolated engineering boundary
     backHref="/tools/rf"
     backLabel="Back to tool overview"
     privacy="Calculated locally."
-    application={<div data-testid="application-sentinel">Application</div>}
+    application={<div data-testid="application-sentinel"><span>Application</span><button type="button">Run</button></div>}
   />);
 
-  expect(container.firstElementChild).toHaveClass("engineering-app-page");
+  expect(container.firstElementChild).toHaveClass("engineering-app-page", "v2-engineering-shell");
+  expect(container.querySelector(".v2-engineering-shell__chrome")).toBeInTheDocument();
+  const application = container.querySelector(".engineering-app");
+  const sentinel = container.querySelector("[data-testid='application-sentinel']");
+  expect(application?.children).toHaveLength(1);
+  expect(application?.firstElementChild).toBe(sentinel);
+  expect(sentinel?.innerHTML).toBe("<span>Application</span><button type=\"button\">Run</button>");
   expect(container.querySelectorAll(".engineering-app [data-testid='application-sentinel']")).toHaveLength(1);
   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   expect(screen.getByText("Calculated locally.")).toBeInTheDocument();

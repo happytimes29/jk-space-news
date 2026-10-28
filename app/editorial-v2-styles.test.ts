@@ -57,4 +57,17 @@ describe("editorial v2 design boundary", () => {
       "--color-text": expect.any(String),
     });
   });
+
+  it("limits engineering application overrides to color custom properties", () => {
+    const unsafe: string[] = [];
+    stylesheet().walkRules((rule) => {
+      if (!rule.selectors.some((selector) => selector.includes(".engineering-app"))) return;
+      rule.walkDecls((declaration) => {
+        if (!/^--color-(?:bg|card|card-hover|text|muted|border|input-bg|code-bg|accent)$/.test(declaration.prop)) {
+          unsafe.push(`${rule.selector}: ${declaration.prop}`);
+        }
+      });
+    });
+    expect(unsafe).toEqual([]);
+  });
 });
