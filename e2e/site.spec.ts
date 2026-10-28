@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { loadNotes } from "../lib/notes";
+import { loadProjects } from "../lib/projects";
 
 test("retired entry points redirect permanently and article URLs return noindex 404", async ({ page, request }) => {
   for (const [source, destination] of [["/news", "/notes"], ["/trending", "/notes"], ["/profile", "/about"], ["/interview", "/notes"], ["/interview/previous-guest", "/notes"]]) {
@@ -22,7 +23,7 @@ test("homepage provides the primary site landmarks", async ({ page }) => {
   await expect(page.getByRole("banner")).toBeVisible();
   await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("contentinfo")).toBeVisible();
-  await expect(page.getByRole("region", { name: "把工程上的麻煩事，做成好用的工具。" }).getByText(/這裡是我的個人工程實驗室/)).toBeVisible();
+  await expect(page.getByRole("region", { name: "把訊號，變成答案。" }).getByText(/這裡是我的個人工程實驗室/)).toBeVisible();
 });
 
 test("three locale roots and About pages keep stable URLs and document languages", async ({ page }) => {
@@ -175,8 +176,7 @@ test("homepage introduces real work and reaches collaboration at every supported
   for (const width of [320, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    await expect(page.locator("html")).toHaveClass(/dark/);
-    const hero = page.getByRole("region", { name: "把工程上的麻煩事，做成好用的工具。" });
+    const hero = page.getByRole("region", { name: "把訊號，變成答案。" });
     for (const [label, href] of [["查看專案", "/projects"], ["使用工具", "/tools"]]) {
       const cta = hero.getByRole("link", { name: label, exact: true });
       await expect(cta).toHaveAttribute("href", href);
@@ -188,6 +188,7 @@ test("homepage introduces real work and reaches collaboration at every supported
       await expect(projects.locator(`a[href="/projects/${slug}"]`)).toBeVisible();
     }
     await expect(page.getByRole("region", { name: "精選工具" }).getByRole("link", { name: "立即使用" })).toHaveAttribute("href", "/tools/pcb-test-point/app");
+    await expect(page.getByRole("region")).toHaveCount(8);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.getByRole("link", { name: "聯絡我", exact: true }).click();
     await expect(page).toHaveURL("/contact");
@@ -262,7 +263,7 @@ test("project case studies lead from the list to contextual detail pages", async
     await page.getByRole("link", { name: project.title, exact: true }).click();
     await expect(page).toHaveURL(`/projects/${project.slug}`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(project.title);
-    const header = page.getByRole("main").locator("article > header");
+    const header = page.getByRole("main").locator(".v2-detail-hero");
     await expect(header).toContainText(project.role);
     await expect(header).toContainText(project.status);
     await expect(header).toContainText("2026");
@@ -282,7 +283,7 @@ test("project filters combine and empty results can be reset", async ({ page }) 
   await expect(page.getByText("沒有符合篩選條件的專案")).toBeVisible();
   await expect(page.getByRole("article")).toHaveCount(0);
   await page.getByRole("link", { name: "清除篩選" }).click();
-  await expect(page.getByRole("article")).toHaveCount(2);
+  await expect(page.getByRole("article")).toHaveCount(loadProjects().length);
 });
 
 test("Notes categories show published content or its honest empty state without legacy news paths", async ({ page }) => {
