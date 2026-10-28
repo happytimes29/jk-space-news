@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ThemeProvider } from "next-themes";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CommandPalette } from "@/components/CommandPalette";
@@ -51,23 +50,25 @@ export async function SiteShell({ locale, children }: { locale: Locale; children
 
   return (
     <>
-      <div id="reading-progress" />
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-        <Header locale={locale} dictionary={dictionary} config={config} availability={availability} />
-        <CommandPalette items={searchItems} locale={locale} dictionary={dictionary} />
-        <main className="flex-1">{children}</main>
-        <Footer locale={locale} dictionary={dictionary} config={config} />
-        <LocaleSuggestion
-          locale={locale}
-          availability={availability}
-          copy={{
-            title: dictionary.language.suggestionTitle,
-            description: dictionary.language.suggestionDescription,
-            switchAction: dictionary.language.switchAction,
-            dismissAction: dictionary.language.dismissAction,
-          }}
-        />
-      </ThemeProvider>
+      <div className="site-v2">
+        <div className="site-v2-content">
+          <div id="reading-progress" />
+          <Header locale={locale} dictionary={dictionary} config={config} availability={availability} />
+          <CommandPalette items={searchItems} locale={locale} dictionary={dictionary} />
+          <main className="flex-1">{children}</main>
+          <Footer locale={locale} dictionary={dictionary} config={config} />
+          <LocaleSuggestion
+            locale={locale}
+            availability={availability}
+            copy={{
+              title: dictionary.language.suggestionTitle,
+              description: dictionary.language.suggestionDescription,
+              switchAction: dictionary.language.switchAction,
+              dismissAction: dictionary.language.dismissAction,
+            }}
+          />
+        </div>
+      </div>
       <Analytics />
     </>
   );
