@@ -8,15 +8,15 @@ import { NotFoundPage } from "./NotFoundPage";
 import type { Locale } from "@/lib/i18n/locales";
 
 describe.each([
-  ["zh-TW", "把問題，做成工具。", "/projects"],
-  ["zh-CN", "把问题，做成工具。", "/zh-cn/projects"],
-  ["en", "Turn problems into tools.", "/en/projects"],
+  ["zh-TW", "把訊號，變成答案。", "/projects"],
+  ["zh-CN", "把信号，变成答案。", "/zh-cn/projects"],
+  ["en", "Turn signals into answers.", "/en/projects"],
 ] as const)("%s core pages", (locale, tagline, projectsHref) => {
   it("renders a complete localized home with locale-preserving next steps", async () => {
     const { container } = render(await HomePage({ locale }));
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(tagline);
     expect(screen.getByRole("link", { name: locale === "en" ? "View projects" : locale === "zh-CN" ? "查看项目" : "查看專案" })).toHaveAttribute("href", projectsHref);
-    expect(screen.getAllByRole("region")).toHaveLength(7);
+    expect(screen.getAllByRole("region")).toHaveLength(8);
     for (const section of screen.getAllByRole("region")) {
       expect(within(section).getAllByRole("heading")[0]).not.toBeEmptyDOMElement();
     }

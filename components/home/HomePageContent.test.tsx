@@ -9,15 +9,14 @@ describe("personal engineering lab homepage", () => {
   // Catches retaining the news landing page or losing the visitor's next steps.
   it("introduces the engineering lab and links to projects and tools", async () => {
     const { container } = render(await HomePage());
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("把問題，做成工具。");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("把訊號，變成答案。");
     expect(screen.getByText("硬體研發 × AI 自動化 × 獨立產品實驗")).toBeVisible();
     expect(screen.getByRole("link", { name: "查看專案" })).toHaveAttribute("href", "/projects");
     expect(screen.getByRole("link", { name: "使用工具" })).toHaveAttribute("href", "/tools");
     expect(container).not.toHaveTextContent(/最新情報|查看全部趨勢|JK Space News/);
-    const hero = screen.getByRole("region", { name: "把問題，做成工具。" });
-    expect(within(hero).getByRole("img", { name: /PCB 測試點自動比對工具/ })).toHaveAttribute("src", expect.stringContaining("pcb-tool-1.png"));
-    expect(hero.querySelector('img[alt=""]')).toHaveAttribute("src", expect.stringContaining("pcb-tool-2.png"));
-    expect(within(hero).queryByRole("img", { name: "Engineering signal study" })).not.toBeInTheDocument();
+    const hero = screen.getByRole("region", { name: "把訊號，變成答案。" });
+    expect(hero.querySelector("[data-signal-field-host]")).toBeInTheDocument();
+    expect(hero.querySelector("img")).toBeNull();
   });
 
   // Catches demoting the usable tools behind portfolio browsing in the primary hero journey.
@@ -30,10 +29,10 @@ describe("personal engineering lab homepage", () => {
   });
 
   // Catches hiding real work or Now when Notes is empty, and missing collaboration routing.
-  it("keeps seven ordered sections with real projects, an available tool and a dated Now", async () => {
+  it("keeps eight ordered sections with real projects, an available tool and a dated Now", async () => {
     render(await HomePage());
     expect(screen.getAllByRole("region").map((region) => within(region).getAllByRole("heading")[0].textContent)).toEqual([
-      "把問題，做成工具。", "精選工具", "專業焦點", "精選專案", "最新筆記與觀點", "最近在做什麼", "一起解決下一個工程問題",
+      "把訊號，變成答案。", "工程工具、專案與現場筆記", "專業焦點", "精選工具", "精選專案", "最新筆記與觀點", "最近在做什麼", "一起解決下一個工程問題",
     ]);
     const focus = screen.getByRole("region", { name: "專業焦點" });
     for (const label of ["硬體與高頻研發", "AI 與工作流程自動化", "工程工具與獨立產品"]) {
@@ -82,5 +81,7 @@ describe("personal engineering lab homepage", () => {
     expect(within(notes).queryByText("筆記正在整理中。")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "聯絡我" })).toBeVisible();
     expect(screen.queryByRole("img", { name: "Engineering signal study" })).not.toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "最近在做什麼" })).toBeVisible();
+    expect(screen.getByRole("region", { name: "一起解決下一個工程問題" })).toBeVisible();
   });
 });

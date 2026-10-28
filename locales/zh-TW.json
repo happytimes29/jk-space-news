@@ -80,6 +80,9 @@
     "clearFilters": "清除篩選"
   },
   "home": {
+    "heroTitle": "把訊號，變成答案。",
+    "orientationTitle": "工程工具、專案與現場筆記",
+    "signalFieldLabel": "訊號從雜訊收斂為 JK 電路印記",
     "eyebrow": "硬體研發 × AI 自動化 × 獨立產品實驗",
     "intro": "這裡是我的個人工程實驗室，記錄實際做過的專案、能直接使用的工具，以及解題過程中的選擇與驗證。",
     "focusTitle": "專業焦點",

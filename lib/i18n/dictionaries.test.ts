@@ -8,6 +8,9 @@ describe("localized dictionaries", () => {
     expect(traditional.site.title).toBe("JK Space — 個人工程實驗室");
     expect(getDictionary("zh-CN").navigation.projects).toBe("项目");
     expect(getDictionary("en").site.title).toBe("JK Space — Personal Engineering Lab");
+    expect(traditional.home.heroTitle).toBe("把訊號，變成答案。");
+    expect(getDictionary("zh-CN").home.heroTitle).toBe("把信号，变成答案。");
+    expect(getDictionary("en").home.heroTitle).toBe("Turn signals into answers.");
 
     expect(() => validateDictionary(traditional, getDictionary("zh-CN"), "zh-CN")).not.toThrow();
     expect(() => validateDictionary(traditional, getDictionary("en"), "en")).not.toThrow();

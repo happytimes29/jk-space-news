@@ -80,6 +80,9 @@
     "clearFilters": "Clear filters"
   },
   "home": {
+    "heroTitle": "Turn signals into answers.",
+    "orientationTitle": "Tools, projects, and field notes",
+    "signalFieldLabel": "Signal paths converging into the JK circuit mark",
     "eyebrow": "Hardware R&D × AI Automation × Independent Product Experiments",
     "intro": "This is my personal engineering lab: a record of projects I have built, tools you can use, and the choices and validation behind each solution.",
     "focusTitle": "Current focus",

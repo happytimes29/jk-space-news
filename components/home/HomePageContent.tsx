@@ -1,9 +1,8 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { selectHomeContent } from "@/lib/home";
 import type { NowItem } from "@/lib/now";
-import { getSiteConfig } from "@/lib/site-config";
 import type { SiteDictionary } from "@/lib/i18n/dictionaries";
 import { localePath, type Locale } from "@/lib/i18n/locales";
 import { noteTypeLabels } from "@/app/notes/notes-view";
@@ -13,7 +12,6 @@ import { StatusBadge } from "@/components/content/StatusBadge";
 type Props = ReturnType<typeof selectHomeContent> & { now: NowItem; locale: Locale; dictionary: SiteDictionary };
 
 export function HomePageContent({ featuredProjects, featuredTool, recentNotes, now, locale, dictionary }: Props) {
-  const config = getSiteConfig(locale);
   const localizedNoteTypes = noteTypeLabels(locale);
   const areas = [
     { number: "01", title: dictionary.home.focusHardwareTitle, summary: dictionary.home.focusHardwareText, href: "/projects?area=hardware" },
@@ -22,190 +20,52 @@ export function HomePageContent({ featuredProjects, featuredTool, recentNotes, n
   ];
 
   return (
-    <div className="editorial-home">
-      <div className="editorial-shell">
-        <section aria-labelledby="hero-title" className="editorial-hero">
-          <div className="editorial-kicker">
-            <span>JK SPACE / ENGINEERING FIELD NOTES</span>
-            <span>TAIPEI · {now.updatedAt.slice(0, 4)}</span>
+    <div className="v2-editorial-page v2-home">
+      <div className="v2-home__shell">
+        <section aria-labelledby="v2-home-hero-title" className="v2-home-hero">
+          <div className="v2-home-hero__meta"><span>JK SPACE / ENGINEERING FIELD NOTES</span><span>TAIPEI · {now.updatedAt.slice(0, 4)}</span></div>
+          <div className="v2-home-hero__layout">
+            <div className="v2-home-hero__copy"><p className="v2-home-index">ISSUE 01 — INDEPENDENT ENGINEERING</p><h1 id="v2-home-hero-title">{dictionary.home.heroTitle}</h1><p className="v2-home-hero__eyebrow">{dictionary.home.eyebrow}</p></div>
+            <div className="v2-home-hero__aside"><p>{dictionary.home.intro}</p><div className="v2-home-actions"><Link href={localePath(locale, "/tools")}>{dictionary.common.useTools}<ArrowRight aria-hidden="true" size={16} /></Link><Link href={localePath(locale, "/projects")}>{dictionary.common.viewProjects}<ArrowUpRight aria-hidden="true" size={16} /></Link></div></div>
           </div>
-          <div className="editorial-hero__grid">
-            <div className="editorial-hero__copy">
-              <p className="editorial-index">ISSUE 01 — INDEPENDENT ENGINEERING</p>
-              <h1 id="hero-title">{config.tagline}</h1>
-              <p className="editorial-eyebrow">{dictionary.home.eyebrow}</p>
-            </div>
-            <div className="editorial-hero__aside">
-              <p>{dictionary.home.intro}</p>
-              <div className="editorial-actions">
-                <Link href={localePath(locale, "/tools")}>
-                  {dictionary.common.useTools}<ArrowRight aria-hidden="true" size={17} />
-                </Link>
-                <Link href={localePath(locale, "/projects")}>
-                  {dictionary.common.viewProjects}<ArrowUpRight aria-hidden="true" size={17} />
-                </Link>
-              </div>
-            </div>
-          </div>
-          {featuredTool?.coverImage ? (
-            <figure className="editorial-hero__feature">
-              <div className="editorial-hero__image">
-                <Image
-                  src={featuredTool.coverImage}
-                  alt={`${featuredTool.title}${dictionary.home.toolImageAltSuffix}`}
-                  width={1191}
-                  height={730}
-                  priority
-                  sizes="(max-width: 899px) 100vw, 88vw"
-                  className="editorial-hero__image-primary"
-                />
-                <Image
-                  src="/images/pcb-tool-2.png"
-                  alt=""
-                  width={1191}
-                  height={844}
-                  sizes="(max-width: 640px) 42vw, 28vw"
-                  className="editorial-hero__image-detail"
-                />
-                <span aria-hidden="true">01</span>
-              </div>
-              <figcaption>
-                <span>SELECTED WORK / DIGITAL TOOL</span>
-                <strong>{featuredTool.title}</strong>
-                <span>{dictionary.home.toolCaption}</span>
-              </figcaption>
-            </figure>
-          ) : (
-            <div className="editorial-hero__feature editorial-hero__feature--type" aria-hidden="true">
-              <span>TOOLS</span><span>PROJECTS</span><span>NOTES</span>
-            </div>
-          )}
+          <div className="v2-home-hero__signal-host" data-signal-field-host aria-hidden="true"><span>Γ</span><span>50 Ω</span><span>JK</span><span>1.000 GHz</span></div>
         </section>
 
-        <div className="editorial-sections">
-          <section aria-labelledby="tool-title" className="editorial-tool">
-            <div className="editorial-section-head">
-              <span>01 / SELECTED WORK</span>
-              <h2 id="tool-title">{dictionary.home.featuredToolTitle}</h2>
-            </div>
-            {featuredTool ? (
-              <div className="editorial-tool__grid">
-                <div className="editorial-tool__copy">
-                  <p className="editorial-label">BROWSER TOOL · LOCAL FIRST</p>
-                  <h3>{featuredTool.title}</h3>
-                  <StatusBadge status={featuredTool.status} locale={locale} />
-                  <p>{featuredTool.summary}</p>
-                  <dl>
-                    <div><dt>{dictionary.home.toolAudienceLabel}</dt><dd>{dictionary.home.toolAudience}</dd></div>
-                    <div><dt>PRIVACY</dt><dd>{featuredTool.privacy}</dd></div>
-                  </dl>
-                  <div className="editorial-inline-links">
-                    {featuredTool.appUrl && (
-                      <Link href={featuredTool.localizedApp ? localePath(locale, featuredTool.appUrl) : featuredTool.appUrl}>
-                        {dictionary.home.toolUseNow}<ArrowRight aria-hidden="true" size={16} />
-                      </Link>
-                    )}
-                    <Link href={localePath(locale, `/tools/${featuredTool.slug}`)}>
-                      {dictionary.home.toolDetails}<ArrowUpRight aria-hidden="true" size={16} />
-                    </Link>
-                  </div>
-                </div>
-                {featuredTool.coverImage && (
-                  <figure className="editorial-tool__visual">
-                    <Image src={featuredTool.coverImage} alt={`${featuredTool.title}${dictionary.home.toolImageAltSuffix}`} width={1191} height={730} sizes="(max-width: 899px) 100vw, 62vw" />
-                    <figcaption><span>FIG. 01</span>{dictionary.home.toolCaption}</figcaption>
-                  </figure>
-                )}
-              </div>
-            ) : <p>{dictionary.home.toolEmpty}</p>}
-          </section>
+        <section aria-labelledby="v2-home-orientation-title" className="v2-home-orientation">
+          <div className="v2-home-section-mark"><span>01</span><span>IN 30 SECONDS</span></div>
+          <div className="v2-home-orientation__body"><h2 id="v2-home-orientation-title">{dictionary.home.orientationTitle}</h2><p>{dictionary.home.intro}</p><nav aria-label={dictionary.home.orientationTitle}><Link href={localePath(locale, "/tools")}>Tools <ArrowUpRight aria-hidden="true" size={15} /></Link><Link href={localePath(locale, "/projects")}>Projects <ArrowUpRight aria-hidden="true" size={15} /></Link><Link href={localePath(locale, "/notes")}>Notes <ArrowUpRight aria-hidden="true" size={15} /></Link></nav></div>
+        </section>
 
-          <section aria-labelledby="focus-title" className="editorial-focus">
-            <div className="editorial-section-head">
-              <span>02 / PRACTICE</span>
-              <h2 id="focus-title">{dictionary.home.focusTitle}</h2>
-            </div>
-            <div className="editorial-focus__grid">
-              {areas.map((area) => (
-                <Link key={area.href} href={localePath(locale, area.href)} className="editorial-focus__item">
-                  <span>{area.number}</span>
-                  <h3>{area.title}</h3>
-                  <p>{area.summary}</p>
-                  <ArrowUpRight aria-hidden="true" size={18} />
-                </Link>
-              ))}
-            </div>
-          </section>
+        <section aria-labelledby="v2-home-focus-title" className="v2-home-practice">
+          <div className="v2-home-section-mark"><span>02</span><span>PRACTICE</span></div><h2 id="v2-home-focus-title">{dictionary.home.focusTitle}</h2>
+          <div className="v2-home-practice__list">{areas.map((area) => <Link key={area.href} href={localePath(locale, area.href)} className="v2-home-practice__item"><span>{area.number}</span><h3>{area.title}</h3><p>{area.summary}</p><ArrowUpRight aria-hidden="true" size={17} /></Link>)}</div>
+        </section>
 
-          <section aria-labelledby="projects-title" className="editorial-projects">
-            <div className="editorial-section-head">
-              <span>03 / PROJECT INDEX</span>
-              <h2 id="projects-title">{dictionary.home.featuredProjectsTitle}</h2>
-              <Link href={localePath(locale, "/projects")}>{dictionary.common.allProjects}<ArrowUpRight aria-hidden="true" size={16} /></Link>
-            </div>
-            <div className="editorial-projects__list">
-              {featuredProjects.map((project, index) => (
-                <article key={project.slug} aria-label={project.title} className="editorial-project">
-                  <span className="editorial-project__number">{String(index + 1).padStart(2, "0")}</span>
-                  <div>
-                    <h3><Link href={localePath(locale, `/projects/${project.slug}`)}>{project.title}</Link></h3>
-                    <p>{project.summary}</p>
-                  </div>
-                  <div className="editorial-project__meta">
-                    <StatusBadge status={project.status} locale={locale} />
-                    <ContentMeta locale={locale} role={project.role} updatedAt={project.updatedAt} />
-                    {project.outcome && <p><span>{dictionary.common.outcome}：</span>{project.outcome}</p>}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
+        <section aria-labelledby="v2-home-tool-title" className="v2-home-tool">
+          <div className="v2-home-section-mark"><span>03</span><span>TOOLS / SELECTED WORK</span></div><h2 id="v2-home-tool-title">{dictionary.home.featuredToolTitle}</h2>
+          {featuredTool ? <div className="v2-home-tool__layout">
+            <div className="v2-home-tool__copy"><p className="v2-home-label">BROWSER TOOL · LOCAL FIRST</p><h3>{featuredTool.title}</h3><StatusBadge status={featuredTool.status} locale={locale} /><p>{featuredTool.summary}</p><dl><div><dt>{dictionary.home.toolAudienceLabel}</dt><dd>{dictionary.home.toolAudience}</dd></div><div><dt>PRIVACY</dt><dd>{featuredTool.privacy}</dd></div></dl><div className="v2-home-actions">{featuredTool.appUrl && <Link href={featuredTool.localizedApp ? localePath(locale, featuredTool.appUrl) : featuredTool.appUrl}>{dictionary.home.toolUseNow}<ArrowRight aria-hidden="true" size={16} /></Link>}<Link href={localePath(locale, `/tools/${featuredTool.slug}`)}>{dictionary.home.toolDetails}<ArrowUpRight aria-hidden="true" size={16} /></Link></div></div>
+            {featuredTool.coverImage && <figure className="v2-home-tool__visual"><Image src={featuredTool.coverImage} alt={`${featuredTool.title}${dictionary.home.toolImageAltSuffix}`} width={1191} height={730} sizes="(max-width: 899px) 100vw, 58vw" /><figcaption><span>FIG. 01</span>{dictionary.home.toolCaption}</figcaption></figure>}
+          </div> : <p className="v2-home-empty">{dictionary.home.toolEmpty}</p>}
+        </section>
 
-          <div className="editorial-reading-grid">
-            <section aria-labelledby="notes-title" className="editorial-notes">
-              <div className="editorial-section-head">
-                <span>04 / FIELD NOTES</span>
-                <h2 id="notes-title">{dictionary.home.recentNotesTitle}</h2>
-                <Link href={localePath(locale, "/notes")}>{dictionary.common.allNotes}<ArrowUpRight aria-hidden="true" size={16} /></Link>
-              </div>
-              {recentNotes.length === 0 ? <p>{dictionary.home.notesEmpty}</p> : (
-                <div className="editorial-notes__list">
-                  {recentNotes.map((note, index) => (
-                    <article key={note.slug} aria-label={note.title}>
-                      <span className="editorial-note-number">N.{String(index + 1).padStart(2, "0")}</span>
-                      <div className="editorial-note-meta">
-                        <span>{localizedNoteTypes[note.type]}</span>
-                        <time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time>
-                        <span>{note.readingTime} {dictionary.common.minutes}</span>
-                      </div>
-                      <h3><Link href={localePath(locale, `/notes/${encodeURIComponent(note.slug)}`)}>{note.title}</Link></h3>
-                      <p>{note.summary}</p>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
-            <section aria-labelledby="now-title" className="editorial-now">
-              <span>05 / CURRENTLY</span>
-              <h2 id="now-title">{dictionary.home.nowTitle}</h2>
-              <p className="editorial-now__date">{dictionary.home.nowUpdatedLabel} <time dateTime={now.updatedAt}>{now.updatedAt.slice(0, 10)}</time></p>
-              <p className="editorial-now__copy">{now.content.trim()}</p>
-            </section>
-          </div>
+        <section aria-labelledby="v2-home-projects-title" className="v2-home-projects">
+          <div className="v2-home-section-mark"><span>04</span><span>PROJECT INDEX</span></div><div className="v2-home-section-title"><h2 id="v2-home-projects-title">{dictionary.home.featuredProjectsTitle}</h2><Link href={localePath(locale, "/projects")}>{dictionary.common.allProjects}<ArrowUpRight aria-hidden="true" size={16} /></Link></div>
+          <div className="v2-home-projects__list">{featuredProjects.map((project, index) => <article key={project.slug} aria-label={project.title} className="v2-home-project"><span className="v2-home-project__number">{String(index + 1).padStart(2, "0")}</span><div><h3><Link href={localePath(locale, `/projects/${project.slug}`)}>{project.title}</Link></h3><p>{project.summary}</p></div><div className="v2-home-project__meta"><StatusBadge status={project.status} locale={locale} /><ContentMeta locale={locale} role={project.role} updatedAt={project.updatedAt} />{project.outcome && <p><span>{dictionary.common.outcome}：</span>{project.outcome}</p>}</div></article>)}</div>
+        </section>
 
-          <section aria-labelledby="collaboration-title" className="editorial-contact">
-            <span>06 / OPEN BRIEF</span>
-            <div className="editorial-contact__grid">
-              <h2 id="collaboration-title">{dictionary.home.collaborationTitle}</h2>
-              <div>
-                <p>{dictionary.home.collaborationText}</p>
-                <Link href={localePath(locale, "/contact")}>
-                  {dictionary.common.contactMe}<ArrowRight aria-hidden="true" size={18} />
-                </Link>
-              </div>
-            </div>
-          </section>
-        </div>
+        <section aria-labelledby="v2-home-notes-title" className="v2-home-notes">
+          <div className="v2-home-section-mark"><span>05</span><span>FIELD NOTES</span></div><div className="v2-home-section-title"><h2 id="v2-home-notes-title">{dictionary.home.recentNotesTitle}</h2><Link href={localePath(locale, "/notes")}>{dictionary.common.allNotes}<ArrowUpRight aria-hidden="true" size={16} /></Link></div>
+          {recentNotes.length === 0 ? <p className="v2-home-empty">{dictionary.home.notesEmpty}</p> : <div className="v2-home-notes__list">{recentNotes.map((note, index) => <article key={note.slug} aria-label={note.title}><span className="v2-home-note__number">N.{String(index + 1).padStart(2, "0")}</span><p className="v2-home-note__meta"><span>{localizedNoteTypes[note.type]}</span><time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time><span>{note.readingTime} {dictionary.common.minutes}</span></p><h3><Link href={localePath(locale, `/notes/${encodeURIComponent(note.slug)}`)}>{note.title}</Link></h3><p>{note.summary}</p></article>)}</div>}
+        </section>
+
+        <section aria-labelledby="v2-home-now-title" className="v2-home-now">
+          <div className="v2-home-section-mark"><span>06</span><span>CURRENTLY</span></div><div className="v2-home-now__layout"><h2 id="v2-home-now-title">{dictionary.home.nowTitle}</h2><div><p className="v2-home-now__date">{dictionary.home.nowUpdatedLabel} <time dateTime={now.updatedAt}>{now.updatedAt.slice(0, 10)}</time></p><p>{now.content.trim()}</p></div></div>
+        </section>
+
+        <section aria-labelledby="v2-home-contact-title" className="v2-home-contact">
+          <div className="v2-home-section-mark"><span>07</span><span>OPEN BRIEF</span></div><div className="v2-home-contact__layout"><h2 id="v2-home-contact-title">{dictionary.home.collaborationTitle}</h2><div><p>{dictionary.home.collaborationText}</p><Link href={localePath(locale, "/contact")}>{dictionary.common.contactMe}<ArrowRight aria-hidden="true" size={18} /></Link></div></div>
+        </section>
       </div>
     </div>
   );

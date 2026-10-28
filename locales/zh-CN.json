@@ -80,6 +80,9 @@
     "clearFilters": "清除筛选"
   },
   "home": {
+    "heroTitle": "把信号，变成答案。",
+    "orientationTitle": "工程工具、项目与现场笔记",
+    "signalFieldLabel": "信号从噪声收敛为 JK 电路印记",
     "eyebrow": "硬件研发 × AI 自动化 × 独立产品实验",
     "intro": "这里是我的个人工程实验室，记录实际完成的项目、可直接使用的工具，以及解决问题过程中的选择与验证。",
     "focusTitle": "当前专注方向",
