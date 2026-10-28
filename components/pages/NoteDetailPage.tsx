@@ -25,18 +25,18 @@ export async function NoteDetailPage({ locale, slug, visibility }: { locale: Loc
   const config = getSiteConfig(locale);
   const commentary = note.type === "commentary" ? parseCommentaryContent(note.content, note.slug) : undefined;
   return (
-    <article className="editorial-page editorial-detail editorial-note-detail">
-      <div className="editorial-page__shell editorial-reading-shell">
+    <article className="v2-editorial-page v2-detail v2-note-detail">
+      <div className="v2-page-shell v2-detail-shell v2-reading-shell">
         <JsonLd data={articleJsonLd(note, locale, config)} />
         <JsonLd data={breadcrumbJsonLd(locale, [{ name: dictionary.collections.notesTitle, pathname: "/notes" }, { name: note.title, pathname: `/notes/${note.slug}` }], config)} />
-        <nav aria-label={dictionary.content.breadcrumbsLabel} className="editorial-breadcrumb"><Link href={localePath(locale, "/notes")}>{dictionary.content.backNotes}</Link></nav>
-        <header className="editorial-note-hero"><p className="editorial-page__kicker">{noteTypeLabels(locale)[note.type]}</p><h1>{note.title}</h1><p className="editorial-detail-hero__summary">{note.summary}</p>
-          <dl className="editorial-note-meta"><div><dt>{dictionary.content.author}</dt><dd>{note.author}</dd></div><div><dt>{dictionary.content.publishedDate}</dt><dd><time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.common.lastUpdated}</dt><dd><time dateTime={note.updatedAt}>{note.updatedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.content.readingTime}</dt><dd>{note.readingTime} {dictionary.common.minutes}</dd></div></dl>
-          {note.tags.length > 0 && <ul aria-label={dictionary.collections.noteTagLabel} className="editorial-tag-list">{note.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>}
+        <nav aria-label={dictionary.content.breadcrumbsLabel} className="v2-breadcrumb"><Link href={localePath(locale, "/notes")}>{dictionary.content.backNotes}</Link></nav>
+        <header className="v2-note-hero"><p className="v2-page-kicker">{noteTypeLabels(locale)[note.type]}</p><h1>{note.title}</h1><p className="v2-detail-hero__summary">{note.summary}</p>
+          <dl className="v2-note-meta"><div><dt>{dictionary.content.author}</dt><dd>{note.author}</dd></div><div><dt>{dictionary.content.publishedDate}</dt><dd><time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.common.lastUpdated}</dt><dd><time dateTime={note.updatedAt}>{note.updatedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.content.readingTime}</dt><dd>{note.readingTime} {dictionary.common.minutes}</dd></div></dl>
+          {note.tags.length > 0 && <ul aria-label={dictionary.collections.noteTagLabel} className="v2-tag-list">{note.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>}
         </header>
         {note.type === "commentary" && <SourceDisclosure note={note} locale={locale} />}
-        <div className="editorial-prose prose max-w-none break-words">{commentary ? <><section aria-labelledby="event-summary"><h2 id="event-summary">{dictionary.content.eventSummary}</h2><MDXRenderer source={commentary.summary} /></section><section aria-labelledby="my-opinion"><h2 id="my-opinion">{dictionary.content.myOpinion}</h2><MDXRenderer source={commentary.opinion} /></section></> : <MDXRenderer source={note.content} />}</div>
-        {!!(note.relatedProjects?.length || note.relatedTools?.length) && <aside aria-label={dictionary.content.relatedTitle} className="editorial-related"><h2>{dictionary.content.relatedTitle}</h2><ul>
+        <div className="v2-prose prose max-w-none break-words">{commentary ? <><section aria-labelledby="event-summary"><h2 id="event-summary">{dictionary.content.eventSummary}</h2><MDXRenderer source={commentary.summary} /></section><section aria-labelledby="my-opinion"><h2 id="my-opinion">{dictionary.content.myOpinion}</h2><MDXRenderer source={commentary.opinion} /></section></> : <MDXRenderer source={note.content} />}</div>
+        {!!(note.relatedProjects?.length || note.relatedTools?.length) && <aside aria-label={dictionary.content.relatedTitle} className="v2-related"><h2>{dictionary.content.relatedTitle}</h2><ul>
           {note.relatedProjects?.map((relatedSlug) => { const href = relatedTarget("projects", relatedSlug, locale, visibility); const fallback = locale !== "zh-TW" && !href.startsWith(localePath(locale, "/")); return <li key={`project-${relatedSlug}`}><Link href={href}>{dictionary.content.relatedProject}: {relatedSlug}{fallback ? ` (${dictionary.content.traditionalOriginal})` : ""}</Link></li>; })}
           {note.relatedTools?.map((relatedSlug) => { const href = relatedTarget("tools", relatedSlug, locale, visibility); const fallback = locale !== "zh-TW" && !href.startsWith(localePath(locale, "/")); return <li key={`tool-${relatedSlug}`}><Link href={href}>{dictionary.content.relatedTool}: {relatedSlug}{fallback ? ` (${dictionary.content.traditionalOriginal})` : ""}</Link></li>; })}
         </ul></aside>}

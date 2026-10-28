@@ -39,14 +39,16 @@ describe("localized detail pages", () => {
     writeContent(projects, "test-project.md", projectData);
     writeTranslation(projects, "en", "test-project.md", projectTranslation("test-project", "published"), "## Result\n\nEnglish engineering body.\n\n![English interface](/images/example.png)");
     const markup = await html(await ProjectDetailPage({ locale: "en", slug: "test-project", visibility: "production" }));
-    expect(markup).toContain('class="editorial-page editorial-detail');
+    expect(markup).toContain('class="v2-editorial-page v2-detail');
+    expect(markup).toContain('class="v2-prose');
     expect(markup.match(/<h1/g)).toHaveLength(1);
     expect(markup).toContain("English project");
     expect(markup).toContain("English engineering body.");
     expect(markup).toContain('alt="English interface"');
     expect(markup).toContain('href="/en/projects"');
     expect(markup).not.toContain("測試專案");
-    expect(markup).not.toContain("editorial-detail__cover");
+    expect(markup).not.toContain("v2-detail__cover");
+    expect(markup.match(/type="application\/ld\+json"/g)).toHaveLength(2);
   });
 
   it("renders an editorial tool detail with its real image, app action, and no absent optional links", async () => {
@@ -65,12 +67,14 @@ describe("localized detail pages", () => {
     }, "## Workflow\n\nTool body.");
 
     const markup = await html(await ToolDetailPage({ locale: "en", slug: "test-tool", visibility: "production" }));
-    expect(markup).toContain('class="editorial-page editorial-detail');
+    expect(markup).toContain('class="v2-editorial-page v2-detail');
+    expect(markup).toContain('class="v2-prose');
     expect(markup.match(/<h1/g)).toHaveLength(1);
     expect(markup).toContain('href="/en/tools"');
     expect(markup).toContain('href="/tools/test-tool/app"');
     expect(markup).toContain('alt="English tool interface"');
-    expect(markup).not.toContain("editorial-detail-links");
+    expect(markup).not.toContain("v2-detail-links");
+    expect(markup.match(/type="application\/ld\+json"/g)).toHaveLength(2);
   });
 
   it.each([
@@ -105,7 +109,7 @@ describe("localized detail pages", () => {
     writeTranslation(notes, "en", "linked-note.md", { ...noteData, slug: "linked-note", title: "Linked note", relatedProjects: ["source-only"], locale: "en", translationOf: "linked-note", translationStatus: "published", translatedAt: "2026-10-19" }, "English note body.");
 
     let markup = await html(await NoteDetailPage({ locale: "en", slug: "linked-note", visibility: "production" }));
-    expect(markup).toContain('class="editorial-page editorial-detail');
+    expect(markup).toContain('class="v2-editorial-page v2-detail');
     expect(markup.match(/<h1/g)).toHaveLength(1);
     expect(markup).toContain('href="/projects/source-only"');
     expect(markup).toContain("Traditional Chinese original");
@@ -114,5 +118,37 @@ describe("localized detail pages", () => {
     markup = await html(await NoteDetailPage({ locale: "en", slug: "linked-note", visibility: "production" }));
     expect(markup).toContain('href="/en/projects/source-only"');
     expect(markup).not.toContain("Traditional Chinese original");
+  });
+
+  it("keeps long titles fluid and renders commentary source disclosure", async () => {
+    const notes = path.join(root, "content/notes");
+    const longTitle = "A long engineering title that must wrap naturally across reading widths without a fixed-height title treatment";
+    writeContent(notes, "commentary.md", {
+      ...noteData,
+      slug: "commentary",
+      type: "commentary",
+      sourceTitle: "Original engineering report",
+      sourceUrl: "https://example.com/report",
+      sourcePublishedAt: "2026-10-01",
+    }, "## 事件摘要\n\nSource facts.\n\n## 我的觀點\n\nPersonal analysis.");
+    writeTranslation(notes, "en", "commentary.md", {
+      ...noteData,
+      slug: "commentary",
+      title: longTitle,
+      type: "commentary",
+      sourceTitle: "Original engineering report",
+      sourceUrl: "https://example.com/report",
+      sourcePublishedAt: "2026-10-01",
+      locale: "en",
+      translationOf: "commentary",
+      translationStatus: "published",
+      translatedAt: "2026-10-19",
+    }, "## 事件摘要\n\nSource facts.\n\n## 我的觀點\n\nPersonal analysis.");
+
+    const markup = await html(await NoteDetailPage({ locale: "en", slug: "commentary", visibility: "production" }));
+    expect(markup).toContain(longTitle);
+    expect(markup).toContain('class="editorial-source-disclosure"');
+    expect(markup).toContain('href="https://example.com/report"');
+    expect(markup).not.toContain("v2-detail-title--fixed");
   });
 });
