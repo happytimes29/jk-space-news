@@ -2,6 +2,12 @@ import { expect, test, type Locator } from "@playwright/test";
 
 const preview = process.env.CONTENT_PREVIEW === "1";
 
+function isAdSenseServiceRequest(url: URL) {
+  return ["googlesyndication.com", "adtrafficquality.google", "doubleclick.net"].some(
+    (domain) => url.hostname === domain || url.hostname.endsWith(`.${domain}`),
+  );
+}
+
 async function expectSvgTextInside(diagram: Locator) {
   const diagramBox = await diagram.boundingBox();
   expect(diagramBox).not.toBeNull();
@@ -77,7 +83,9 @@ test("passive and RF examples calculate locally without value network requests",
     page.on("request", (request) => {
       const url = new URL(request.url());
       const analytics = url.pathname.startsWith("/_vercel/insights/");
-      if (!analytics && ["fetch", "xhr"].includes(request.resourceType())) unexpected.push(request.url());
+      if (!analytics && !isAdSenseServiceRequest(url) && ["fetch", "xhr"].includes(request.resourceType())) {
+        unexpected.push(request.url());
+      }
     });
     await page.getByRole("tab", { name: tab }).click();
     await expect(page.getByRole("region", { name: "計算結果" })).toContainText(expected);
@@ -107,7 +115,7 @@ test("Smith chart edits a network, restores its query, solves matches, and expor
   page.on("request", (request) => {
     const url = new URL(request.url());
     if (url.pathname.startsWith("/_vercel/insights/")) analyticsPayloads.push(request.postData() ?? "");
-    else if (["fetch", "xhr"].includes(request.resourceType())) unexpected.push(request.url());
+    else if (!isAdSenseServiceRequest(url) && ["fetch", "xhr"].includes(request.resourceType())) unexpected.push(request.url());
   });
   await page.addInitScript(() => {
     const exportWindow = window as typeof window & { __smithExportBlobs?: Blob[] };
@@ -202,7 +210,9 @@ test("Transmission Line analyzes and synthesizes all three geometry models", asy
   const unexpected: string[] = [];
   page.on("request", (request) => {
     const url = new URL(request.url());
-    if (!url.pathname.startsWith("/_vercel/insights/") && ["fetch", "xhr"].includes(request.resourceType())) unexpected.push(request.url());
+    if (!url.pathname.startsWith("/_vercel/insights/") && !isAdSenseServiceRequest(url) && ["fetch", "xhr"].includes(request.resourceType())) {
+      unexpected.push(request.url());
+    }
   });
   await page.goto("/tools/transmission-line/app");
   for (const [kind, formula] of [["microstrip", "Hammerstad–Jensen"], ["stripline", "Steer 3.7.1"], ["cpwg", "Qucs 技術指南"]]) {

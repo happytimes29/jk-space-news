@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import TraditionalLayout, { metadata } from "./(zh-tw)/layout";
@@ -7,6 +8,21 @@ import LocalizedLayout from "./[locale]/layout";
 vi.mock("next/navigation", () => ({ usePathname: () => "/", useRouter: () => ({ push: vi.fn() }), notFound: vi.fn(() => { throw new Error("NEXT_NOT_FOUND"); }) }));
 
 describe("RootLayout", () => {
+  it("publishes the AdSense ownership code in every language root", async () => {
+    const traditional = renderToStaticMarkup(await TraditionalLayout({ children: <h1>工程實驗室</h1> }));
+    const english = renderToStaticMarkup(await LocalizedLayout({ children: <h1>Lab</h1>, params: Promise.resolve({ locale: "en" }) }));
+
+    for (const html of [traditional, english]) {
+      expect(html).toContain("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8234074314115236");
+      expect(html).toContain('crossorigin="anonymous"');
+    }
+  });
+
+  it("authorizes only the configured AdSense publisher in ads.txt", () => {
+    const adsTxt = readFileSync(new URL("../public/ads.txt", import.meta.url), "utf8");
+    expect(adsTxt).toBe("google.com, pub-8234074314115236, DIRECT, f08c47fec0942fa0\n");
+  });
+
   it("renders the shell with the Taiwan Traditional Chinese language", async () => {
     const html = renderToStaticMarkup(await TraditionalLayout({ children: <h1>工程實驗室</h1> }));
     expect(html).toContain('<html lang="zh-Hant-TW"');

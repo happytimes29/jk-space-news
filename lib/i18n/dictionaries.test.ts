@@ -15,6 +15,9 @@ describe("localized dictionaries", () => {
     expect(() => validateDictionary(traditional, getDictionary("zh-CN"), "zh-CN")).not.toThrow();
     expect(() => validateDictionary(traditional, getDictionary("en"), "en")).not.toThrow();
     for (const locale of ["zh-TW", "zh-CN", "en"] as const) {
+      const privacy = getDictionary(locale).privacy;
+      expect(privacy.preferenceText).toContain("Google AdSense");
+      expect(privacy.updatedDate).toBe("2026-11-12");
       const tools = getDictionary(locale).engineeringTools;
       expect(Object.keys(tools)).toEqual(Object.keys(traditional.engineeringTools));
       expect(JSON.stringify(tools)).not.toContain('""');

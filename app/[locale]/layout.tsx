@@ -1,6 +1,7 @@
 import "../globals.css";
 import type { Metadata } from "next";
 import { SiteShell, buildRootMetadata } from "@/components/SiteShell";
+import { AdSenseScript } from "@/components/AdSenseScript";
 import { localeConfig, localeFromSegment } from "@/lib/i18n/locales";
 
 interface Props {
@@ -26,6 +27,7 @@ export default async function LocalizedLayout({ children, params }: Props) {
   const shell = await SiteShell({ locale, children });
   return (
     <html lang={localeConfig(locale).htmlLang} suppressHydrationWarning>
+      <head><AdSenseScript /></head>
       <body className="antialiased min-h-screen flex flex-col">
         {shell}
       </body>
