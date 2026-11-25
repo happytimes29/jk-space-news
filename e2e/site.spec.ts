@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 import { loadNotes } from "../lib/notes";
 import { loadProjects } from "../lib/projects";
 
+const homeTitle = /工程問題，\s*動手解。/;
+
 test("retired entry points redirect permanently and article URLs return noindex 404", async ({ page, request }) => {
   for (const [source, destination] of [["/news", "/notes"], ["/trending", "/notes"], ["/profile", "/about"], ["/interview", "/notes"], ["/interview/previous-guest", "/notes"]]) {
     const response = await request.get(source, { maxRedirects: 0 });
@@ -23,7 +25,7 @@ test("homepage provides the primary site landmarks", async ({ page }) => {
   await expect(page.getByRole("banner")).toBeVisible();
   await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("contentinfo")).toBeVisible();
-  await expect(page.getByRole("region", { name: "把訊號，變成答案。" }).getByText(/這裡是我的個人工程實驗室/)).toBeVisible();
+  await expect(page.getByRole("region", { name: homeTitle }).getByText(/這裡是我的個人工程實驗室/)).toBeVisible();
 });
 
 test("three locale roots and About pages keep stable URLs and document languages", async ({ page }) => {
@@ -172,25 +174,21 @@ test("RSS serves the original Notes feed without retired articles", async ({ pag
   expect(source).not.toContain("https://jk-space.com/news/");
 });
 
-test("homepage introduces real work and reaches collaboration at every supported width", async ({ page }) => {
+test("homepage reaches the PCB case, tool and contact at every supported width", async ({ page }) => {
   for (const width of [320, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    const hero = page.getByRole("region", { name: "把訊號，變成答案。" });
-    for (const [label, href] of [["查看專案", "/projects"], ["使用工具", "/tools"]]) {
+    const hero = page.getByRole("region", { name: homeTitle });
+    for (const [label, href] of [["閱讀札記", "#reading"], ["使用工具", "/tools"]]) {
       const cta = hero.getByRole("link", { name: label, exact: true });
       await expect(cta).toHaveAttribute("href", href);
       await expect(cta).toBeInViewport();
     }
-    const projects = page.getByRole("region", { name: "精選專案" });
-    await expect(projects.getByRole("article").nth(1)).toBeVisible();
-    for (const slug of ["pcb-test-point-comparison", "jk-space-news-automation"]) {
-      await expect(projects.locator(`a[href="/projects/${slug}"]`)).toBeVisible();
-    }
-    await expect(page.getByRole("region", { name: "精選工具" }).getByRole("link", { name: "立即使用" })).toHaveAttribute("href", "/tools/pcb-test-point/app");
-    await expect(page.getByRole("region")).toHaveCount(8);
+    const reading = page.locator("#reading");
+    await expect(reading.getByRole("link", { name: "閱讀專案案例" })).toHaveAttribute("href", "/projects/pcb-test-point-comparison");
+    await expect(reading.getByRole("link", { name: "開啟比對工具" })).toHaveAttribute("href", "/tools/pcb-test-point/app");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    await page.getByRole("link", { name: "聯絡我", exact: true }).click();
+    await page.getByRole("contentinfo").getByRole("link", { name: "聯絡", exact: true }).click();
     await expect(page).toHaveURL("/contact");
     await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toContainText("聯絡");
   }

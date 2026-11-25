@@ -61,11 +61,11 @@ for (const width of [360, 1440]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
   });
 
-  test(`homepage V2 status and metadata retain their hierarchy at ${width}px`, async ({ page }) => {
+  test(`homepage keeps the tool index and the PCB case image readable at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto("/");
-    await expect(page.locator(".v2-home-tool .editorial-status").first()).toHaveCSS("display", "inline-flex");
-    await expect(page.locator(".v2-home-project .editorial-content-meta").first()).toBeVisible();
+    await expect(page.getByRole("complementary", { name: "從這裡開始" }).getByRole("link", { name: /單頻史密斯圖/ })).toBeVisible();
+    await expect(page.locator("#reading").getByRole("img", { name: /PCB 測試點/ })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
   });
 }

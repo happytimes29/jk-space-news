@@ -1,15 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const sectionOrder = [
-  "v2-home-hero",
-  "v2-home-orientation",
-  "v2-home-practice",
-  "v2-home-tool",
-  "v2-home-projects",
-  "v2-home-notes",
-  "v2-home-now",
-  "v2-home-contact",
-];
+const homeTitle = /工程問題，\s*動手解。/;
 
 async function noHorizontalOverflow(page: import("@playwright/test").Page) {
   return page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
@@ -39,66 +30,38 @@ for (const width of [360, 390, 768, 1024, 1440]) {
 
 test("brand pages stay warm paper even with a stored dark preference", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("theme", "dark"));
-  for (const route of ["/", "/projects", "/en/about", "/zh-cn/privacy"]) {
+  for (const route of ["/projects", "/en/about", "/zh-cn/privacy"]) {
     await page.goto(route);
     await expect(page.locator(".v2-editorial-page")).toHaveCSS("background-color", "rgb(246, 241, 231)");
   }
 });
 
-test("homepage keeps the approved eight-region narrative and usable primary links", async ({ page }) => {
+test("homepage links its primary actions to tools and the reading section", async ({ page }) => {
   await page.goto("/");
-  expect(await page.locator(".v2-home__shell > section").evaluateAll((sections) => sections.map((section) => section.className))).toEqual(sectionOrder);
-  const hero = page.getByRole("region", { name: "把訊號，變成答案。" });
+  const hero = page.getByRole("region", { name: homeTitle });
   await expect(hero.getByRole("link", { name: "使用工具" })).toHaveAttribute("href", "/tools");
-  await expect(hero.getByRole("link", { name: "查看專案" })).toHaveAttribute("href", "/projects");
-  await expect(page.getByRole("region", { name: "工程工具、專案與現場筆記" }).getByRole("link")).toHaveCount(3);
+  await hero.getByRole("link", { name: "閱讀札記" }).click();
+  await expect(page).toHaveURL("/#reading");
+  await expect(page.locator("#reading").getByRole("link", { name: "閱讀專案案例" })).toHaveAttribute("href", "/projects/pcb-test-point-comparison");
 });
 
-test("reduced motion exposes a labeled static signal field without positive durations", async ({ page }) => {
+test("reduced motion suppresses the homepage card transitions", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  const field = page.getByRole("img", { name: "訊號從雜訊收斂為 JK 電路印記" });
-  await expect(field).toHaveAttribute("data-mode", "static");
-  await expect(field.locator("[data-testid='signal-field-static']")).toContainText("JK");
-  const moving = await field.evaluate((root) => Array.from(root.querySelectorAll("*"), (element) => {
-    const style = getComputedStyle(element);
-    return [...style.animationDuration.split(","), ...style.transitionDuration.split(",")].some((duration) => parseFloat(duration) > 0.001);
-  }).some(Boolean));
-  expect(moving).toBe(false);
+  const cards = await page.getByRole("region", { name: "依興趣探索" }).getByRole("link").all();
+  expect(cards).toHaveLength(4);
+  for (const card of cards) {
+    expect(await card.evaluate((link) => getComputedStyle(link).transitionDuration.split(",").every((duration) => parseFloat(duration) <= 0.001))).toBe(true);
+  }
 });
 
-test("fine-pointer signal canvas paints only while visible and CTAs work immediately", async ({ page }) => {
-  await page.addInitScript(() => {
-    const trackedWindow = window as typeof window & { __signalPaints?: number };
-    trackedWindow.__signalPaints = 0;
-    const nativeClear = CanvasRenderingContext2D.prototype.clearRect;
-    CanvasRenderingContext2D.prototype.clearRect = function (...args) {
-      trackedWindow.__signalPaints = (trackedWindow.__signalPaints ?? 0) + 1;
-      return nativeClear.apply(this, args);
-    };
-  });
-  await page.goto("/");
-  const field = page.locator("[data-signal-field-host]");
-  await expect(field).toHaveAttribute("data-mode", "interactive");
-  await expect(field.locator("canvas")).toBeVisible();
-  await expect(page.getByRole("region", { name: "把訊號，變成答案。" }).getByRole("link", { name: "查看專案" })).toBeVisible();
-  await expect.poll(() => page.evaluate(() => (window as typeof window & { __signalPaints?: number }).__signalPaints ?? 0)).toBeGreaterThan(0);
-  await page.locator(".v2-home-contact").scrollIntoViewIfNeeded();
-  await page.waitForTimeout(300);
-  const stoppedAt = await page.evaluate(() => (window as typeof window & { __signalPaints?: number }).__signalPaints ?? 0);
-  await page.evaluate(() => window.dispatchEvent(new Event("scroll")));
-  await page.waitForTimeout(150);
-  expect(await page.evaluate(() => (window as typeof window & { __signalPaints?: number }).__signalPaints ?? 0)).toBe(stoppedAt);
-});
-
-test("the no-JavaScript homepage preserves copy, links, and section order", async ({ browser }) => {
+test("the no-JavaScript homepage renders the design and reading links", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("把訊號，變成答案。");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(homeTitle);
   await expect(page.getByRole("link", { name: "使用工具" }).first()).toHaveAttribute("href", "/tools");
-  await expect(page.locator("[data-signal-field-host]")).toHaveAttribute("data-mode", "static");
-  expect(await page.locator(".v2-home__shell > section").evaluateAll((sections) => sections.map((section) => section.className))).toEqual(sectionOrder);
+  await expect(page.locator("#reading").getByRole("link", { name: "開啟比對工具" })).toHaveAttribute("href", "/tools/pcb-test-point/app");
   await context.close();
 });
 
@@ -109,7 +72,7 @@ test("mobile navigation, search, language, recovery, and real contacts remain op
   await expect(page.getByRole("navigation", { name: "行動版主導覽" })).toBeVisible();
   await page.getByRole("navigation", { name: "行動版主導覽" }).getByRole("group", { name: "選擇語言" }).getByRole("button", { name: "English" }).click();
   await expect(page).toHaveURL("/en");
-  await expect(page.getByRole("heading", { level: 1, name: "Turn signals into answers." })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Engineering problems\.\s*Hands-on answers\./ })).toBeVisible();
   await page.getByRole("button", { name: "Open menu" }).click();
   await expect(page.getByRole("navigation", { name: "Mobile primary navigation" })).toBeVisible();
   await page.getByRole("button", { name: "Close menu" }).click();

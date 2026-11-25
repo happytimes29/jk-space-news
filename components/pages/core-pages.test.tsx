@@ -8,15 +8,17 @@ import { NotFoundPage } from "./NotFoundPage";
 import type { Locale } from "@/lib/i18n/locales";
 
 describe.each([
-  ["zh-TW", "把訊號，變成答案。", "/projects"],
-  ["zh-CN", "把信号，变成答案。", "/zh-cn/projects"],
-  ["en", "Turn signals into answers.", "/en/projects"],
-] as const)("%s core pages", (locale, tagline, projectsHref) => {
+  ["zh-TW", /工程問題，\s*動手解。/, "/projects", "閱讀專案案例", "/projects/pcb-test-point-comparison"],
+  ["zh-CN", /工程问题，\s*动手解。/, "/zh-cn/projects", "阅读项目案例", "/zh-cn/projects/pcb-test-point-comparison"],
+  ["en", /Engineering problems\.\s*Hands-on answers\./, "/en/projects", "Read the case study", "/en/projects/pcb-test-point-comparison"],
+] as const)("%s core pages", (locale, tagline, projectsHref, caseLabel, caseHref) => {
   it("renders a complete localized home with locale-preserving next steps", async () => {
     const { container } = render(await HomePage({ locale }));
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(tagline);
-    expect(screen.getByRole("link", { name: locale === "en" ? "View projects" : locale === "zh-CN" ? "查看项目" : "查看專案" })).toHaveAttribute("href", projectsHref);
-    expect(screen.getAllByRole("region")).toHaveLength(8);
+    expect(container.querySelector(`a[href="${projectsHref}"]`)).toBeVisible();
+    const reading = container.querySelector<HTMLElement>("#reading")!;
+    expect(within(reading).getByRole("link", { name: caseLabel })).toHaveAttribute("href", caseHref);
+    expect(reading.querySelector('a[href="/tools/pcb-test-point/app"]')).toBeVisible();
     for (const section of screen.getAllByRole("region")) {
       expect(within(section).getAllByRole("heading")[0]).not.toBeEmptyDOMElement();
     }
