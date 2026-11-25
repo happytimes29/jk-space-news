@@ -25,7 +25,7 @@ export function Footer({ locale, dictionary, config }: FooterProps) {
           </div>
           <div className="v2-site-footer__navigation">
             <nav aria-label={dictionary.footer.siteInformation}>
-              <Link href={localePath(locale, "/about")}><span className="v2-footer-index" aria-hidden="true">01</span>{dictionary.navigation.aboutContact}</Link>
+              <Link href={localePath(locale, "/about")}><span className="v2-footer-index" aria-hidden="true">01</span>{dictionary.navigation.about}</Link>
               <Link href={localePath(locale, "/privacy")}><span className="v2-footer-index" aria-hidden="true">02</span>{dictionary.navigation.privacy}</Link>
             </nav>
             {contacts.length > 0 && (

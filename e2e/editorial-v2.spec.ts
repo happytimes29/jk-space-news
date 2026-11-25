@@ -52,7 +52,7 @@ test("reduced motion suppresses the homepage card transitions", async ({ page })
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const cards = await page.getByRole("region", { name: "依興趣探索" }).getByRole("link").all();
-  expect(cards).toHaveLength(3);
+  expect(cards).toHaveLength(4);
   for (const card of cards) {
     expect(await card.evaluate((link) => getComputedStyle(link).transitionDuration.split(",").every((duration) => parseFloat(duration) <= 0.001))).toBe(true);
   }

@@ -14,7 +14,7 @@ describe("Footer", () => {
     expect(container).not.toHaveTextContent("JK Space News");
     expect(screen.getByRole("link", { name: "JK Space" })).toHaveAttribute("href", "/en");
     expect(screen.getByText("Turn problems into tools.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "About & Contact" })).toHaveAttribute("href", "/en/about");
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/en/about");
     expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/en/privacy");
     expect(screen.getByRole("navigation", { name: "Site information" }).querySelectorAll(".v2-footer-index")).toHaveLength(2);
     expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "https://github.com/happytimes29");

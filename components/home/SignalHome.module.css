@@ -120,7 +120,7 @@
 
 .browse { padding-block: clamp(44px, 6vw, 76px); }
 .browse h2, .reading h2 { margin-bottom: 23px; font-size: clamp(1.85rem, 3.85vw, 3.75rem); font-weight: 850; letter-spacing: -0.06em; line-height: 1.1; }
-.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
+.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 17px; }
 .card {
   display: flex;
   min-height: 192px;
@@ -136,6 +136,7 @@
 .orange { background: #ff9d63; }
 .mint { background: #8ed9b1; }
 .lavender { background: #d8cbeb; }
+.pink { background: var(--signal-pink, #f2a4bc); }
 .cardIcons { display: flex; justify-content: space-between; gap: 8px; }
 .card h3 { font-size: clamp(1.15rem, 2.3vw, 1.85rem); font-weight: 850; letter-spacing: -0.05em; line-height: 1.15; }
 .card p { margin-top: 7px; font-size: 0.87rem; line-height: 1.5; }
@@ -150,6 +151,7 @@
 
 @media (max-width: 960px) {
   .wrap { width: calc(100% - 48px); }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {

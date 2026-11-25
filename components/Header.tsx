@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import type { SiteDictionary } from "@/lib/i18n/dictionaries";
-import { localePath, type Locale } from "@/lib/i18n/locales";
+import type { Locale } from "@/lib/i18n/locales";
 import type { SiteConfig } from "@/lib/site-config";
 import type { TranslationAvailability } from "@/lib/content/translations";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -20,13 +20,10 @@ interface HeaderProps {
 export function Header({ locale, dictionary, config, availability }: HeaderProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const projects = localePath(locale, "/projects");
-  const tools = localePath(locale, "/tools");
 
   function current(href: string) {
     if (pathname === href) return "page";
     if (href !== config.navigation[0].href && pathname.startsWith(`${href}/`)) return "location";
-    if (href === tools && (pathname === projects || pathname.startsWith(`${projects}/`))) return "location";
   }
 
   return (

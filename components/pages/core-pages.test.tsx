@@ -17,6 +17,7 @@ describe.each([
     const { container } = render(await HomePage({ locale }));
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(tagline);
     const localePrefix = projectsHref.slice(0, -"/projects".length);
+    expect(container.querySelector(`a[href="${projectsHref}"]`)).toBeVisible();
     expect(container.querySelector(`a[href="${localePrefix}/tools"]`)).toBeVisible();
     expect(container.querySelectorAll(`a[href="${localePrefix}/notes"]`)).toHaveLength(2);
     const reading = container.querySelector<HTMLElement>("#reading")!;
@@ -83,10 +84,11 @@ it("keeps English About and Privacy internal links under /en", () => {
   expect(screen.getByRole("link", { name: "contact page" })).toHaveAttribute("href", "/en/about#contact");
 });
 
-it("links to both project and tool details from the combined English hub", async () => {
+it("lists tool details on the Tools page without duplicating the project index", async () => {
   render(await ToolsPage({ locale: "en" }));
-  expect(within(screen.getByRole("region", { name: "Tools" })).getByRole("link", { name: "PCB Test Point Comparison Tool" })).toHaveAttribute("href", "/en/tools/pcb-test-point");
-  expect(within(screen.getByRole("region", { name: "Projects" })).getByRole("link", { name: "PCB Test Point Comparison Tool" })).toHaveAttribute("href", "/en/projects/pcb-test-point-comparison");
+  expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Tools");
+  expect(screen.getByRole("link", { name: "PCB Test Point Comparison Tool" })).toHaveAttribute("href", "/en/tools/pcb-test-point");
+  expect(screen.queryByRole("region", { name: "Projects" })).not.toBeInTheDocument();
 });
 
 it.each([

@@ -87,10 +87,10 @@ test("invalid locales and missing translated details are true 404 responses", as
 
 // These journeys catch broken mobile-menu links as well as desktop navigation.
 for (const width of [320, 1440]) {
-  test(`all four primary navigation destinations are reachable at ${width}px`, async ({ page }) => {
+  test(`all five primary navigation destinations are reachable at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    for (const [label, href] of [["首頁", "/"], ["專案與工具", "/tools"], ["筆記與觀點", "/notes"], ["關於與聯絡", "/about"]]) {
+    for (const [label, href] of [["首頁", "/"], ["專案", "/projects"], ["工具", "/tools"], ["筆記與觀點", "/notes"], ["關於我", "/about"]]) {
       if (width < 768) await page.getByRole("button", { name: "開啟選單" }).click();
       const navigation = page.getByRole("navigation", { name: width < 768 ? "行動版主導覽" : "主導覽", exact: true });
       await navigation.getByRole("link", { name: label, exact: true }).click();
@@ -189,7 +189,7 @@ test("homepage reaches the PCB case, tool and contact at every supported width",
     await expect(reading.getByRole("link", { name: "閱讀專案案例" })).toHaveAttribute("href", "/projects/pcb-test-point-comparison");
     await expect(reading.getByRole("link", { name: "開啟比對工具" })).toHaveAttribute("href", "/tools/pcb-test-point/app");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    await page.getByRole("contentinfo").getByRole("link", { name: "關於與聯絡", exact: true }).click();
+    await page.getByRole("contentinfo").getByRole("link", { name: "關於我", exact: true }).click();
     await expect(page).toHaveURL("/about");
     await expect(page.locator("#contact").getByRole("heading", { level: 2 })).toContainText("聯絡");
   }

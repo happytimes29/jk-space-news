@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, BookOpen, CircuitBoard, Wrench } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BookOpen, CircuitBoard, FolderOpen, Wrench } from "lucide-react";
 import type { SiteDictionary } from "@/lib/i18n/dictionaries";
 import { localePath, type Locale } from "@/lib/i18n/locales";
 import type { ProjectItem } from "@/lib/projects";
@@ -15,6 +15,7 @@ const copy = {
     reading: "閱讀札記",
     readingDescription: "從做過的專案讀起，看看工具背後的工程判斷。",
     toolDescription: "從 RF 匹配、線寬估算到 PCB 測試點比對。",
+    projectDescription: "實作過程、設計取捨與驗證紀錄。",
     aboutDescription: "認識 JK，以及這個個人工程實驗室在做什麼。",
     feature: "從一個工程案例讀起",
     readCase: "閱讀專案案例",
@@ -27,6 +28,7 @@ const copy = {
     reading: "阅读札记",
     readingDescription: "从做过的项目读起，看看工具背后的工程判断。",
     toolDescription: "从 RF 匹配、线宽估算到 PCB 测试点比对。",
+    projectDescription: "实现过程、设计取舍与验证记录。",
     aboutDescription: "认识 JK，以及这个个人工程实验室在做什么。",
     feature: "从一个工程案例读起",
     readCase: "阅读项目案例",
@@ -39,6 +41,7 @@ const copy = {
     reading: "Reading notes",
     readingDescription: "Start with a built project and see the engineering decisions behind it.",
     toolDescription: "From RF matching and trace widths to PCB test-point comparison.",
+    projectDescription: "How the projects were built, which trade-offs mattered, and how they were tested.",
     aboutDescription: "Meet JK and find out what this independent engineering lab is working on.",
     feature: "Start with a case study",
     readCase: "Read the case study",
@@ -59,9 +62,10 @@ export function SignalHome({ locale, dictionary, tools, pcbProject }: {
   const highlights = toolOrder.flatMap((slug) => tools.filter((tool) => tool.slug === slug)).slice(0, 3);
   const pcbTool = tools.find((tool) => tool.slug === "pcb-test-point");
   const browseCards = [
-    { title: dictionary.navigation.work, description: labels.toolDescription, href: route("/tools"), icon: Wrench, color: styles.orange },
+    { title: dictionary.navigation.tools, description: labels.toolDescription, href: route("/tools"), icon: Wrench, color: styles.orange },
+    { title: dictionary.navigation.projects, description: labels.projectDescription, href: route("/projects"), icon: FolderOpen, color: styles.mint },
     { title: labels.reading, description: labels.readingDescription, href: route("/notes"), icon: BookOpen, color: styles.lavender },
-    { title: dictionary.navigation.aboutContact, description: labels.aboutDescription, href: route("/about"), icon: CircuitBoard, color: styles.mint },
+    { title: dictionary.navigation.about, description: labels.aboutDescription, href: route("/about"), icon: CircuitBoard, color: styles.pink },
   ];
 
   return (

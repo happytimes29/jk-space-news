@@ -6,8 +6,6 @@
   },
   "navigation": {
     "home": "首頁",
-    "work": "專案與工具",
-    "aboutContact": "關於與聯絡",
     "projects": "專案",
     "tools": "工具",
     "notes": "筆記與觀點",
@@ -188,7 +186,7 @@
     "areaAutomation": "AI 自動化",
     "areaProduct": "工具產品",
     "toolsTitle": "我做的工具",
-    "toolsDescription": "使用工程工具解決手上的問題，或閱讀專案紀錄，了解它們的設計取捨與驗證過程。",
+    "toolsDescription": "JK Space 開發的工程工具：用途、格式、限制與資料處理方式。",
     "toolsEmpty": "工具準備中。",
     "toolDataProcessing": "資料處理",
     "toolInputFormats": "輸入格式",
