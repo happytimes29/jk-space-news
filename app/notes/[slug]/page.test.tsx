@@ -11,7 +11,7 @@ afterEach(() => {
   directories.splice(0).forEach((dir) => fs.rmSync(dir, { recursive: true }));
 });
 
-function fixture(type: "engineering" | "commentary", content?: string) {
+function fixture(type: "engineering" | "commentary" | "personal", content?: string) {
   const root = fixtureDirectory();
   directories.push(root);
   const dir = path.join(root, "content/notes");
@@ -21,6 +21,7 @@ function fixture(type: "engineering" | "commentary", content?: string) {
   writeContent(dir, "note.md", {
     ...noteData, type, relatedProjects: ["pcb-test-point-comparison"], relatedTools: ["pcb-test-point"],
     ...(type === "commentary" ? { sourceTitle: "原始工程報導", sourceUrl: "https://example.com/report", sourcePublishedAt: "2026-10-12" } : {}),
+    ...(type === "personal" ? { coverImage: "/images/notes/cover.webp", coverImageAlt: "窗台上的耳機" } : {}),
   }, content ?? (type === "commentary" ? "## 事件摘要\n\n原始報導的事實。\n\n## 我的觀點\n\n我的工程判斷。" : "## 工程紀錄\n\n實際驗證過的筆記。"));
   vi.spyOn(process, "cwd").mockReturnValue(root);
   return { params: Promise.resolve({ slug: "test-note" }) };
@@ -85,6 +86,21 @@ describe("Note detail", () => {
     expect(document.querySelector("article")?.textContent).toContain("JK Space");
     expect(document.querySelector("article")?.textContent).toContain("1 分鐘");
     expect(document.querySelector('a[href="https://example.com/report"]')).toBeNull();
+  });
+
+  it("uses a personal note's cover on the article and for sharing", async () => {
+    const props = fixture("personal", "第一段原文。\n\n第二段原文。");
+    const metadata = await generateMetadata(props);
+    expect(metadata).toMatchObject({
+      description: "筆記摘要",
+      openGraph: { images: [{ url: "/images/notes/cover.webp", alt: "窗台上的耳機" }] },
+    });
+    const html = await new Response(await renderToReadableStream(await NotePage(props))).text();
+    const document = new DOMParser().parseFromString(html, "text/html");
+    expect(document.querySelector(".v2-page-kicker")?.textContent).toBe("生活札記");
+    expect(document.querySelector(".v2-note-cover img")?.getAttribute("alt")).toBe("窗台上的耳機");
+    expect(document.querySelector(".v2-note-hero")?.textContent).not.toContain("筆記摘要");
+    expect([...document.querySelectorAll(".v2-prose p")].map((node) => node.textContent)).toEqual(["第一段原文。", "第二段原文。"]);
   });
 
   it("describes authored content as an article without claiming a news publisher", async () => {

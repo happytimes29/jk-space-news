@@ -9,6 +9,7 @@ export function noteTypeLabels(locale: Locale): Record<NoteType, string> {
     automation: copy.noteTypeAutomation,
     "project-log": copy.noteTypeProjectLog,
     commentary: copy.noteTypeCommentary,
+    personal: copy.noteTypePersonal,
   };
 }
 

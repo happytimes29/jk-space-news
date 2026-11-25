@@ -63,6 +63,18 @@
 .site-v2 .v2-note-hero { margin-block: 18px 30px; }
 .site-v2 .v2-notes-index .v2-collection-intro,
 .site-v2 .v2-note-hero { background: var(--signal-lavender); }
+.site-v2 .v2-note-cover {
+  position: relative;
+  aspect-ratio: 2.35;
+  overflow: hidden;
+  border: 2px solid var(--signal-ink);
+}
+.site-v2 .v2-note-cover img { object-fit: cover; object-position: center 64%; }
+.site-v2 .v2-note-cover + .v2-prose { margin-top: clamp(24px, 5vw, 54px); }
+
+@media (max-width: 550px) {
+  .site-v2 .v2-note-cover { aspect-ratio: 1.45; }
+}
 .site-v2 .v2-about .v2-utility-hero { background: var(--signal-mint); }
 
 .site-v2 :is(.v2-collection-intro, .v2-utility-hero, .v2-detail-hero, .v2-note-hero, .v2-engineering-shell__chrome, .v2-not-found) h1 {

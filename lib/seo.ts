@@ -38,6 +38,7 @@ export function buildLocalizedMetadata({
   availableLocales,
   type = "website",
   imageTitle = title,
+  image,
   publishedTime,
   modifiedTime,
   authors,
@@ -49,6 +50,7 @@ export function buildLocalizedMetadata({
   availableLocales: readonly Locale[];
   type?: MetadataContentType;
   imageTitle?: string;
+  image?: { url: string; alt: string };
   publishedTime?: string;
   modifiedTime?: string;
   authors?: string[];
@@ -76,7 +78,7 @@ export function buildLocalizedMetadata({
       title: shareTitle,
       description,
       ...(openGraphType === "article" ? { publishedTime, modifiedTime, authors } : {}),
-      images: [{ url: `/api/og?${imageQuery}`, width: 1200, height: 630, alt: shareTitle }],
+      images: [image ?? { url: `/api/og?${imageQuery}`, width: 1200, height: 630, alt: shareTitle }],
     },
   };
 }

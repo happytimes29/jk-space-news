@@ -12,7 +12,7 @@ const items: NoteItem[] = [
 
 describe("filterNotes", () => {
   it("returns native note type labels for the active locale", () => {
-    expect(noteTypeLabels("en")).toEqual({ engineering: "Engineering note", automation: "AI & automation", "project-log": "Project log", commentary: "Perspective" });
+    expect(noteTypeLabels("en")).toEqual({ engineering: "Engineering note", automation: "AI & automation", "project-log": "Project log", commentary: "Perspective", personal: "Personal essay" });
   });
 
   // Catches returning unrelated types or dropping one supported category.

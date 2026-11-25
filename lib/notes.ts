@@ -8,7 +8,7 @@ import {
 } from "./content/translations";
 import { parseCommentaryContent } from "./notes-content";
 
-export type NoteType = "engineering" | "automation" | "project-log" | "commentary";
+export type NoteType = "engineering" | "automation" | "project-log" | "commentary" | "personal";
 
 export interface BaseNote extends LocalizedContent {
   title: string;
@@ -20,6 +20,7 @@ export interface BaseNote extends LocalizedContent {
   author: string;
   featured: boolean;
   coverImage?: string;
+  coverImageAlt?: string;
   relatedProjects?: string[];
   relatedTools?: string[];
   readingTime: number;
@@ -41,11 +42,12 @@ export type NoteItem = StandardNote | CommentaryNote;
 
 function parseNote({ file, data, content }: ContentFile): WithoutLocalization<NoteItem> {
     const fields = new ContentFields(file, data);
-    const type = fields.enum("type", ["engineering", "automation", "project-log", "commentary"]);
+    const type = fields.enum("type", ["engineering", "automation", "project-log", "commentary", "personal"]);
     const base: WithoutLocalization<BaseNote> = {
       title: fields.string("title"), slug: fields.string("slug"), summary: fields.string("summary"),
       publishedAt: fields.date("publishedAt"), updatedAt: fields.date("updatedAt"), tags: fields.strings("tags"),
       author: fields.string("author"), featured: fields.boolean("featured"), coverImage: fields.optionalUrl("coverImage", true),
+      coverImageAlt: fields.optionalString("coverImageAlt"),
       relatedProjects: fields.optionalStrings("relatedProjects"), relatedTools: fields.optionalStrings("relatedTools"),
       readingTime: estimateReadingTime(content), content,
     };

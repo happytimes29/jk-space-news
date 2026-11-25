@@ -204,6 +204,7 @@
     "allLabel": "All",
     "noteTypeNote": "Note",
     "noteTypeCommentary": "Perspective",
+    "noteTypePersonal": "Personal essay",
     "noteTypeGuide": "Guide",
     "noteTypeEngineering": "Engineering note",
     "noteTypeAutomation": "AI & automation",

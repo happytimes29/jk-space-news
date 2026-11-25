@@ -26,7 +26,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const visibility = contentVisibility();
   const note = await getNoteBySlug(slug, { locale, visibility });
   if (!note) return { title: locale === "en" ? "Note not found" : "找不到笔记", robots: { index: false, follow: false } };
-  return buildLocalizedMetadata({ locale, pathname: `/notes/${encodeURIComponent(note.slug)}`, title: note.title, description: note.summary, availableLocales: getTranslationAvailability("notes", note.slug, visibility), type: "note", publishedTime: note.publishedAt, modifiedTime: note.updatedAt, authors: [note.author] });
+  return buildLocalizedMetadata({
+    locale,
+    pathname: `/notes/${encodeURIComponent(note.slug)}`,
+    title: note.title,
+    description: note.summary,
+    availableLocales: getTranslationAvailability("notes", note.slug, visibility),
+    type: "note",
+    publishedTime: note.publishedAt,
+    modifiedTime: note.updatedAt,
+    authors: [note.author],
+    image: note.coverImage ? { url: note.coverImage, alt: note.coverImageAlt ?? note.title } : undefined,
+  });
 }
 
 export default async function LocalizedNotePage({ params }: Props) {

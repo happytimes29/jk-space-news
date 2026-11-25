@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { getNoteBySlug } from "@/lib/notes";
 import { parseCommentaryContent } from "@/lib/notes-content";
@@ -30,10 +31,15 @@ export async function NoteDetailPage({ locale, slug, visibility }: { locale: Loc
         <JsonLd data={articleJsonLd(note, locale, config)} />
         <JsonLd data={breadcrumbJsonLd(locale, [{ name: dictionary.collections.notesTitle, pathname: "/notes" }, { name: note.title, pathname: `/notes/${note.slug}` }], config)} />
         <nav aria-label={dictionary.content.breadcrumbsLabel} className="v2-breadcrumb"><Link href={localePath(locale, "/notes")}>{dictionary.content.backNotes}</Link></nav>
-        <header className="v2-note-hero"><p className="v2-page-kicker">{noteTypeLabels(locale)[note.type]}</p><h1>{note.title}</h1><p className="v2-detail-hero__summary">{note.summary}</p>
+        <header className="v2-note-hero"><p className="v2-page-kicker">{noteTypeLabels(locale)[note.type]}</p><h1>{note.title}</h1>{note.type !== "personal" && <p className="v2-detail-hero__summary">{note.summary}</p>}
           <dl className="v2-note-meta"><div><dt>{dictionary.content.author}</dt><dd>{note.author}</dd></div><div><dt>{dictionary.content.publishedDate}</dt><dd><time dateTime={note.publishedAt}>{note.publishedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.common.lastUpdated}</dt><dd><time dateTime={note.updatedAt}>{note.updatedAt.slice(0, 10)}</time></dd></div><div><dt>{dictionary.content.readingTime}</dt><dd>{note.readingTime} {dictionary.common.minutes}</dd></div></dl>
           {note.tags.length > 0 && <ul aria-label={dictionary.collections.noteTagLabel} className="v2-tag-list">{note.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>}
         </header>
+        {note.coverImage && (
+          <figure className="v2-note-cover">
+            <Image src={note.coverImage} alt={note.coverImageAlt ?? note.title} fill sizes="(max-width: 960px) calc(100vw - 2rem), 58rem" loading="eager" fetchPriority="high" />
+          </figure>
+        )}
         {note.type === "commentary" && <SourceDisclosure note={note} locale={locale} />}
         <div className="v2-prose prose max-w-none break-words">{commentary ? <><section aria-labelledby="event-summary"><h2 id="event-summary">{dictionary.content.eventSummary}</h2><MDXRenderer source={commentary.summary} /></section><section aria-labelledby="my-opinion"><h2 id="my-opinion">{dictionary.content.myOpinion}</h2><MDXRenderer source={commentary.opinion} /></section></> : <MDXRenderer source={note.content} />}</div>
         {!!(note.relatedProjects?.length || note.relatedTools?.length) && <aside aria-label={dictionary.content.relatedTitle} className="v2-related"><h2>{dictionary.content.relatedTitle}</h2><ul>
