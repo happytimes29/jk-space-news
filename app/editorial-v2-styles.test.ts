@@ -81,7 +81,7 @@ describe("editorial v2 design boundary", () => {
       "components/pages/ToolDetailPage.tsx",
       "components/pages/NoteDetailPage.tsx",
       "components/pages/AboutPage.tsx",
-      "components/pages/ContactPage.tsx",
+      "components/pages/ContactSection.tsx",
       "components/pages/PrivacyPage.tsx",
       "components/pages/NotFoundPage.tsx",
     ];

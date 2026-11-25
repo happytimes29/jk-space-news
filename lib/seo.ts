@@ -88,7 +88,7 @@ export function buildSitemapEntries({ baseUrl, projectsByLocale, toolsByLocale, 
   notesByLocale: LocaleItems<NoteItem>;
 }): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];
-  const corePaths = ["/", "/projects", "/tools", "/notes", "/about", "/contact", "/privacy"] as const;
+  const corePaths = ["/", "/projects", "/tools", "/notes", "/about", "/privacy"] as const;
 
   for (const pathname of corePaths) {
     const languages = buildLanguageAlternates(pathname, LOCALES, baseUrl);

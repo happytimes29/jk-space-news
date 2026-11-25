@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import type { SiteDictionary } from "@/lib/i18n/dictionaries";
-import type { Locale } from "@/lib/i18n/locales";
+import { localePath, type Locale } from "@/lib/i18n/locales";
 import type { SiteConfig } from "@/lib/site-config";
 import type { TranslationAvailability } from "@/lib/content/translations";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -20,6 +20,14 @@ interface HeaderProps {
 export function Header({ locale, dictionary, config, availability }: HeaderProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const projects = localePath(locale, "/projects");
+  const tools = localePath(locale, "/tools");
+
+  function current(href: string) {
+    if (pathname === href) return "page";
+    if (href !== config.navigation[0].href && pathname.startsWith(`${href}/`)) return "location";
+    if (href === tools && (pathname === projects || pathname.startsWith(`${projects}/`))) return "location";
+  }
 
   return (
     <header className="site-header v2-site-header">
@@ -36,7 +44,7 @@ export function Header({ locale, dictionary, config, availability }: HeaderProps
               <Link
                 key={item.href}
                 href={item.href}
-                aria-current={pathname === item.href ? "page" : undefined}
+                aria-current={current(item.href)}
               >
                 {item.label}
               </Link>
@@ -66,7 +74,7 @@ export function Header({ locale, dictionary, config, availability }: HeaderProps
           <Link
             key={item.href}
             href={item.href}
-            aria-current={pathname === item.href ? "page" : undefined}
+          aria-current={current(item.href)}
             onClick={() => setMobileOpen(false)}
           >
             {item.label}

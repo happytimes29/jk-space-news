@@ -72,7 +72,8 @@ describe("public SEO integration", () => {
       getAllNotes({ locale, visibility: "production" }),
     ]));
     const localizedApps = (await Promise.all(LOCALES.map((locale) => getAllTools({ locale, visibility: "production" })))).flat().filter((tool) => tool.localizedApp).length;
-    expect(entries).toHaveLength(LOCALES.length * 7 + publishedContent.reduce((count, items) => count + items.length, 0) + localizedApps);
+    expect(entries).toHaveLength(LOCALES.length * 6 + publishedContent.reduce((count, items) => count + items.length, 0) + localizedApps);
+    expect(entries.some(({ url }) => url.endsWith("/contact"))).toBe(false);
     expect(entries.map((item) => item.url)).toEqual(expect.arrayContaining([
       "https://jk-space.com/", "https://jk-space.com/zh-cn", "https://jk-space.com/en",
       "https://jk-space.com/projects", "https://jk-space.com/zh-cn/projects", "https://jk-space.com/en/projects",

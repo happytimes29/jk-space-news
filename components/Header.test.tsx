@@ -7,19 +7,20 @@ import { getSiteConfig } from "@/lib/site-config";
 vi.mock("next/navigation", () => ({ usePathname: () => "/en/projects", useRouter: () => ({ push: vi.fn() }) }));
 
 const expectedNavigation = [
-  ["Home", "/en"], ["Projects", "/en/projects"], ["Tools", "/en/tools"],
-  ["Notes & Perspectives", "/en/notes"], ["About", "/en/about"], ["Contact", "/en/contact"],
+  ["Home", "/en"], ["Projects & Tools", "/en/tools"],
+  ["Notes & Perspectives", "/en/notes"], ["About & Contact", "/en/about"],
 ];
 const props = { locale: "en" as const, dictionary: getDictionary("en"), config: getSiteConfig("en"), availability: { "/projects": ["zh-TW", "zh-CN", "en"] as const } };
 
 describe("Header", () => {
-  it("renders the new brand and all six centralized destinations in order", () => {
+  it("renders the brand and four grouped destinations in order", () => {
     const { container } = render(<Header {...props} />);
     expect(container.firstElementChild).toHaveClass("site-header", "v2-site-header");
     expect(screen.getByRole("link", { name: "JK Space" })).toHaveAttribute("href", "/en");
     expect(screen.queryByText(/JK Space News/)).not.toBeInTheDocument();
     const links = within(screen.getByRole("navigation", { name: "Primary navigation" })).getAllByRole("link");
     expect(links.map((link) => [link.textContent, link.getAttribute("href")])).toEqual(expectedNavigation);
+    expect(links.find(link => link.getAttribute("href") === "/en/tools")).toHaveAttribute("aria-current", "location");
     expect(screen.getByRole("navigation", { name: "Primary navigation" })).toHaveClass("v2-site-nav");
     expect(screen.getAllByRole("group", { name: "Choose a language" })).toHaveLength(1);
   });
@@ -38,7 +39,7 @@ describe("Header", () => {
     const menu = screen.getByRole("navigation", { name: "Mobile primary navigation" });
     expect(menu).toHaveAttribute("id", menuId);
     expect(within(menu).getAllByRole("link").map((link) => [link.textContent, link.getAttribute("href")])).toEqual(expectedNavigation);
-    const destination = within(menu).getByRole("link", { name: "Projects" });
+    const destination = within(menu).getByRole("link", { name: "Projects & Tools" });
     destination.addEventListener("click", (event) => event.preventDefault(), { once: true });
     fireEvent.click(destination);
     expect(toggle).toHaveAttribute("aria-expanded", "false");

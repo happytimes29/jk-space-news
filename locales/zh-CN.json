@@ -6,6 +6,8 @@
   },
   "navigation": {
     "home": "首页",
+    "work": "项目与工具",
+    "aboutContact": "关于与联系",
     "projects": "项目",
     "tools": "工具",
     "notes": "笔记与观点",
@@ -186,7 +188,7 @@
     "areaAutomation": "AI 自动化",
     "areaProduct": "工具产品",
     "toolsTitle": "工具",
-    "toolsDescription": "可直接使用的工程工具与实验性产品。",
+    "toolsDescription": "使用工程工具解决当前问题，或阅读项目记录，了解设计取舍与验证过程。",
     "toolsEmpty": "此语言目前没有可显示的工具。",
     "toolDataProcessing": "数据处理",
     "toolInputFormats": "输入格式",

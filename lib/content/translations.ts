@@ -119,7 +119,7 @@ export function getTranslationAvailability(
   );
 }
 
-const corePaths = ["/", "/about", "/contact", "/privacy", "/projects", "/tools", "/notes"] as const;
+const corePaths = ["/", "/about", "/privacy", "/projects", "/tools", "/notes"] as const;
 
 export function buildTranslationAvailability(
   visibility: ContentVisibility,

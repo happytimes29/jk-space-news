@@ -20,7 +20,7 @@ export function PrivacyPage({ locale }: { locale: Locale }) {
           <section aria-labelledby="privacy-site"><span aria-hidden="true">01</span><div><h2 id="privacy-site">{copy.siteTitle}</h2><p>{copy.siteTextOne}</p><p>{copy.siteTextTwo}</p></div></section>
           <section aria-labelledby="privacy-hosting"><span aria-hidden="true">02</span><div><h2 id="privacy-hosting">{copy.hostingTitle}</h2><p>{copy.hostingTextOne}</p><p>{copy.hostingTextTwo}</p><p>{copy.preferenceText}</p></div></section>
           <section aria-labelledby="privacy-pcb"><span aria-hidden="true">03</span><div><h2 id="privacy-pcb">{copy.pcbTitle}</h2><p>{copy.pcbTextOne}</p><p>{copy.pcbTextTwo}</p></div></section>
-          <section aria-labelledby="privacy-updates"><span aria-hidden="true">04</span><div><h2 id="privacy-updates">{copy.updatesTitle}</h2><p>{copy.updatesBeforeLink} <Link href={localePath(locale, "/contact")}>{copy.updatesLink}</Link> {copy.updatesAfterLink}</p></div></section>
+          <section aria-labelledby="privacy-updates"><span aria-hidden="true">04</span><div><h2 id="privacy-updates">{copy.updatesTitle}</h2><p>{copy.updatesBeforeLink} <Link href={localePath(locale, "/about#contact")}>{copy.updatesLink}</Link> {copy.updatesAfterLink}</p></div></section>
         </div>
       </div>
     </div>

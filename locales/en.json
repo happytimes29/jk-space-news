@@ -6,6 +6,8 @@
   },
   "navigation": {
     "home": "Home",
+    "work": "Projects & Tools",
+    "aboutContact": "About & Contact",
     "projects": "Projects",
     "tools": "Tools",
     "notes": "Notes & Perspectives",
@@ -186,7 +188,7 @@
     "areaAutomation": "AI automation",
     "areaProduct": "Tool product",
     "toolsTitle": "Tools",
-    "toolsDescription": "Engineering tools and experimental products you can use directly.",
+    "toolsDescription": "Use the engineering tools or read the project case studies behind their design and validation.",
     "toolsEmpty": "No tools are available in this language yet.",
     "toolDataProcessing": "Data handling",
     "toolInputFormats": "Input formats",

@@ -113,7 +113,7 @@ describe("localized sitemap", () => {
       toolsByLocale: { "zh-TW": [], "zh-CN": [], en: [] },
       notesByLocale: { "zh-TW": [note], "zh-CN": [], en: [] },
     });
-    expect(entries).toHaveLength(24); // 7 core pages × 3 locales + 2 project variants + 1 note.
+    expect(entries).toHaveLength(21); // 6 core pages × 3 locales + 2 project variants + 1 note.
     expect(entries.map(({ url }) => url)).toEqual(expect.arrayContaining([
       "https://lab.example.com/about", "https://lab.example.com/zh-cn/about", "https://lab.example.com/en/about",
       "https://lab.example.com/projects/pcb-test-point-comparison", "https://lab.example.com/en/projects/pcb-test-point-comparison",

@@ -1,10 +1,10 @@
 .preview {
-  --paper: #f6f3e9;
-  --white: #fffdf7;
-  --ink: #181816;
-  --yellow: #f9d232;
-  --line: #cbc7ba;
-  --muted: #55534b;
+  --paper: var(--signal-paper, #f6f3e9);
+  --white: var(--signal-white, #fffdf7);
+  --ink: var(--signal-ink, #181816);
+  --yellow: var(--signal-yellow, #f9d232);
+  --line: var(--v2-rule, #cbc7ba);
+  --muted: var(--signal-muted, #55534b);
   color: var(--ink);
   background: var(--paper);
   font-family: "Helvetica Neue", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
@@ -120,7 +120,7 @@
 
 .browse { padding-block: clamp(44px, 6vw, 76px); }
 .browse h2, .reading h2 { margin-bottom: 23px; font-size: clamp(1.85rem, 3.85vw, 3.75rem); font-weight: 850; letter-spacing: -0.06em; line-height: 1.1; }
-.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 17px; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
 .card {
   display: flex;
   min-height: 192px;
@@ -135,7 +135,6 @@
 .card:hover { box-shadow: 8px 8px 0 var(--ink); transform: translate(-3px, -3px); }
 .orange { background: #ff9d63; }
 .mint { background: #8ed9b1; }
-.pink { background: #f2a4bc; }
 .lavender { background: #d8cbeb; }
 .cardIcons { display: flex; justify-content: space-between; gap: 8px; }
 .card h3 { font-size: clamp(1.15rem, 2.3vw, 1.85rem); font-weight: 850; letter-spacing: -0.05em; line-height: 1.15; }
@@ -149,33 +148,8 @@
 .caseImage { display: grid; align-items: center; padding: clamp(14px, 2.1vw, 25px); border-left: 2px solid var(--ink); background: #d8cbeb; }
 .caseImage img { display: block; width: 100%; height: auto; border: 1px solid var(--ink); }
 
-:global(.site-v2-content):has(> main > .preview) > :global(.v2-site-header) {
-  background: #f6f3e9;
-  color: #181816;
-  border-bottom: 2px solid #181816;
-}
-
-:global(.site-v2-content):has(> main > .preview) > :global(.v2-site-header) :is(a, button, kbd) {
-  color: #181816;
-}
-
-:global(.site-v2-content):has(> main > .preview) :global(.v2-site-header__brand) {
-  font: 850 1.3rem/1 "Helvetica Neue", system-ui, sans-serif;
-  letter-spacing: -0.055em;
-}
-
-:global(.site-v2-content):has(> main > .preview) > :global(.v2-site-header) a[aria-current="page"] {
-  border-bottom-color: #181816;
-}
-
-:global(.site-v2-content):has(> main > .preview) > :global(.v2-site-header) [role="group"] button[aria-pressed="true"] {
-  color: #181816;
-  background: #f9d232;
-}
-
 @media (max-width: 960px) {
   .wrap { width: calc(100% - 48px); }
-  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
@@ -187,7 +161,7 @@
 
 @media (max-width: 500px) {
   .wrap { width: calc(100% - 32px); }
-  .cards { gap: 13px; }
+  .cards { grid-template-columns: 1fr; gap: 13px; }
   .card { min-height: 177px; padding: 12px; gap: 14px; box-shadow: 3px 3px 0 var(--ink); }
   .cardIcons svg:first-child { width: 30px; height: 30px; }
   .card p { font-size: 0.8rem; }

@@ -26,11 +26,9 @@ export function getSiteConfig(locale: Locale): SiteConfig {
   const dictionary = getDictionary(locale);
   const navigation = [
     [dictionary.navigation.home, "/"],
-    [dictionary.navigation.projects, "/projects"],
-    [dictionary.navigation.tools, "/tools"],
+    [dictionary.navigation.work, "/tools"],
     [dictionary.navigation.notes, "/notes"],
-    [dictionary.navigation.about, "/about"],
-    [dictionary.navigation.contact, "/contact"],
+    [dictionary.navigation.aboutContact, "/about"],
   ] as const;
 
   return {

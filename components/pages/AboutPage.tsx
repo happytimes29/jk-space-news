@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ContactLinks } from "@/app/contact/ContactLinks";
 import { contentVisibility, getTranslationAvailability } from "@/lib/content/translations";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/lib/i18n/locales";
-import { getEnabledContactLinks, getSiteConfig } from "@/lib/site-config";
+import { getSiteConfig } from "@/lib/site-config";
 import { EditorialSectionHeading } from "@/components/editorial/EditorialSectionHeading";
+import { ContactSection } from "./ContactSection";
 
 const linkClass = "text-[var(--color-accent)] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4";
 
@@ -39,7 +39,7 @@ export function AboutPage({ locale, featuredProjectAvailable }: { locale: Locale
         <header className="v2-utility-hero">
           <p className="v2-page-kicker">{config.name} / {copy.kicker}</p>
           <h1>{copy.title}</h1>
-          <p className="v2-utility-hero__tagline">{config.tagline}</p>
+          <div className="v2-utility-hero__tagline"><p>{config.tagline}</p><Link href="#contact" className="signal-jump-link">{dictionary.common.contactMe}</Link></div>
         </header>
         <section aria-labelledby="about-intro" className="v2-about-intro">
           <h2 id="about-intro">{copy.introTitle}</h2>
@@ -59,9 +59,9 @@ export function AboutPage({ locale, featuredProjectAvailable }: { locale: Locale
         </section>
         <section aria-label={copy.focusTitle}>
           <EditorialSectionHeading index="04" title={copy.focusTitle} />
-          <div className="v2-focus-copy"><p>{copy.focusText}</p><div className="v2-inline-actions"><Link href={localePath(locale, "/projects")}>{dictionary.common.viewProjects}</Link><Link href={localePath(locale, "/tools")}>{dictionary.common.useTools}</Link><Link href={localePath(locale, "/contact")}>{dictionary.common.contactMe}</Link></div></div>
+          <div className="v2-focus-copy"><p>{copy.focusText}</p><div className="v2-inline-actions"><Link href={localePath(locale, "/projects")}>{dictionary.common.viewProjects}</Link><Link href={localePath(locale, "/tools")}>{dictionary.common.useTools}</Link></div></div>
         </section>
-        {config.contacts.length > 0 && <section aria-label={copy.externalLinksTitle}><EditorialSectionHeading index="05" title={copy.externalLinksTitle} /><ContactLinks links={getEnabledContactLinks(config)} /></section>}
+        <ContactSection locale={locale} />
       </div>
     </div>
   );

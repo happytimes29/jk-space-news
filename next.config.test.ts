@@ -7,6 +7,8 @@ describe("retired public routes", () => {
     ["/news", "/notes"],
     ["/trending", "/notes"],
     ["/profile", "/about"],
+    ["/contact", "/about#contact"],
+    ["/:locale(en|zh-cn)/contact", "/:locale/about#contact"],
     ["/interview", "/notes"],
     ["/interview/:path*", "/notes"],
   ])("permanently redirects %s to %s", async (source, destination) => {

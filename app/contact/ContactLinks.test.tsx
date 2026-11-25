@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import ContactPage from "@/app/(zh-tw)/contact/page";
+import { ContactSection } from "@/components/pages/ContactSection";
 import { ContactLinks } from "./ContactLinks";
 
-describe("contact page", () => {
+describe("contact section", () => {
   it("offers only the enabled contact destinations as working links", () => {
-    render(<ContactPage />);
+    render(<ContactSection locale="zh-TW" />);
 
     expect(screen.getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
       "https://github.com/happytimes29",
@@ -15,7 +15,7 @@ describe("contact page", () => {
   });
 
   it("does not expose the legacy fake email address", () => {
-    const { container } = render(<ContactPage />);
+    const { container } = render(<ContactSection locale="zh-TW" />);
     expect(container).not.toHaveTextContent(["jk", "example.com"].join("@"));
   });
 });

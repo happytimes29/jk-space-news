@@ -12,6 +12,7 @@ beforeEach(() => {
   directories.push(root);
   noteDirectory = path.join(root, "content/notes");
   fs.mkdirSync(noteDirectory, { recursive: true });
+  fs.mkdirSync(path.join(root, "content/projects"), { recursive: true });
   vi.spyOn(process, "cwd").mockReturnValue(root);
 });
 afterEach(() => {
@@ -25,10 +26,8 @@ describe("NotesPage", () => {
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("筆記與觀點");
     expect(screen.getByText("筆記正在整理中")).toBeVisible();
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
-    expect(screen.getAllByRole("link").some((link) => link.getAttribute("href")?.startsWith("/news"))).toBe(false);
-    for (const label of ["工程筆記", "AI 與自動化", "專案紀錄", "新聞觀點"]) {
-      expect(screen.getByRole("link", { name: label })).toBeVisible();
-    }
+    expect(screen.queryAllByRole("link").some((link) => link.getAttribute("href")?.startsWith("/news"))).toBe(false);
+    expect(screen.queryByRole("navigation", { name: "筆記分類" })).not.toBeInTheDocument();
   });
 
   it("uses the query category and presents publication context for real loaded fixtures", async () => {

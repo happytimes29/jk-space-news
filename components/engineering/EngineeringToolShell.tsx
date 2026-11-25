@@ -12,7 +12,7 @@ export interface EngineeringToolShellProps {
 
 export function EngineeringToolShell({ title, description, backHref, backLabel, privacy, application }: EngineeringToolShellProps) {
   return (
-    <main className="engineering-app-page v2-engineering-shell">
+    <div className="engineering-app-page v2-engineering-shell">
       <div className="engineering-app-shell v2-engineering-shell__chrome">
         <nav aria-label={backLabel} className="engineering-app-shell__back v2-engineering-shell__back">
           <Link href={backHref}>{backLabel}</Link>
@@ -23,6 +23,6 @@ export function EngineeringToolShell({ title, description, backHref, backLabel, 
         </header>
       </div>
       <section className="engineering-app" aria-label={title}>{application}</section>
-    </main>
+    </div>
   );
 }

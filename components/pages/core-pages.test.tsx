@@ -2,7 +2,8 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { HomePage } from "./HomePage";
 import { AboutPage } from "./AboutPage";
-import { ContactPage } from "./ContactPage";
+import { ContactSection } from "./ContactSection";
+import { ToolsPage } from "./ToolsPage";
 import { PrivacyPage } from "./PrivacyPage";
 import { NotFoundPage } from "./NotFoundPage";
 import type { Locale } from "@/lib/i18n/locales";
@@ -15,7 +16,9 @@ describe.each([
   it("renders a complete localized home with locale-preserving next steps", async () => {
     const { container } = render(await HomePage({ locale }));
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(tagline);
-    expect(container.querySelector(`a[href="${projectsHref}"]`)).toBeVisible();
+    const localePrefix = projectsHref.slice(0, -"/projects".length);
+    expect(container.querySelector(`a[href="${localePrefix}/tools"]`)).toBeVisible();
+    expect(container.querySelectorAll(`a[href="${localePrefix}/notes"]`)).toHaveLength(2);
     const reading = container.querySelector<HTMLElement>("#reading")!;
     expect(within(reading).getByRole("link", { name: caseLabel })).toHaveAttribute("href", caseHref);
     expect(reading.querySelector('a[href="/tools/pcb-test-point/app"]')).toBeVisible();
@@ -25,10 +28,9 @@ describe.each([
     if (locale === "en") expect(container).not.toHaveTextContent("把工程上的麻煩事");
   });
 
-  it("renders About, Contact, Privacy, and NotFound in the active language", () => {
+  it("renders About, Privacy, and NotFound in the active language", () => {
     const pages = [
       <AboutPage key="about" locale={locale as Locale} />,
-      <ContactPage key="contact" locale={locale as Locale} />,
       <PrivacyPage key="privacy" locale={locale as Locale} />,
       <NotFoundPage key="not-found" locale={locale as Locale} />,
     ];
@@ -57,7 +59,7 @@ it.each([
 });
 
 it("uses only the configured contact destinations", () => {
-  const { container } = render(<ContactPage locale="en" />);
+  const { container } = render(<ContactSection locale="en" />);
   expect(screen.getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
     "https://github.com/happytimes29",
     "https://t.me/JK_Sapce",
@@ -65,13 +67,26 @@ it("uses only the configured contact destinations", () => {
   expect(container).not.toHaveTextContent(["jk", "example.com"].join("@"));
 });
 
+it("makes the contact section reachable on the About page", () => {
+  const { container } = render(<AboutPage locale="en" />);
+  const section = container.querySelector<HTMLElement>("#contact");
+  expect(section).toBeVisible();
+  expect(within(section!).getByRole("link", { name: "Telegram" })).toHaveAttribute("href", "https://t.me/JK_Sapce");
+});
+
 it("keeps English About and Privacy internal links under /en", () => {
   const { unmount } = render(<AboutPage locale="en" />);
   expect(screen.getByRole("link", { name: "View projects" })).toHaveAttribute("href", "/en/projects");
-  expect(screen.getByRole("link", { name: "Contact me" })).toHaveAttribute("href", "/en/contact");
+  expect(screen.getByRole("link", { name: "Contact me" })).toHaveAttribute("href", "#contact");
   unmount();
   render(<PrivacyPage locale="en" />);
-  expect(screen.getByRole("link", { name: "contact page" })).toHaveAttribute("href", "/en/contact");
+  expect(screen.getByRole("link", { name: "contact page" })).toHaveAttribute("href", "/en/about#contact");
+});
+
+it("links to both project and tool details from the combined English hub", async () => {
+  render(await ToolsPage({ locale: "en" }));
+  expect(within(screen.getByRole("region", { name: "Tools" })).getByRole("link", { name: "PCB Test Point Comparison Tool" })).toHaveAttribute("href", "/en/tools/pcb-test-point");
+  expect(within(screen.getByRole("region", { name: "Projects" })).getByRole("link", { name: "PCB Test Point Comparison Tool" })).toHaveAttribute("href", "/en/projects/pcb-test-point-comparison");
 });
 
 it.each([

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("owned tool details explain formats and privacy and lead to working examples", async ({ page }) => {
   await page.goto("/tools");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("我做的工具");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("專案與工具");
   const card = page.getByRole("article", { name: "PCB 測試點自動比對工具" });
   await expect(card).toContainText("可使用");
   await expect(card).toContainText("OrCAD HTML");
@@ -15,7 +15,7 @@ test("owned tool details explain formats and privacy and lead to working example
   await expect(page.getByRole("main")).toContainText("最後更新");
   await expect(page.locator("article time")).toHaveAttribute("datetime", "2026-10-15T00:00:00.000Z");
   await expect(page.locator("article time")).toHaveText("2026-10-15");
-  await expect(page.getByRole("link", { name: "工具回饋" })).toHaveAttribute("href", "/contact");
+  await expect(page.getByRole("link", { name: "工具回饋" })).toHaveAttribute("href", "/about#contact");
   await page.getByRole("link", { name: "開啟工具", exact: true }).click();
   await expect(page).toHaveURL("/tools/pcb-test-point/app");
   await page.getByRole("button", { name: "載入範例", exact: true }).click();

@@ -32,24 +32,27 @@ test("brand pages stay warm paper even with a stored dark preference", async ({ 
   await page.addInitScript(() => localStorage.setItem("theme", "dark"));
   for (const route of ["/projects", "/en/about", "/zh-cn/privacy"]) {
     await page.goto(route);
-    await expect(page.locator(".v2-editorial-page")).toHaveCSS("background-color", "rgb(246, 241, 231)");
+    await expect(page.locator(".v2-editorial-page")).toHaveCSS("background-color", "rgb(246, 243, 233)");
   }
 });
 
-test("homepage links its primary actions to tools and the reading section", async ({ page }) => {
+test("both homepage reading links open the notes page with a real case", async ({ page }) => {
   await page.goto("/");
   const hero = page.getByRole("region", { name: homeTitle });
   await expect(hero.getByRole("link", { name: "使用工具" })).toHaveAttribute("href", "/tools");
   await hero.getByRole("link", { name: "閱讀札記" }).click();
-  await expect(page).toHaveURL("/#reading");
-  await expect(page.locator("#reading").getByRole("link", { name: "閱讀專案案例" })).toHaveAttribute("href", "/projects/pcb-test-point-comparison");
+  await expect(page).toHaveURL("/notes");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("筆記與觀點");
+  await page.goto("/");
+  await page.getByRole("region", { name: "依興趣探索" }).getByRole("link", { name: /閱讀札記/ }).click();
+  await expect(page).toHaveURL("/notes");
 });
 
 test("reduced motion suppresses the homepage card transitions", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const cards = await page.getByRole("region", { name: "依興趣探索" }).getByRole("link").all();
-  expect(cards).toHaveLength(4);
+  expect(cards).toHaveLength(3);
   for (const card of cards) {
     expect(await card.evaluate((link) => getComputedStyle(link).transitionDuration.split(",").every((duration) => parseFloat(duration) <= 0.001))).toBe(true);
   }
@@ -81,7 +84,7 @@ test("mobile navigation, search, language, recovery, and real contacts remain op
   await page.keyboard.press("Escape");
   await page.goto("/en/missing-v2-page");
   await expect(page.getByRole("main").getByRole("link")).toHaveCount(4);
-  await page.goto("/en/contact");
+  await page.goto("/en/about#contact");
   await expect(page.getByRole("main").getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "https://github.com/happytimes29");
   await expect(page.getByRole("main").getByRole("link", { name: "Telegram" })).toHaveAttribute("href", "https://t.me/JK_Sapce");
 });

@@ -20,6 +20,8 @@ const nextConfig: NextConfig = {
       { source: "/news", destination: "/notes", permanent: true },
       { source: "/trending", destination: "/notes", permanent: true },
       { source: "/profile", destination: "/about", permanent: true },
+      { source: "/contact", destination: "/about#contact", permanent: true },
+      { source: "/:locale(en|zh-cn)/contact", destination: "/:locale/about#contact", permanent: true },
       { source: "/interview", destination: "/notes", permanent: true },
       { source: "/interview/:path*", destination: "/notes", permanent: true },
     ];

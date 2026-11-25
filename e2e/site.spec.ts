@@ -87,10 +87,10 @@ test("invalid locales and missing translated details are true 404 responses", as
 
 // These journeys catch broken mobile-menu links as well as desktop navigation.
 for (const width of [320, 1440]) {
-  test(`all six primary navigation destinations are reachable at ${width}px`, async ({ page }) => {
+  test(`all four primary navigation destinations are reachable at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    for (const [label, href] of [["首頁", "/"], ["專案", "/projects"], ["工具", "/tools"], ["筆記與觀點", "/notes"], ["關於我", "/about"], ["聯絡", "/contact"]]) {
+    for (const [label, href] of [["首頁", "/"], ["專案與工具", "/tools"], ["筆記與觀點", "/notes"], ["關於與聯絡", "/about"]]) {
       if (width < 768) await page.getByRole("button", { name: "開啟選單" }).click();
       const navigation = page.getByRole("navigation", { name: width < 768 ? "行動版主導覽" : "主導覽", exact: true });
       await navigation.getByRole("link", { name: label, exact: true }).click();
@@ -146,7 +146,8 @@ test("reduced motion disables page and search animation and transitions", async 
 
 test("Contact renders real linked channels without placeholder email or inert social controls", async ({ page }) => {
   await page.goto("/contact");
-  const main = page.getByRole("main");
+  await expect(page).toHaveURL("/about#contact");
+  const main = page.locator("#contact");
   await expect(main).not.toContainText("jk@example.com");
   await expect(main.locator("a:not([href]), a[href=''], a[href='#'], button")).toHaveCount(0);
   await expect(main.getByRole("link", { name: "GitHub", exact: true })).toHaveAttribute("href", "https://github.com/happytimes29");
@@ -179,7 +180,7 @@ test("homepage reaches the PCB case, tool and contact at every supported width",
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
     const hero = page.getByRole("region", { name: homeTitle });
-    for (const [label, href] of [["閱讀札記", "#reading"], ["使用工具", "/tools"]]) {
+    for (const [label, href] of [["閱讀札記", "/notes"], ["使用工具", "/tools"]]) {
       const cta = hero.getByRole("link", { name: label, exact: true });
       await expect(cta).toHaveAttribute("href", href);
       await expect(cta).toBeInViewport();
@@ -188,9 +189,9 @@ test("homepage reaches the PCB case, tool and contact at every supported width",
     await expect(reading.getByRole("link", { name: "閱讀專案案例" })).toHaveAttribute("href", "/projects/pcb-test-point-comparison");
     await expect(reading.getByRole("link", { name: "開啟比對工具" })).toHaveAttribute("href", "/tools/pcb-test-point/app");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    await page.getByRole("contentinfo").getByRole("link", { name: "聯絡", exact: true }).click();
-    await expect(page).toHaveURL("/contact");
-    await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toContainText("聯絡");
+    await page.getByRole("contentinfo").getByRole("link", { name: "關於與聯絡", exact: true }).click();
+    await expect(page).toHaveURL("/about");
+    await expect(page.locator("#contact").getByRole("heading", { level: 2 })).toContainText("聯絡");
   }
 });
 
@@ -288,6 +289,14 @@ test("Notes categories show published content or its honest empty state without 
   const notes = loadNotes();
   await page.goto("/notes");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("筆記與觀點");
+  if (notes.length === 0) {
+    await expect(page.getByRole("navigation", { name: "筆記分類" })).toHaveCount(0);
+    await expect(page.getByRole("main").getByRole("link", { name: "PCB 測試點自動比對工具" })).toHaveAttribute("href", "/projects/pcb-test-point-comparison");
+    await expect(page.locator('a[href^="/news"]')).toHaveCount(0);
+    const response = await page.goto("/notes/no-placeholder");
+    expect(response?.status()).toBe(404);
+    return;
+  }
   for (const [label, type] of [["工程筆記", "engineering"], ["AI 與自動化", "automation"], ["專案紀錄", "project-log"], ["新聞觀點", "commentary"]]) {
     await page.getByRole("navigation", { name: "筆記分類" }).getByRole("link", { name: label }).click();
     await expect(page).toHaveURL(`/notes?type=${type}`);
@@ -324,7 +333,7 @@ test("About connects verified expertise, real work, and enabled external profile
   await page.goto("/about");
   const main = page.getByRole("main");
   await expect(main.getByRole("heading", { level: 1 })).toHaveText("關於我");
-  for (const name of ["簡介", "專業領域", "工作方法", "經歷時間線", "目前關注方向", "外部連結"]) {
+  for (const name of ["簡介", "專業領域", "工作方法", "經歷時間線", "目前關注方向", "聯絡我"]) {
     await expect(main.getByRole("region", { name })).toBeVisible();
   }
   await expect(main).toContainText("15+ 年");
@@ -332,14 +341,14 @@ test("About connects verified expertise, real work, and enabled external profile
   await expect(page).toHaveURL("/projects/pcb-test-point-comparison");
   await page.goBack();
   for (const [label, href] of [["GitHub", "https://github.com/happytimes29"], ["Telegram", "https://t.me/JK_Sapce"]]) {
-    const link = main.getByRole("region", { name: "外部連結" }).getByRole("link", { name: label, exact: true });
+    const link = main.locator("#contact").getByRole("link", { name: label, exact: true });
     await expect(link).toHaveAttribute("href", href);
     await expect(link).toHaveAttribute("rel", "noopener noreferrer");
   }
   await main.getByRole("link", { name: "聯絡我", exact: true }).click();
-  await expect(page).toHaveURL("/contact");
-  await expect(main.getByRole("heading", { level: 1 })).toHaveText("聯絡我");
-  await expect(main.getByRole("link")).toHaveCount(2);
+  await expect(page).toHaveURL("/about#contact");
+  await expect(main.getByRole("heading", { level: 1 })).toHaveText("關於我");
+  await expect(main.locator("#contact").getByRole("link")).toHaveCount(2);
   await expect(main.locator("form, input, textarea")).toHaveCount(0);
   await expect(main.locator('a[href^="mailto:"]')).toHaveCount(0);
 });
@@ -353,7 +362,7 @@ test("trust pages and missing-page recovery stay usable on narrow screens", asyn
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
   await page.getByRole("main").getByRole("link", { name: "聯絡頁" }).click();
-  await expect(page).toHaveURL("/contact");
+  await expect(page).toHaveURL("/about#contact");
 
   const response = await page.goto("/missing-engineering-page");
   expect(response?.status()).toBe(404);

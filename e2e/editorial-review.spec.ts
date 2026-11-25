@@ -14,15 +14,15 @@ function contrast(foreground: string, background: string) {
 
 test.use({ reducedMotion: "reduce" });
 
-test("engineering pages keep the dark V2 header legible", async ({ page }) => {
+test("engineering pages use the shared paper header with readable contrast", async ({ page }) => {
   for (const route of [
     "/tools/smith-chart/app",
     "/en/tools/datasheet-workbench/app",
     "/tools/pcb-test-point/app",
   ]) {
     await page.goto(route);
-    await expect(page.locator(".v2-site-header")).toHaveCSS("background-color", "rgb(21, 21, 19)");
-    await expect(page.locator(".v2-site-header__brand")).toHaveCSS("color", "rgb(243, 237, 227)");
+    await expect(page.locator(".v2-site-header")).toHaveCSS("background-color", "rgb(246, 243, 233)");
+    await expect(page.locator(".v2-site-header__brand")).toHaveCSS("color", "rgb(24, 24, 22)");
   }
 });
 
@@ -30,7 +30,7 @@ for (const storedTheme of ["dark", "light"]) {
   test(`fixed V2 paper and functional tool surfaces remain readable with stored ${storedTheme}`, async ({ page }) => {
     await page.addInitScript((value) => localStorage.setItem("theme", value), storedTheme);
     await page.goto("/en/projects");
-    await expect(page.locator(".v2-editorial-page")).toHaveCSS("background-color", "rgb(246, 241, 231)");
+    await expect(page.locator(".v2-editorial-page")).toHaveCSS("background-color", "rgb(246, 243, 233)");
     for (const control of await page.locator(".v2-filter select, .v2-filter button").all()) {
       await control.focus();
       await expect(control).toHaveCSS("outline-color", "rgb(167, 59, 43)");

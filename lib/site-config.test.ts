@@ -12,11 +12,9 @@ describe("shared JK Space identity", () => {
   it("provides the ordered primary navigation labels and destinations", () => {
     expect(siteConfig.navigation).toEqual([
       { label: "首頁", href: "/" },
-      { label: "專案", href: "/projects" },
-      { label: "工具", href: "/tools" },
+      { label: "專案與工具", href: "/tools" },
       { label: "筆記與觀點", href: "/notes" },
-      { label: "關於我", href: "/about" },
-      { label: "聯絡", href: "/contact" },
+      { label: "關於與聯絡", href: "/about" },
     ]);
   });
 
@@ -38,8 +36,8 @@ describe("shared JK Space identity", () => {
     const simplified = getSiteConfig("zh-CN");
 
     expect(english.title).toBe("JK Space — Personal Engineering Lab");
-    expect(english.navigation).toContainEqual({ label: "Projects", href: "/en/projects" });
-    expect(simplified.navigation).toContainEqual({ label: "项目", href: "/zh-cn/projects" });
+    expect(english.navigation).toContainEqual({ label: "Projects & Tools", href: "/en/tools" });
+    expect(simplified.navigation).toContainEqual({ label: "项目与工具", href: "/zh-cn/tools" });
     expect(english.url).toBe(siteConfig.url);
     expect(simplified.contacts).toEqual(siteConfig.contacts);
   });

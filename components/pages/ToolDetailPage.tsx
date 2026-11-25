@@ -43,7 +43,7 @@ export async function ToolDetailPage({ locale, slug, visibility }: { locale: Loc
           {tool.relatedProject && <Link href={relatedProjectAvailable ? localePath(locale, `/projects/${tool.relatedProject}`) : `/projects/${tool.relatedProject}`}>{dictionary.content.relatedProject}{!relatedProjectAvailable && locale !== "zh-TW" ? ` (${dictionary.content.traditionalOriginal})` : ""}</Link>}
           {tool.sampleUrl && <a href={tool.sampleUrl}>{dictionary.content.sampleDownload}</a>}
           {tool.repositoryUrl && <a href={tool.repositoryUrl} target="_blank" rel="noopener noreferrer">{dictionary.content.sourceCode}</a>}
-          <Link href={localePath(locale, "/contact")}>{dictionary.content.toolFeedback}</Link>
+          <Link href={localePath(locale, "/about#contact")}>{dictionary.content.toolFeedback}</Link>
         </footer>
       </div>
     </article>
