@@ -1109,6 +1109,11 @@
 .site-v2 .v2-prose ol,
 .site-v2 .v2-prose pre,
 .site-v2 .v2-prose blockquote { margin-block: 1.25rem; }
+.site-v2 .v2-note-detail .v2-prose ol {
+  padding-inline-start: 1.5em;
+  list-style-type: decimal;
+}
+.site-v2 .v2-note-detail .v2-prose ol li + li { margin-top: 0.4em; }
 .site-v2 .v2-prose a { color: var(--v2-signal); text-decoration: underline; text-underline-offset: 0.2em; }
 .site-v2 .v2-prose img { width: 100%; height: auto; margin-block: 2.5rem; }
 .site-v2 .v2-prose blockquote { padding-left: 1.25rem; color: var(--color-muted); border-left: 2px solid var(--v2-brass); }
