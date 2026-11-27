@@ -7,6 +7,7 @@ import { ToolsPage } from "./ToolsPage";
 import { PrivacyPage } from "./PrivacyPage";
 import { NotFoundPage } from "./NotFoundPage";
 import type { Locale } from "@/lib/i18n/locales";
+import { getRecentNotes } from "@/lib/notes";
 
 describe.each([
   ["zh-TW", /工程問題，\s*動手解。/, "/projects", "閱讀專案案例", "/projects/pcb-test-point-comparison"],
@@ -19,7 +20,17 @@ describe.each([
     const localePrefix = projectsHref.slice(0, -"/projects".length);
     expect(container.querySelector(`a[href="${projectsHref}"]`)).toBeVisible();
     expect(container.querySelector(`a[href="${localePrefix}/tools"]`)).toBeVisible();
-    expect(container.querySelectorAll(`a[href="${localePrefix}/notes"]`)).toHaveLength(2);
+    const notesHref = `${localePrefix}/notes`;
+    const recentNotes = await getRecentNotes(3, { locale, visibility: "production" });
+    expect(container.querySelectorAll(`a[href="${notesHref}"]`)).toHaveLength(recentNotes.length ? 3 : 2);
+    const latest = container.querySelector('[aria-labelledby="signal-latest-title"]');
+    if (recentNotes.length) {
+      expect(latest).toBeVisible();
+      expect([...latest!.querySelectorAll("article a")].map((link) => link.getAttribute("href")))
+        .toEqual(recentNotes.map((note) => `${notesHref}/${encodeURIComponent(note.slug)}`));
+    } else {
+      expect(latest).toBeNull();
+    }
     const reading = container.querySelector<HTMLElement>("#reading")!;
     expect(within(reading).getByRole("link", { name: caseLabel })).toHaveAttribute("href", caseHref);
     expect(reading.querySelector('a[href="/tools/pcb-test-point/app"]')).toBeVisible();

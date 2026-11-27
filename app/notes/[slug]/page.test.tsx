@@ -103,6 +103,24 @@ describe("Note detail", () => {
     expect([...document.querySelectorAll(".v2-prose p")].map((node) => node.textContent)).toEqual(["第一段原文。", "第二段原文。"]);
   });
 
+  it("shows the optional worksheet and only existing, distinct related notes", async () => {
+    const props = fixture("personal");
+    const dir = path.join(process.cwd(), "content/notes");
+    writeContent(dir, "note.md", {
+      ...noteData,
+      type: "personal",
+      weeklyReviewTemplate: true,
+      relatedNotes: ["follow-up", "missing", "test-note", "follow-up"],
+    }, "保留的正文。");
+    writeContent(dir, "follow-up.md", { ...noteData, slug: "follow-up", title: "後續紀錄" });
+    const html = await new Response(await renderToReadableStream(await NotePage(props))).text();
+    const document = new DOMParser().parseFromString(html, "text/html");
+    expect(document.querySelector(".v2-prose")?.textContent).toBe("保留的正文。");
+    expect(document.querySelector('[aria-labelledby="weekly-review"] a')?.getAttribute("href")).toBe("/downloads/weekly-action-review-zh-tw.xlsx");
+    expect([...document.querySelectorAll('[aria-labelledby="related-notes"] a')].map(link => [link.textContent, link.getAttribute("href")]))
+      .toEqual([["後續紀錄", "/notes/follow-up"]]);
+  });
+
   it("describes authored content as an article without claiming a news publisher", async () => {
     const props = fixture("commentary");
     const metadata = await generateMetadata(props);

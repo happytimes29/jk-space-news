@@ -72,6 +72,38 @@
 .site-v2 .v2-note-cover img { object-fit: cover; object-position: center 64%; }
 .site-v2 .v2-note-cover + .v2-prose { margin-top: clamp(24px, 5vw, 54px); }
 
+.site-v2 .v2-weekly-review {
+  width: min(100%, 46rem);
+  margin: clamp(2.5rem, 6vw, 4rem) auto 0;
+  padding: clamp(16px, 4vw, 28px);
+  border: 2px solid var(--signal-ink);
+  background: var(--signal-mint);
+  box-shadow: 4px 4px 0 var(--signal-ink);
+  line-height: 1.6;
+}
+.site-v2 .v2-weekly-review h2 { scroll-margin-top: 90px; font-size: clamp(1.35rem, 4vw, 1.9rem); font-weight: 850; line-height: 1.2; }
+.site-v2 .v2-weekly-review > p { margin-top: 0.5rem; }
+.site-v2 .v2-weekly-review h3 { margin: 1.2rem 0 0.4rem; font-size: 0.875rem; font-weight: 750; }
+.site-v2 .v2-weekly-review dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--signal-ink);
+  background: var(--signal-white);
+}
+.site-v2 .v2-weekly-review dl > div { padding: 0.65rem 0.75rem; overflow-wrap: anywhere; }
+.site-v2 .v2-weekly-review dl > div + div { border-inline-start: 1px solid var(--v2-rule); }
+.site-v2 .v2-weekly-review dt { font-size: 0.8125rem; font-weight: 750; }
+.site-v2 .v2-weekly-review dd { margin-top: 0.35rem; font-size: 0.95rem; }
+.site-v2 .v2-weekly-review__download { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem 0.9rem; margin-top: 1rem; }
+.site-v2 .v2-weekly-review__download .signal-jump-link { align-items: center; gap: 0.45rem; margin-top: 0; }
+.site-v2 .v2-weekly-review__download p { font-size: 0.8125rem; }
+.site-v2 .v2-related a:hover { text-decoration: underline; }
+
+@media (max-width: 630px) {
+  .site-v2 .v2-weekly-review dl { grid-template-columns: 1fr; }
+  .site-v2 .v2-weekly-review dl > div + div { border-inline-start: 0; border-top: 1px solid var(--v2-rule); }
+}
+
 @media (max-width: 550px) {
   .site-v2 .v2-note-cover { aspect-ratio: 1.45; }
 }

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BookOpen, CircuitBoard, FolderOpen, Wrench } from "lucide-react";
 import type { SiteDictionary } from "@/lib/i18n/dictionaries";
+import type { NoteItem } from "@/lib/notes";
 import { localePath, type Locale } from "@/lib/i18n/locales";
 import type { ProjectItem } from "@/lib/projects";
 import type { ToolItem } from "@/lib/tools";
@@ -13,7 +14,8 @@ const copy = {
     index: "從這裡開始",
     browse: "依興趣探索",
     reading: "閱讀札記",
-    readingDescription: "從做過的專案讀起，看看工具背後的工程判斷。",
+    readingDescription: "讀我對生活、工作與學習的觀察。",
+    latestNotes: "最新文章",
     toolDescription: "從 RF 匹配、線寬估算到 PCB 測試點比對。",
     projectDescription: "實作過程、設計取捨與驗證紀錄。",
     aboutDescription: "認識 JK，以及這個個人工程實驗室在做什麼。",
@@ -26,7 +28,8 @@ const copy = {
     index: "从这里开始",
     browse: "按兴趣探索",
     reading: "阅读札记",
-    readingDescription: "从做过的项目读起，看看工具背后的工程判断。",
+    readingDescription: "读我对生活、工作与学习的观察。",
+    latestNotes: "最新文章",
     toolDescription: "从 RF 匹配、线宽估算到 PCB 测试点比对。",
     projectDescription: "实现过程、设计取舍与验证记录。",
     aboutDescription: "认识 JK，以及这个个人工程实验室在做什么。",
@@ -39,7 +42,8 @@ const copy = {
     index: "Start here",
     browse: "Explore the lab",
     reading: "Reading notes",
-    readingDescription: "Start with a built project and see the engineering decisions behind it.",
+    readingDescription: "Notes on life, work, and learning.",
+    latestNotes: "Latest articles",
     toolDescription: "From RF matching and trace widths to PCB test-point comparison.",
     projectDescription: "How the projects were built, which trade-offs mattered, and how they were tested.",
     aboutDescription: "Meet JK and find out what this independent engineering lab is working on.",
@@ -51,11 +55,12 @@ const copy = {
 
 const toolOrder = ["pcb-test-point", "smith-chart", "transmission-line", "datasheet-workbench"];
 
-export function SignalHome({ locale, dictionary, tools, pcbProject }: {
+export function SignalHome({ locale, dictionary, tools, pcbProject, recentNotes }: {
   locale: Locale;
   dictionary: SiteDictionary;
   tools: ToolItem[];
   pcbProject: ProjectItem | null;
+  recentNotes: NoteItem[];
 }) {
   const route = (pathname: string) => localePath(locale, pathname);
   const labels = copy[locale];
@@ -96,6 +101,35 @@ export function SignalHome({ locale, dictionary, tools, pcbProject }: {
           )}
         </div>
       </section>
+
+      {recentNotes.length > 0 && (
+        <section className={`${styles.wrap} ${styles.latest}`} aria-labelledby="signal-latest-title">
+          <div className={styles.sectionHeading}>
+            <h2 id="signal-latest-title">{labels.latestNotes}</h2>
+            <Link href={route("/notes")} className={styles.textLink}>{dictionary.common.allNotes}<ArrowUpRight size={16} aria-hidden="true" /></Link>
+          </div>
+          <div className={styles.noteGrid}>
+            {recentNotes.map((note) => {
+              const headingId = `signal-note-${note.slug}`;
+              return (
+                <article key={note.slug} className={styles.noteCard}>
+                  <Link href={route(`/notes/${encodeURIComponent(note.slug)}`)} aria-labelledby={headingId} className={styles.noteLink}>
+                    {note.coverImage && (
+                      <div className={styles.noteCover}>
+                        <Image src={note.coverImage} alt={note.coverImageAlt ?? ""} fill sizes="(max-width: 650px) 100vw, (max-width: 1000px) 50vw, 42vw" />
+                      </div>
+                    )}
+                    <div className={styles.noteCopy}>
+                      <h3 id={headingId}>{note.title}</h3>
+                      <p>{note.summary}</p>
+                    </div>
+                  </Link>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <section className={`${styles.wrap} ${styles.browse}`} aria-labelledby="signal-browse-title">
         <h2 id="signal-browse-title">{labels.browse}</h2>

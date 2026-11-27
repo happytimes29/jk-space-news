@@ -119,7 +119,19 @@
 .boardRow:hover strong { text-decoration: underline; text-underline-offset: 4px; }
 
 .browse { padding-block: clamp(44px, 6vw, 76px); }
-.browse h2, .reading h2 { margin-bottom: 23px; font-size: clamp(1.85rem, 3.85vw, 3.75rem); font-weight: 850; letter-spacing: -0.06em; line-height: 1.1; }
+.browse h2, .reading h2, .latest h2 { margin-bottom: 23px; font-size: clamp(1.85rem, 3.85vw, 3.75rem); font-weight: 850; letter-spacing: -0.06em; line-height: 1.1; }
+.latest { padding-top: clamp(40px, 6vw, 68px); }
+.sectionHeading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; margin-bottom: 18px; }
+.sectionHeading h2 { margin-bottom: 0; }
+.noteGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: clamp(16px, 2.5vw, 26px); }
+.noteCard { min-width: 0; border: 2px solid var(--ink); background: var(--white); box-shadow: 4px 4px 0 var(--ink); }
+.noteLink { display: block; height: 100%; overflow-wrap: anywhere; }
+.noteLink:is(:hover, :focus-visible) h3 { text-decoration: underline; text-underline-offset: 0.16em; }
+.noteCover { position: relative; aspect-ratio: 2; overflow: hidden; border-bottom: 2px solid var(--ink); }
+.noteCover img { object-fit: cover; object-position: center 63%; }
+.noteCopy { padding: clamp(15px, 2vw, 24px); }
+.noteCopy h3 { font-size: clamp(1.18rem, 2.25vw, 1.85rem); font-weight: 850; line-height: 1.2; }
+.noteCopy p { max-width: 63ch; margin-top: 9px; color: var(--muted); line-height: 1.65; }
 .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 17px; }
 .card {
   display: flex;

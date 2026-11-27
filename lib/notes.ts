@@ -23,6 +23,8 @@ export interface BaseNote extends LocalizedContent {
   coverImageAlt?: string;
   relatedProjects?: string[];
   relatedTools?: string[];
+  relatedNotes?: string[];
+  weeklyReviewTemplate?: boolean;
   readingTime: number;
   content: string;
 }
@@ -49,6 +51,8 @@ function parseNote({ file, data, content }: ContentFile): WithoutLocalization<No
       author: fields.string("author"), featured: fields.boolean("featured"), coverImage: fields.optionalUrl("coverImage", true),
       coverImageAlt: fields.optionalString("coverImageAlt"),
       relatedProjects: fields.optionalStrings("relatedProjects"), relatedTools: fields.optionalStrings("relatedTools"),
+      relatedNotes: fields.optionalStrings("relatedNotes"),
+      weeklyReviewTemplate: fields.optionalBoolean("weeklyReviewTemplate"),
       readingTime: estimateReadingTime(content), content,
     };
     if (type === "commentary") {
