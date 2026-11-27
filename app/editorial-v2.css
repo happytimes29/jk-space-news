@@ -767,8 +767,7 @@
 }
 
 .site-v2 .v2-project-row__number,
-.site-v2 .v2-tool-row__status > span:first-child,
-.site-v2 .v2-note-row__number {
+.site-v2 .v2-tool-row__status > span:first-child {
   color: var(--v2-brass);
   font: 0.68rem var(--v2-mono);
 }
@@ -902,23 +901,39 @@
 
 .site-v2 .v2-note-row {
   display: grid;
-  grid-template-columns: 3rem minmax(10rem, 0.36fr) minmax(0, 1fr) minmax(12rem, 0.55fr);
-  gap: 1.5rem;
+  grid-template-columns: minmax(10rem, 13rem) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3.5vw, 2.75rem);
   align-items: start;
   padding-block: clamp(1.5rem, 4vw, 3rem);
   border-top: 1px solid var(--v2-rule);
 }
 
 .site-v2 .v2-note-row__meta {
-  display: grid;
-  gap: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding-inline-end: 1rem;
+  border-inline-end: 1px solid var(--v2-rule);
   color: var(--color-muted);
-  font: 0.65rem var(--v2-mono);
+  font: 500 0.9375rem / 1.45 var(--v2-sans);
+  font-variant-numeric: tabular-nums;
 }
 
-.site-v2 .v2-note-row h2 { margin-top: 0; }
-.site-v2 .v2-note-row__summary { margin-top: 0; }
-.site-v2 .v2-note-row .v2-tag-list { grid-column: 3 / -1; }
+.site-v2 .v2-note-row__meta strong {
+  color: var(--v2-ink);
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.site-v2 .v2-note-row__meta time,
+.site-v2 .v2-note-row__meta span { white-space: nowrap; }
+.site-v2 .v2-note-row__body h2 { margin-block: 0; }
+.site-v2 .v2-note-row__summary {
+  max-width: 42rem;
+  margin-top: 0.55rem;
+}
+.site-v2 .v2-note-row__body .v2-tag-list { margin-top: 0.85rem; }
 
 .site-v2 .v2-empty {
   min-height: 16rem;
@@ -932,15 +947,13 @@
 @media (max-width: 899px) {
   .site-v2 .v2-collection-intro,
   .site-v2 .v2-project-row,
-  .site-v2 .v2-tool-row,
-  .site-v2 .v2-note-row {
+  .site-v2 .v2-tool-row {
     grid-template-columns: 1fr;
   }
 
   .site-v2 .v2-filter { grid-template-columns: 1fr 1fr; }
   .site-v2 .v2-filter__submit { grid-column: 1 / -1; }
-  .site-v2 .v2-project-row__details,
-  .site-v2 .v2-note-row .v2-tag-list { grid-column: auto; }
+  .site-v2 .v2-project-row__details { grid-column: auto; }
   .site-v2 .v2-tool-row__visual { min-height: 22rem; }
 }
 
@@ -951,6 +964,20 @@
   .site-v2 .v2-tool-row__body { padding-inline: 0; }
   .site-v2 .v2-tool-row__visual { min-height: 17rem; margin-inline: -1rem; }
   .site-v2 .v2-tool-row__facts > div { grid-template-columns: 1fr; }
+  .site-v2 .v2-note-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.85rem;
+  }
+  .site-v2 .v2-note-row__meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.85rem;
+    padding-inline-end: 0;
+    padding-bottom: 0.65rem;
+    border-inline-end: 0;
+    border-bottom: 1px solid var(--v2-rule);
+  }
 }
 
 .site-v2 .v2-detail-shell {
